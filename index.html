@@ -368,30 +368,34 @@ let gs={aName:'A队',bName:'B队',aPicks:[],bPicks:[],aUsed:0,bUsed:0,
 
 // ── 本地计时器 ────────────────────────────────────────────
 let uiTick=null;
-let autoPickFired=false;
-let lastAutoPickStep=-1; // 记录上次触发随机的step，用于按step重置
 let serverTimeOffset=0;
 db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
 function serverNow(){return Date.now()+serverTimeOffset;}
 
+// 用 stepStartTs 标识当前步骤，防止跨步骤重复触发
+let firedForTs=0; // 已触发随机的 stepStartTs
+
 function startUiTick(){
   stopUiTick();
-  // 只有在新的step才重置autoPickFired，防止Firebase回调反复重置
-  if(gs.step!==lastAutoPickStep){autoPickFired=false;}
-  uiTick=setInterval(onTick,500);
+  uiTick=setInterval(onTick,300);
 }
 function stopUiTick(){clearInterval(uiTick);uiTick=null;}
 
 function onTick(){
-  if(!gs.active||gs.paused||gs.roundEnded||gs.ended||gs.step>=10){stopUiTick();updTimerUI();return;}
+  if(!gs.active||gs.paused||gs.roundEnded||gs.ended||gs.step>=10){
+    stopUiTick();updTimerUI();return;
+  }
   const {mainSec,bankSec,draining,elapsed,bank}=calcTime();
   updTimerUIWith(mainSec,bankSec,draining);
-  // 触发条件：主计时耗尽（elapsed>=60）且备用时间耗尽（bankSec<=0）
-  // 用 elapsed >= 60 + bank 作为保底，避免浮点/时钟抖动卡在0不触发
-  const totalAllowed=60+(bank||0);
-  if(!autoPickFired&&myTurn()&&(bankSec<=0||elapsed>=totalAllowed)){
-    autoPickFired=true;
-    lastAutoPickStep=gs.step;
+
+  // 触发随机条件：
+  // 1. 必须是我的回合
+  // 2. 当前 stepStartTs 没有触发过（防重复）
+  // 3. 主计时+备用都耗尽：elapsed >= 60 + bank（bank是本步开始时存的剩余备用）
+  if(!myTurn())return;
+  if(firedForTs===gs.stepStartTs)return; // 本步已触发过
+  if(elapsed>=60+(bank==null?300:bank)){
+    firedForTs=gs.stepStartTs;
     stopUiTick();
     autoPickFn();
   }
@@ -521,8 +525,6 @@ function listenRoom(aName,bName){
     document.getElementById('waitOv').style.display='none';
     syncUI();
     if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){
-      // 每次step变化都重新启动tick（startUiTick内部会先stop再start）
-      // 这样autoPickFired随step推进被自动清除，不会影响下一步
       startUiTick();
     } else {
       stopUiTick();
