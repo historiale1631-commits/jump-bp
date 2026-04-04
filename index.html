@@ -26,8 +26,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-badge.b{background:rgba(50,100,220,.45);color:#93c5fd}
 .my-badge.ref{background:rgba(167,139,250,.35);color:#e9d5ff}
 .round-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,210,60,.2);color:#fcd34d;margin-left:4px;-webkit-text-fill-color:initial}
-
-/* 阵营框 - JUMP方在左，Sunday方在右 */
 .camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,255,255,.15);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
 .camp-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border-radius:30px;padding:3px 12px}
 .camp-icon{font-size:18px}
@@ -35,7 +33,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .camp-name.sunday{color:#fcd34d;text-shadow:0 0 2px #ffb347}
 .camp-name.jump{color:#86efac;text-shadow:0 0 2px #22c55e}
 .camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.4);border-radius:12px;padding:2px 8px}
-
 .layout{display:flex;height:calc(100vh - 145px);overflow:hidden}
 .side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.3)}
 .side.a-side{border-right:1px solid rgba(255,255,255,.08)}
@@ -60,15 +57,12 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .pick-slot .info{flex:1;min-width:0}
 .pick-slot .pname{font-size:10px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pick-slot .pscore{font-size:9px;color:rgba(255,255,255,.5)}
-
 .round-history{margin-top:4px}
 .round-block{margin-bottom:6px}
 .round-block-title{font-size:9px;color:#fcd34d;padding:2px 4px;margin-bottom:2px;background:rgba(255,210,60,.08);border-radius:3px}
 .history-item{font-size:9px;color:rgba(255,255,255,.55);padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.03);margin-bottom:1px;line-height:1.4}
-
 .global-pool{margin-top:4px}
 .pool-item{display:inline-block;font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.06);border-radius:3px;padding:1px 5px;margin:1px}
-
 .center{flex:1;display:flex;flex-direction:column;padding:7px 10px;gap:6px;min-width:0;overflow-y:auto}
 .center::-webkit-scrollbar{width:3px}
 .center::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
@@ -107,12 +101,18 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .hero-grid::-webkit-scrollbar{width:3px}
 .hero-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .hcard{display:flex;flex-direction:column;align-items:center;padding:5px 3px 4px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
-.hcard:hover:not(.used):not(.over):not(.locked):not(.globalused){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
+.hcard:hover:not(.used):not(.over):not(.locked):not(.globalused):not(.mutex-round):not(.mutex-global){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
 .hcard.selected{border-color:#fcd34d;background:rgba(255,210,60,.15);box-shadow:0 0 10px rgba(255,210,60,.25)}
-.hcard.used{opacity:.22;pointer-events:none}
-.hcard.globalused{opacity:.18;pointer-events:none;border-color:rgba(100,100,100,.3)!important}
+/* 全局已用（灰） */
+.hcard.used,.hcard.globalused{opacity:.18;pointer-events:none;border-color:rgba(100,100,100,.3)!important}
+/* 分数超限（红） */
 .hcard.over{opacity:.38;pointer-events:none;border-color:rgba(248,113,113,.3)!important}
+/* 非自己回合锁定 */
 .hcard.locked{opacity:.45;pointer-events:none}
+/* 本轮互斥封锁（琥珀/变身） */
+.hcard.mutex-round{opacity:.35;pointer-events:none;border-color:rgba(251,191,36,.4)!important;background:rgba(251,191,36,.06)!important}
+/* 全局互斥封锁（蓝紫/同一人物） */
+.hcard.mutex-global{opacity:.2;pointer-events:none;border-color:rgba(139,92,246,.4)!important;background:rgba(139,92,246,.06)!important}
 .hcard .htype{font-size:12px;margin-bottom:2px}
 .hcard .hname{font-size:9px;color:rgba(255,255,255,.85);line-height:1.3;word-break:break-all}
 .hcard .hscore{font-size:9px;font-weight:700;margin-top:1px}
@@ -124,13 +124,12 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .act-btn:disabled{opacity:.28;cursor:not-allowed}
 .not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:9px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
 .waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:9px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
-
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
 #setupOv{background:rgba(0,0,0,.45)!important}
 .modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center}
 .modal h2{font-size:16px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px}
-.modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:10px;text-align:left;line-height:1.8}
+.modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:10px;text-align:left;line-height:1.9}
 .modal input{width:100%;padding:8px 11px;margin-bottom:7px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
 .modal input:focus{border-color:rgba(167,139,250,.6)}
 .modal input::placeholder{color:rgba(255,255,255,.3)}
@@ -178,7 +177,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       📋 Sunday方(先手) 上限50分 · JUMP方(后手) 上限52分<br>
       🔵 默认B队先手(Sunday)，换边后A队先手(Sunday)<br>
       ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
-      ⏱ 每轮60秒 · 超时自动随机分配
+      ⏱ 每轮60秒 · 超时自动随机分配<br>
+      <span style="color:#c4b5fd">🔗 同一人物皮肤(紫)：全局互斥，选一禁全组</span><br>
+      <span style="color:#fcd34d">⚡ 变身关系(琥珀)：本轮互斥，下轮解锁</span>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📤 你的对局码（发给对方）：</div>
     <div class="code-box"><div class="cval" id="myCode">...</div><button onclick="copyCode(this)">复制</button></div>
@@ -221,7 +222,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div></div>
 </div>
 
-<!-- 阵营框：JUMP方在左，Sunday方在右 -->
 <div class="camp-panel" id="campPanel">
   <div class="camp-item"><span class="camp-icon">⚡</span><span class="camp-name jump">JUMP方</span><span id="jumpTeamHint" class="camp-sub">—</span></div>
   <div class="camp-item"><span class="camp-icon">☀️</span><span class="camp-name sunday">Sunday方</span><span id="sundayTeamHint" class="camp-sub">—</span></div>
@@ -275,17 +275,69 @@ firebase.initializeApp({ apiKey:"AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs", authD
 const db=firebase.database();
 db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connBar'); el.textContent=s.val()?'🟢 已连接 Firebase':'🔴 连接断开，请刷新'; el.className='conn-bar '+(s.val()?'online':'offline');});
 
-// 英雄数据，每个属性内按分数降序排列
+// =========================================================
+// 互斥规则定义
+// GLOBAL_MUTEX：同一人物/皮肤 → 全局禁用整组（选任意一个=整组永久封禁）
+// ROUND_MUTEX：变身关系 → 仅本轮禁用同组其余，下轮恢复；已选那个按全局正常计入
+// =========================================================
+const GLOBAL_MUTEX = [
+  ['两仪式','两仪式(pf)'],
+  ['珂朵莉','暗影大人'],
+];
+
+const ROUND_MUTEX = [
+  ['刀藤绮凛','从鱼丸'],
+  ['宇智波佐助','阴之力佐助'],
+  ['xcw（万圣节）','xcw（春日）','xcw（原）'],
+  ['黑Saber','黑塔'],
+  ['宇智波斑（原皮）','秽土宇智波斑'],
+  ['大师牌','舔牌','雨宫莲'],
+  ['死神代理','黑崎一护pf'],
+  ['逆回十六夜','流萤'],
+  ['波风水门X4','秽土四代'],
+  ['桐谷和人','桐谷和人UW'],
+  ['埃尔奎特','公主'],
+  ['朱雀院红叶(pf)','朱雀院红叶'],
+  ['坂田银时','皮肤银时'],
+  ['草薙京','NAO'],
+];
+
+// 给定全局已选集合，返回被全局互斥封禁的名字集合（整组封禁）
+function getGlobalMutexBlocked(globalPickedSet) {
+  const blocked = new Set();
+  for (const group of GLOBAL_MUTEX) {
+    if (group.some(n => globalPickedSet.has(n))) {
+      group.forEach(n => blocked.add(n));
+    }
+  }
+  return blocked;
+}
+
+// 给定本轮已选名字集合，返回被本轮互斥封禁的名字集合（不含已选的那个）
+function getRoundMutexBlocked(roundPickedSet) {
+  const blocked = new Set();
+  for (const group of ROUND_MUTEX) {
+    const hit = group.find(n => roundPickedSet.has(n));
+    if (hit) {
+      group.forEach(n => { if (n !== hit) blocked.add(n); });
+    }
+  }
+  return blocked;
+}
+
+// =========================================================
+// 英雄数据（按分数降序）
+// =========================================================
 const HEROES={
   str:[
     {name:'七代目火影',score:20},
-    {name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},
-    {name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},
+    {name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},
+    {name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},
     {name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},
     {name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},
-    {name:'黑贞德',score:8},
-    {name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},
-    {name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5}
+    {name:'黑贞德',score:8},{name:'草薙京',score:8},
+    {name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},
+    {name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}
   ],
   agi:[
     {name:'冲田总司',score:20},
@@ -293,10 +345,10 @@ const HEROES={
     {name:'卫宫切嗣',score:16},
     {name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},
     {name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},
-    {name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'暗影大人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},
-    {name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},
-    {name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},
-    {name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}
+    {name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},
+    {name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},
+    {name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},
+    {name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}
   ],
   int:[
     {name:'爱莉希雅',score:28},
@@ -306,10 +358,11 @@ const HEROES={
     {name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},
     {name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},
     {name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},
-    {name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},
+    {name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},
     {name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}
   ]
 };
+
 const ALL=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h,type:'agi'})),...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI={str:'💪',agi:'⚡',int:'🧠'}, SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 const ORDER_B_FIRST=['b','a','a','b','a','b','b','a','b','a'], ORDER_A_FIRST=['a','b','b','a','b','a','a','b','a','b'];
@@ -322,10 +375,51 @@ let roomId='',myRole='a',tab='str',sel=null,tmr=null,refDb=null,lastStep=-1,last
 let gs={ aName:'A队',bName:'B队',aPicks:[],bPicks:[],aUsed:0,bUsed:0, step:0,active:false,paused:false,roundEnded:false, roundNum:0,globalPicked:[],allRounds:[], players:0,swapped:false,ended:false };
 
 function genCode(){return Math.random().toString(36).substr(2,6).toUpperCase();}
-function globalUsed(name){return (gs.globalPicked||[]).includes(name)||[...(gs.aPicks||[]),...(gs.bPicks||[])].some(p=>p.name===name);}
+
+// 全局已用：globalPicked 列表中的名字（每轮结束后写入）
+function getGlobalPickedSet(){
+  return new Set(gs.globalPicked||[]);
+}
+// 本轮已选：当前轮次双方已选的名字
+function getRoundPickedSet(){
+  const s=new Set();
+  [...(gs.aPicks||[]),...(gs.bPicks||[])].forEach(p=>s.add(p.name));
+  return s;
+}
+// 某英雄是否全局已用（包括全局互斥封禁）
+function isGloballyUnavailable(name){
+  const globalSet = getGlobalPickedSet();
+  // 直接在全局已选中
+  if(globalSet.has(name)) return true;
+  // 被全局互斥封禁（同组有人在全局已选）
+  const globalBlocked = getGlobalMutexBlocked(globalSet);
+  if(globalBlocked.has(name)) return true;
+  return false;
+}
+// 某英雄是否被本轮互斥封锁（变身关系）
+function isRoundMutexBlocked(name){
+  const roundSet = getRoundPickedSet();
+  const roundBlocked = getRoundMutexBlocked(roundSet);
+  return roundBlocked.has(name);
+}
+// 本轮已选中（本轮选了这个）
+function isPickedThisRound(name){
+  return getRoundPickedSet().has(name);
+}
+
 function ct(){return getOrder()[gs.step]||'a';}
 function rem(t){return getLIM()[t]-((t==='a'?gs.aUsed:gs.bUsed)||0);}
-function canPick(name,score){ if(globalUsed(name))return false; const t=ct(); const r=rem(t); const picked=(t==='a'?gs.aPicks:gs.bPicks)||[]; const left=5-picked.length; if(left<=0)return false; if(r-score<(left-1)*5)return false; return true; }
+
+function canPick(name,score){
+  if(isGloballyUnavailable(name)) return false;
+  if(isPickedThisRound(name)) return false;
+  if(isRoundMutexBlocked(name)) return false;
+  const t=ct(); const r=rem(t); const picked=(t==='a'?gs.aPicks:gs.bPicks)||[]; const left=5-picked.length;
+  if(left<=0)return false;
+  if(r-score<(left-1)*5)return false;
+  return true;
+}
+
 function myTurn(){return gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10&&ct()===myRole;}
 function isPlayer(){return myRole==='a'||myRole==='b';}
 function copyCode(btn){navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='复制',1500);});}
@@ -358,15 +452,14 @@ function autoPickFn(){ const avail=ALL.filter(h=>canPick(h.name,h.score)); if(av
 function selectHero(name,type,score){ if(!myTurn()||!canPick(name,score))return; sel={name,type,score}; document.getElementById('pickBtn').disabled=false; renderGrid(); }
 function confirmPick(){ if(sel&&myTurn()) doPick(sel); }
 function doPick(h){ const t=ct(); let na=[...gs.aPicks],nb=[...gs.bPicks], au=gs.aUsed, bu=gs.bUsed; if(t==='a'){ na.push(h); au+=h.score; } else { nb.push(h); bu+=h.score; } const ns=gs.step+1; sel=null; document.getElementById('pickBtn').disabled=true; if(ns>=10){ refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>{ endRound(); }); } else refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()}); }
+
 function syncUI(){
   const rn=gs.roundNum||0, lt='a', rt='b';
   const sundayTeam=getSundayTeam(), jumpTeam=getJumpTeam();
   const sundayTeamName = sundayTeam==='a'?gs.aName:gs.bName;
   const jumpTeamName = jumpTeam==='a'?gs.aName:gs.bName;
-  // 阵营框更新
   document.getElementById('sundayTeamHint').textContent=sundayTeamName;
   document.getElementById('jumpTeamHint').textContent=jumpTeamName;
-  // 侧边栏阵营标识
   const aRole = (lt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
   const bRole = (rt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
   document.getElementById('aLabel').innerHTML = `${gs.aName} <span class="role-badge ${(lt===sundayTeam)?'sunday':'jump'}">${aRole}</span>`;
@@ -395,7 +488,41 @@ function syncUI(){
   document.getElementById('globalPool').innerHTML=allPicked.length? allPicked.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
   renderGrid();
 }
-function renderGrid(){ const q=document.getElementById('searchInp').value.toLowerCase(); const mt=myTurn(); let list=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab})); if(q)list=list.filter(h=>h.name.toLowerCase().includes(q)); document.getElementById('heroGrid').innerHTML=list.map(h=>{ const gu=globalUsed(h.name); const cu=[...(gs.aPicks||[]),...(gs.bPicks||[])].some(p=>p.name===h.name); const cantScore=!gu&&!canPick(h.name,h.score)&&gs.active; const lk=gs.active&&!gs.roundEnded&&!gs.ended&&!mt; const sl=sel&&sel.name===h.name; let cls='hcard'; if(gu)cls+=' globalused'; else if(cu)cls+=' used'; else if(cantScore)cls+=' over'; else if(lk)cls+=' locked'; if(sl)cls+=' selected'; return `<div class="${cls}" onclick="selectHero('${h.name}','${h.type}',${h.score})"><div class="htype">${TI[h.type]}</div><div class="hname">${h.name}</div><div class="hscore ${SC[h.type]}">${h.score}分</div></div>`; }).join(''); }
+
+function renderGrid(){
+  const q=document.getElementById('searchInp').value.toLowerCase();
+  const mt=myTurn();
+  let list=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab}));
+  if(q)list=list.filter(h=>h.name.toLowerCase().includes(q));
+
+  const globalSet = getGlobalPickedSet();
+  const globalBlocked = getGlobalMutexBlocked(globalSet);
+  const roundSet = getRoundPickedSet();
+  const roundBlocked = getRoundMutexBlocked(roundSet);
+
+  document.getElementById('heroGrid').innerHTML=list.map(h=>{
+    const name=h.name;
+    // 优先级从高到低判断状态
+    const inGlobal = globalSet.has(name);                    // 全局直接已选
+    const inRound = roundSet.has(name);                      // 本轮已选
+    const isGlobalMutex = !inGlobal && !inRound && globalBlocked.has(name);  // 全局互斥封禁（同一人物）
+    const isRoundMutex = !inGlobal && !inRound && !isGlobalMutex && roundBlocked.has(name);  // 本轮互斥（变身）
+    const cantScore = !inGlobal && !inRound && !isGlobalMutex && !isRoundMutex && !canPick(name,h.score) && gs.active;
+    const lk = gs.active && !gs.roundEnded && !gs.ended && !mt;
+    const sl = sel && sel.name===name;
+
+    let cls='hcard';
+    if(inGlobal||inRound) cls+=' globalused';
+    else if(isGlobalMutex) cls+=' mutex-global';
+    else if(isRoundMutex) cls+=' mutex-round';
+    else if(cantScore) cls+=' over';
+    else if(lk) cls+=' locked';
+    if(sl) cls+=' selected';
+
+    return `<div class="${cls}" onclick="selectHero('${name}','${h.type}',${h.score})"><div class="htype">${TI[h.type]}</div><div class="hname">${name}</div><div class="hscore ${SC[h.type]}">${h.score}分</div></div>`;
+  }).join('');
+}
+
 function switchTab(t){ tab=t; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); const idx={str:0,agi:1,int:2,all:3}[t]; document.querySelectorAll('.tab-btn')[idx].classList.add('active'); renderGrid(); }
 function showResult(){ const allR=gs.allRounds||[]; if(!allR.length){document.getElementById('resultOv').style.display='flex';return;} let sundayTotal=0,jumpTotal=0; allR.forEach(r=>{ const st=r.sundayTeamAtRound; sundayTotal += (st==='a'?r.aUsed:r.bUsed); jumpTotal += (st==='a'?r.bUsed:r.aUsed); }); const fmt=(r,team)=>{ const picks=team==='a'?r.aPicks:r.bPicks; return (picks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join(''); }; document.getElementById('resultContent').innerHTML=`<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 (先手) — 总分 ${sundayTotal} / (每轮上限50分)</div><div>⚡ JUMP方 (后手) — 总分 ${jumpTotal} / (每轮上限52分)</div></div>${allR.map(r=>{ const st=r.sundayTeamAtRound; const sundayNameAtRound = st==='a'?gs.aName:gs.bName; const jumpNameAtRound = st==='a'?gs.bName:gs.aName; return `<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sundayNameAtRound})</h4><div class="rtotal">本轮总分: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jumpNameAtRound})</h4><div class="rtotal">本轮总分: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`; }).join('')}`; document.getElementById('resultOv').style.display='flex'; }
 </script>
