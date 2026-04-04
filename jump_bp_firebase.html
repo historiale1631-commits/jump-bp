@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JUMP大赛 BP系统 [联网版]</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh}
+
+.header{text-align:center;padding:12px 16px 8px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1)}
+.header h1{font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .code{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px}
+.ref-bar{display:flex;gap:6px;justify-content:center;margin-top:6px}
+.ref-bar button{padding:5px 12px;font-size:11px;font-weight:700;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:5px;color:#fcd34d;cursor:pointer;font-family:inherit}
+.ref-bar button:hover{background:rgba(255,210,60,.2)}
+.ref-bar button.danger{color:#f87171;border-color:rgba(248,113,113,.4)}
+.ref-bar button.danger:hover{background:rgba(248,113,113,.15)}
+
+.layout{display:flex;height:calc(100vh - 80px);overflow:hidden}
+
+.side{width:185px;flex-shrink:0;display:flex;flex-direction:column;padding:8px 6px;gap:4px;overflow-y:auto;background:rgba(0,0,0,.3)}
+.side.a-side{border-right:1px solid rgba(255,255,255,.08)}
+.side.b-side{border-left:1px solid rgba(255,255,255,.08)}
+.side::-webkit-scrollbar{width:3px}
+.side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.side-label{text-align:center;font-size:11px;font-weight:700;padding:5px;border-radius:5px;letter-spacing:2px;margin-bottom:2px}
+.side-label.a{background:rgba(220,50,50,.35);color:#fca5a5}
+.side-label.b{background:rgba(50,100,220,.35);color:#93c5fd}
+
+.score-total{text-align:center;font-size:13px;font-weight:700;padding:5px 4px;border-radius:6px;margin-bottom:3px}
+.score-total.a{background:rgba(220,50,50,.2);color:#fca5a5;border:1px solid rgba(220,50,50,.3)}
+.score-total.b{background:rgba(50,100,220,.2);color:#93c5fd;border:1px solid rgba(50,100,220,.3)}
+.score-over{color:#f87171!important;border-color:#f87171!important}
+
+.sec-label{font-size:9px;color:rgba(255,255,255,.3);padding:2px 4px;margin-top:2px}
+.pick-slot{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);min-height:40px;transition:all .15s}
+.pick-slot.active{border-color:rgba(255,210,60,.85);background:rgba(255,210,60,.1);box-shadow:0 0 8px rgba(255,210,60,.2)}
+.pick-slot.filled{background:rgba(60,180,100,.1);border-color:rgba(60,180,100,.3)}
+.pick-slot .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.pick-slot .info{flex:1;min-width:0}
+.pick-slot .pname{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick-slot .pscore{font-size:10px;color:rgba(255,255,255,.5)}
+
+.center{flex:1;display:flex;flex-direction:column;padding:8px 12px;gap:7px;min-width:0;overflow-y:auto}
+.center::-webkit-scrollbar{width:3px}
+.center::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.info-bar{display:flex;align-items:center;gap:8px;padding:7px 11px;background:rgba(255,255,255,.07);border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:12px;flex-wrap:wrap}
+.info-bar .iname{font-weight:700;font-size:13px}
+.team-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.team-tag.a{background:rgba(220,50,50,.45);color:#fca5a5}
+.team-tag.b{background:rgba(50,100,220,.45);color:#93c5fd}
+
+.phase-bar{padding:7px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
+.status-bar{padding:8px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
+
+.timer-bar{padding:11px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:26px;font-weight:700;color:#fcd34d;transition:color .3s}
+.timer-bar.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:1}to{opacity:.6}}
+
+.order-bar{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.order-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid transparent;transition:all .2s}
+.order-dot.a-dot{background:rgba(220,50,50,.25);color:#fca5a5;border-color:rgba(220,50,50,.4)}
+.order-dot.b-dot{background:rgba(50,100,220,.3);color:#93c5fd;border-color:rgba(50,100,220,.4)}
+.order-dot.done{opacity:.3}
+.order-dot.current{transform:scale(1.25);box-shadow:0 0 8px rgba(255,210,60,.5);border-color:#fcd34d!important;color:#fcd34d!important}
+
+.tab-row{display:flex;gap:4px}
+.tab-btn{flex:1;padding:6px 4px;border:1px solid rgba(255,255,255,.12);border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.tab-btn.active{font-weight:700}
+.tab-btn:hover:not(.active){background:rgba(255,255,255,.1)}
+.tab-str.active{background:rgba(220,80,80,.2);border-color:rgba(220,80,80,.5);color:#fca5a5}
+.tab-agi.active{background:rgba(80,180,80,.2);border-color:rgba(80,180,80,.5);color:#86efac}
+.tab-int.active{background:rgba(80,130,220,.2);border-color:rgba(80,130,220,.5);color:#93c5fd}
+.tab-all.active{background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.5);color:#e9d5ff}
+
+.search-row{display:flex;gap:6px}
+.search-row input{flex:1;padding:7px 11px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+.search-row input:focus{border-color:rgba(255,210,60,.6)}
+.search-row input::placeholder{color:rgba(255,255,255,.3)}
+.btn-clr{padding:7px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
+.btn-clr:hover{background:rgba(255,255,255,.15)}
+
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;overflow-y:auto;max-height:210px;padding-right:2px}
+.hero-grid::-webkit-scrollbar{width:3px}
+.hero-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.hcard{display:flex;flex-direction:column;align-items:center;padding:6px 3px 5px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
+.hcard:hover:not(.used):not(.over){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
+.hcard.selected{border-color:#fcd34d;background:rgba(255,210,60,.15);box-shadow:0 0 10px rgba(255,210,60,.25)}
+.hcard.used{opacity:.22;pointer-events:none}
+.hcard.over{opacity:.38;pointer-events:none;border-color:rgba(248,113,113,.3)!important}
+.hcard .htype{font-size:13px;margin-bottom:2px}
+.hcard .hname{font-size:9px;color:rgba(255,255,255,.85);line-height:1.3;word-break:break-all}
+.hcard .hscore{font-size:10px;font-weight:700;margin-top:2px}
+.sc-str{color:#fca5a5}.sc-agi{color:#86efac}.sc-int{color:#93c5fd}
+
+.action-row{display:flex;gap:6px}
+.act-btn{flex:1;padding:10px;border:none;border-radius:7px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.act-btn.pick{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff}
+.act-btn.pick:hover:not(:disabled){background:linear-gradient(135deg,#15803d,#22c55e)}
+.act-btn:disabled{opacity:.28;cursor:not-allowed}
+
+/* Connection status */
+.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3)}
+.conn-bar.online{color:#4ade80}
+.conn-bar.offline{color:#f87171}
+.conn-bar.waiting{color:#fcd34d}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:26px 30px;width:360px;text-align:center}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:12px;text-align:left;line-height:1.7}
+.modal input{width:100%;padding:9px 11px;margin-bottom:8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
+.modal input:focus{border-color:rgba(167,139,250,.6)}
+.modal input::placeholder{color:rgba(255,255,255,.3)}
+.code-box{display:flex;align-items:center;gap:6px;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.3);border-radius:7px;padding:8px 12px;margin-bottom:10px}
+.code-box .cval{flex:1;font-size:16px;font-weight:700;color:#fcd34d;letter-spacing:2px;text-align:center}
+.code-box button{padding:5px 10px;background:rgba(255,210,60,.2);border:1px solid rgba(255,210,60,.4);border-radius:5px;color:#fcd34d;font-size:11px;cursor:pointer;font-family:inherit}
+.modal .or-div{font-size:10px;color:rgba(255,255,255,.3);margin:6px 0;text-align:center}
+.mbtn{width:100%;padding:11px;margin-top:4px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:1px}
+.mbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
+
+.result-modal{background:linear-gradient(145deg,#1a0a3d,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:26px 34px;text-align:center;min-width:320px;max-width:480px}
+.result-modal h2{font-size:20px;font-weight:700;color:#fcd34d;margin-bottom:16px;letter-spacing:2px}
+.result-teams{display:flex;gap:24px;justify-content:center;margin-bottom:16px}
+.rteam h3{font-size:12px;font-weight:700;margin-bottom:6px}
+.rteam h3.a{color:#fca5a5}.rteam h3.b{color:#93c5fd}
+.rteam .rtotal{font-size:11px;margin-bottom:5px;color:rgba(255,255,255,.45)}
+.rteam ul{list-style:none}
+.rteam li{font-size:11px;color:rgba(255,255,255,.75);padding:2px 0;display:flex;justify-content:space-between;gap:10px}
+.rteam li span{color:rgba(255,255,255,.4)}
+.rbtn{padding:9px 22px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
+
+.waiting-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:30px 36px;text-align:center;min-width:280px}
+.waiting-modal h3{font-size:16px;font-weight:700;color:#fcd34d;margin-bottom:10px}
+.waiting-modal p{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:16px}
+.waiting-modal .wcode{font-size:20px;font-weight:700;color:#e9d5ff;letter-spacing:3px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:10px 20px;margin-bottom:14px}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- Setup overlay -->
+<div class="overlay" id="setupOv">
+  <div class="modal">
+    <h2>⚔ JUMP大赛 BP系统</h2>
+    <div class="sub">真实联网版 · Firebase同步</div>
+    <div class="rules">
+      📋 A队上限 52分 · B队上限 50分<br>
+      🔵 B队先手 · 共10轮选人<br>
+      ⏱ 每轮60秒倒计时
+    </div>
+    <div class="code-box">
+      <div class="cval" id="myCode">生成中...</div>
+      <button onclick="copyMyCode()">复制</button>
+    </div>
+    <input id="inpA" placeholder="A队名称（默认：A队）"/>
+    <input id="inpB" placeholder="B队名称（默认：B队）"/>
+    <div class="or-div">— 或者输入对方的对局码加入 —</div>
+    <input id="inpRoom" placeholder="输入对局码（留空则创建新对局）"/>
+    <button class="mbtn" onclick="startMatch()">进入对局</button>
+  </div>
+</div>
+
+<!-- Waiting overlay -->
+<div class="overlay" id="waitOv" style="display:none">
+  <div class="waiting-modal">
+    <h3>⏳ 等待对方加入</h3>
+    <p>把对局码发给对方，对方输入后点「进入对局」</p>
+    <div class="wcode" id="waitCode"></div>
+    <div><span class="spin"></span>等待中...</div>
+    <br>
+    <button class="rbtn" onclick="cancelWait()">取消</button>
+  </div>
+</div>
+
+<!-- Result overlay -->
+<div class="overlay" id="resultOv" style="display:none">
+  <div class="result-modal">
+    <h2>🏆 对局结束</h2>
+    <div class="result-teams" id="resultTeams"></div>
+    <button class="rbtn" onclick="location.reload()">再来一局</button>
+  </div>
+</div>
+
+<!-- Connection status -->
+<div class="conn-bar waiting" id="connBar">🔄 连接中...</div>
+
+<div class="header">
+  <h1>JUMP大赛 · BP对战系统 [联网版]</h1>
+  <div class="code" id="codeDisplay">对局代码: ------</div>
+  <div class="ref-bar">
+    <button onclick="refAction('start')">▶ 开始BP</button>
+    <button onclick="refAction('pause')">⏸ 暂停</button>
+    <button onclick="refAction('skip')">⏭ 跳过本轮</button>
+    <button class="danger" onclick="refAction('end')">■ 结束对局</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- A side -->
+  <div class="side a-side">
+    <div class="side-label a" id="aLabel">A队</div>
+    <div class="score-total a" id="aScore">已用 0 / 52 分</div>
+    <div class="sec-label">— 已选人物 —</div>
+    <div class="pick-slot" id="aSlot1"><div class="av" style="background:rgba(220,50,50,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="aSlot2"><div class="av" style="background:rgba(220,50,50,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="aSlot3"><div class="av" style="background:rgba(220,50,50,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="aSlot4"><div class="av" style="background:rgba(220,50,50,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="aSlot5"><div class="av" style="background:rgba(220,50,50,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+  </div>
+
+  <!-- Center -->
+  <div class="center">
+    <div class="info-bar">
+      <span class="iname" id="curName">-</span>
+      <span class="team-tag a" id="curTag">-</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.4)" id="curRound"></span>
+      <span style="font-size:11px;color:rgba(255,255,255,.4)" id="curLimit"></span>
+    </div>
+    <div class="order-bar" id="orderBar"></div>
+    <div class="phase-bar" id="phaseBar">等待开始...</div>
+    <div class="status-bar" id="statusBar">裁判按「开始BP」后才能选人</div>
+    <div class="timer-bar" id="timerBar">60秒</div>
+    <div class="tab-row">
+      <button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button>
+      <button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button>
+      <button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button>
+      <button class="tab-btn tab-all" onclick="switchTab('all')">全部</button>
+    </div>
+    <div class="search-row">
+      <input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()"/>
+      <button class="btn-clr" onclick="document.getElementById('searchInp').value='';renderGrid()">清除</button>
+    </div>
+    <div class="hero-grid" id="heroGrid"></div>
+    <div class="action-row">
+      <button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button>
+    </div>
+  </div>
+
+  <!-- B side -->
+  <div class="side b-side">
+    <div class="side-label b" id="bLabel">B队</div>
+    <div class="score-total b" id="bScore">已用 0 / 50 分</div>
+    <div class="sec-label">— 已选人物 —</div>
+    <div class="pick-slot" id="bSlot1"><div class="av" style="background:rgba(50,100,220,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="bSlot2"><div class="av" style="background:rgba(50,100,220,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="bSlot3"><div class="av" style="background:rgba(50,100,220,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="bSlot4"><div class="av" style="background:rgba(50,100,220,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div class="pick-slot" id="bSlot5"><div class="av" style="background:rgba(50,100,220,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ══════════════════════════════════════════════
+// Firebase 初始化
+// ══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
+  authDomain: "jumpbp-ece00.firebaseapp.com",
+  databaseURL: "https://jumpbp-ece00-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jumpbp-ece00",
+  storageBucket: "jumpbp-ece00.firebasestorage.app",
+  messagingSenderId: "532872848620",
+  appId: "1:532872848620:web:b3399fb446314f8e99f1c9"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 连接状态监测
+db.ref('.info/connected').on('value', snap => {
+  const el = document.getElementById('connBar');
+  if (snap.val()) {
+    el.textContent = '🟢 已连接 Firebase';
+    el.className = 'conn-bar online';
+  } else {
+    el.textContent = '🔴 连接断开，请刷新';
+    el.className = 'conn-bar offline';
+  }
+});
+
+// ══════════════════════════════════════════════
+// 英雄数据
+// ══════════════════════════════════════════════
+const HEROES = {
+  str:[
+    {name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},
+    {name:'百变怪',score:16},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},
+    {name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},
+    {name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},
+    {name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},
+    {name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},
+    {name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'八神庵',score:10},
+    {name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},
+    {name:'黑贞德',score:8},{name:'卡卡罗特',score:8},{name:'牛头一户',score:6},
+    {name:'坂田银时',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},
+    {name:'黑蓝染',score:5},{name:'舔牌',score:5}
+  ],
+  agi:[
+    {name:'谏山黄泉',score:20},{name:'冲田总司',score:20},{name:'建御雷神',score:18},
+    {name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'英灵卫宫',score:14},
+    {name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'刀藤绮凛',score:12},
+    {name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},
+    {name:'青雉',score:12},{name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},
+    {name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},
+    {name:'桐谷和人',score:10},{name:'暗影大人',score:10},{name:'黄猿',score:10},
+    {name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},
+    {name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},
+    {name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},
+    {name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},
+    {name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},
+    {name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},
+    {name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},
+    {name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},
+    {name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},
+    {name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},
+    {name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},
+    {name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},
+    {name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}
+  ],
+  int:[
+    {name:'爱莉希雅',score:28},{name:'小圆（新人物待定）',score:16},{name:'塞西莉亚',score:15},
+    {name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},
+    {name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},
+    {name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},
+    {name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},
+    {name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},
+    {name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},
+    {name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},
+    {name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},
+    {name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},
+    {name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},
+    {name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},
+    {name:'志度内',score:5}
+  ]
+};
+const ALL_HEROES=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h,type:'agi'})),...HEROES.int.map(h=>({...h,type:'int'}))];
+const TI={str:'💪',agi:'⚡',int:'🧠'};
+const TL={str:'力量',agi:'敏捷',int:'智力'};
+const SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
+const PICK_ORDER=['b','a','a','b','a','b','b','a','b','a'];
+const LIMITS={a:52,b:50};
+
+// ══════════════════════════════════════════════
+// 状态
+// ══════════════════════════════════════════════
+let roomId='';
+let localTab='str';
+let localSelected=null;
+let timerInterval=null;
+let roomRef=null;
+let lastStep=-1;
+
+// 当前从Firebase同步来的游戏状态
+let gs = {
+  aName:'A队', bName:'B队',
+  aPicks:[], bPicks:[],
+  aUsed:0, bUsed:0,
+  step:0, timer:60,
+  active:false, paused:false, ended:false
+};
+
+// ══════════════════════════════════════════════
+// 工具
+// ══════════════════════════════════════════════
+function genCode(){return Math.random().toString(36).substr(2,6).toUpperCase();}
+function getUsed(name){return [...gs.aPicks,...gs.bPicks].some(p=>p.name===name);}
+function curTeam(){return PICK_ORDER[gs.step]||'a';}
+function remScore(t){return LIMITS[t]-(t==='a'?gs.aUsed:gs.bUsed);}
+
+function copyMyCode(){
+  navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>{
+    const b=event.target; b.textContent='✓'; setTimeout(()=>b.textContent='复制',1500);
+  });
+}
+
+// ══════════════════════════════════════════════
+// 初始化
+// ══════════════════════════════════════════════
+window.onload=()=>{
+  const code=genCode();
+  document.getElementById('myCode').textContent=code;
+  // pre-fill room input with own code
+  document.getElementById('inpRoom').placeholder='输入对方对局码，或留空使用上方码';
+  renderGrid();
+};
+
+function startMatch(){
+  const inputRoom=document.getElementById('inpRoom').value.trim().toUpperCase();
+  const myCode=document.getElementById('myCode').textContent;
+  roomId = inputRoom || myCode;
+
+  const a=document.getElementById('inpA').value.trim()||'A队';
+  const b=document.getElementById('inpB').value.trim()||'B队';
+
+  document.getElementById('codeDisplay').textContent='对局代码: '+roomId;
+  document.getElementById('setupOv').style.display='none';
+
+  // 建立BP顺序指示条
+  document.getElementById('orderBar').innerHTML=PICK_ORDER.map((t,i)=>
+    `<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`
+  ).join('');
+
+  roomRef=db.ref('rooms/'+roomId);
+
+  // 监听Firebase数据变化
+  roomRef.on('value', snap=>{
+    const data=snap.val();
+    if(!data){
+      // 房间不存在，初始化
+      roomRef.set({
+        aName:a, bName:b,
+        aPicks:[], bPicks:[],
+        aUsed:0, bUsed:0,
+        step:0, timer:60,
+        active:false, paused:false, ended:false,
+        ts:Date.now()
+      });
+      showWaiting();
+    } else {
+      gs={...gs,...data};
+      gs.aPicks=data.aPicks||[];
+      gs.bPicks=data.bPicks||[];
+      hideWaiting();
+      syncUI();
+      // 新一轮时重启本地倒计时
+      if(gs.active && !gs.paused && !gs.ended){
+        if(gs.step!==lastStep){
+          lastStep=gs.step;
+          startLocalTimer();
+        }
+      } else {
+        stopTimer();
+        if(gs.ended) showResult();
+      }
+    }
+  });
+}
+
+function showWaiting(){
+  document.getElementById('waitCode').textContent=roomId;
+  document.getElementById('waitOv').style.display='flex';
+}
+function hideWaiting(){document.getElementById('waitOv').style.display='none';}
+function cancelWait(){location.reload();}
+
+// ══════════════════════════════════════════════
+// Firebase写入
+// ══════════════════════════════════════════════
+function pushState(extra={}){
+  if(!roomRef) return;
+  roomRef.update({...gs,...extra,ts:Date.now()});
+}
+
+function refAction(type){
+  if(!roomRef) return;
+  if(type==='start'){
+    roomRef.update({active:true,paused:false,step:0,aPicks:[],bPicks:[],aUsed:0,bUsed:0,ended:false,timer:60,ts:Date.now()});
+    lastStep=-1;
+  } else if(type==='pause'){
+    roomRef.update({paused:!gs.paused,ts:Date.now()});
+  } else if(type==='skip'){
+    if(!gs.active||gs.ended) return;
+    const nextStep=gs.step+1;
+    if(nextStep>=10){roomRef.update({ended:true,active:false,ts:Date.now()});}
+    else{roomRef.update({step:nextStep,timer:60,ts:Date.now()});}
+  } else if(type==='end'){
+    roomRef.update({ended:true,active:false,ts:Date.now()});
+  }
+}
+
+// ══════════════════════════════════════════════
+// 本地倒计时（参考Firebase step）
+// ══════════════════════════════════════════════
+function startLocalTimer(){
+  stopTimer();
+  let t=60;
+  updateTimerEl(t);
+  timerInterval=setInterval(()=>{
+    if(gs.paused||!gs.active||gs.ended){stopTimer();return;}
+    t--;
+    updateTimerEl(t);
+    if(t<=0){stopTimer();autoPickLocal();}
+  },1000);
+}
+function stopTimer(){clearInterval(timerInterval);timerInterval=null;}
+function updateTimerEl(t){
+  const el=document.getElementById('timerBar');
+  el.textContent=t+'秒';
+  el.className='timer-bar'+(t<=15?' urgent':'');
+}
+
+function autoPickLocal(){
+  const t=curTeam();
+  const rem=remScore(t);
+  const avail=ALL_HEROES.filter(h=>!getUsed(h.name)&&h.score<=rem);
+  if(!avail.length){refAction('skip');return;}
+  const h=avail[Math.floor(Math.random()*avail.length)];
+  doPick(h);
+}
+
+// ══════════════════════════════════════════════
+// 选人逻辑
+// ══════════════════════════════════════════════
+function selectHero(name,type,score){
+  if(!gs.active||gs.paused||gs.ended) return;
+  const t=curTeam();
+  if(remScore(t)<score||getUsed(name)) return;
+  localSelected={name,type,score};
+  document.getElementById('pickBtn').disabled=false;
+  renderGrid();
+}
+
+function confirmPick(){
+  if(!localSelected||!gs.active||gs.ended) return;
+  doPick(localSelected);
+}
+
+function doPick(h){
+  const t=curTeam();
+  const newAPicks=[...gs.aPicks];
+  const newBPicks=[...gs.bPicks];
+  let newAUsed=gs.aUsed, newBUsed=gs.bUsed;
+  if(t==='a'){newAPicks.push(h);newAUsed+=h.score;}
+  else{newBPicks.push(h);newBUsed+=h.score;}
+  const nextStep=gs.step+1;
+  const ended=nextStep>=10;
+  localSelected=null;
+  document.getElementById('pickBtn').disabled=true;
+  roomRef.update({
+    aPicks:newAPicks,bPicks:newBPicks,
+    aUsed:newAUsed,bUsed:newBUsed,
+    step:nextStep,timer:60,
+    ended,active:!ended,
+    ts:Date.now()
+  });
+}
+
+// ══════════════════════════════════════════════
+// UI同步
+// ══════════════════════════════════════════════
+function syncUI(){
+  document.getElementById('aLabel').textContent=gs.aName;
+  document.getElementById('bLabel').textContent=gs.bName;
+
+  // 分数
+  const aEl=document.getElementById('aScore');
+  aEl.textContent=`已用 ${gs.aUsed} / 52 分`;
+  aEl.className='score-total a'+(gs.aUsed>52?' score-over':'');
+  const bEl=document.getElementById('bScore');
+  bEl.textContent=`已用 ${gs.bUsed} / 50 分`;
+  bEl.className='score-total b'+(gs.bUsed>50?' score-over':'');
+
+  // 选人槽位
+  document.querySelectorAll('.pick-slot').forEach(el=>{el.classList.remove('active','filled');el.querySelector('.pname').textContent='等待选人';el.querySelector('.pscore').textContent='—';});
+  gs.aPicks.forEach((h,i)=>{
+    const el=document.getElementById('aSlot'+(i+1));
+    if(!el)return;
+    el.classList.add('filled');
+    el.querySelector('.pname').textContent=h.name;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+TL[h.type]+' · '+h.score+'分';
+    el.querySelector('.av').textContent=TI[h.type];
+  });
+  gs.bPicks.forEach((h,i)=>{
+    const el=document.getElementById('bSlot'+(i+1));
+    if(!el)return;
+    el.classList.add('filled');
+    el.querySelector('.pname').textContent=h.name;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+TL[h.type]+' · '+h.score+'分';
+    el.querySelector('.av').textContent=TI[h.type];
+  });
+
+  // 高亮当前槽
+  if(gs.active&&!gs.ended&&gs.step<10){
+    const t=curTeam();
+    const picks=t==='a'?gs.aPicks:gs.bPicks;
+    const el=document.getElementById(t+'Slot'+(picks.length+1));
+    if(el)el.classList.add('active');
+  }
+
+  // 中心信息
+  if(gs.active&&!gs.ended&&gs.step<10){
+    const t=curTeam();
+    const tName=t==='a'?gs.aName:gs.bName;
+    document.getElementById('curName').textContent=tName;
+    document.getElementById('curTag').textContent=tName;
+    document.getElementById('curTag').className='team-tag '+t;
+    document.getElementById('curRound').textContent='第'+(gs.step+1)+'轮';
+    document.getElementById('curLimit').textContent='剩余: '+remScore(t)+'分';
+    document.getElementById('phaseBar').textContent='选人阶段 — 第'+(gs.step+1)+'轮';
+    document.getElementById('statusBar').textContent=(gs.paused?'⏸ 已暂停':tName+' 正在选人...');
+  } else if(!gs.active&&!gs.ended){
+    document.getElementById('statusBar').textContent='裁判按「开始BP」后才能选人';
+    document.getElementById('phaseBar').textContent='等待开始...';
+  }
+
+  // 轮次指示条
+  PICK_ORDER.forEach((_,i)=>{
+    const el=document.getElementById('dot'+i);
+    if(!el)return;
+    el.classList.remove('current','done');
+    if(i<gs.step)el.classList.add('done');
+    else if(i===gs.step&&gs.active&&!gs.ended)el.classList.add('current');
+  });
+
+  renderGrid();
+}
+
+function renderGrid(){
+  const q=document.getElementById('searchInp').value.toLowerCase();
+  const t=gs.step<10?curTeam():'a';
+  const rem=remScore(t);
+  let list=localTab==='all'?ALL_HEROES:HEROES[localTab].map(h=>({...h,type:localTab}));
+  if(q)list=list.filter(h=>h.name.toLowerCase().includes(q));
+  document.getElementById('heroGrid').innerHTML=list.map(h=>{
+    const used=getUsed(h.name);
+    const over=h.score>rem;
+    const sel=localSelected&&localSelected.name===h.name;
+    let cls='hcard';
+    if(used)cls+=' used';
+    else if(over&&gs.active)cls+=' over';
+    if(sel)cls+=' selected';
+    return `<div class="${cls}" onclick="selectHero('${h.name}','${h.type}',${h.score})">
+      <div class="htype">${TI[h.type]}</div>
+      <div class="hname">${h.name}</div>
+      <div class="hscore ${SC[h.type]}">${h.score}分</div>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(t){
+  localTab=t;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const map={str:0,agi:1,int:2,all:3};
+  document.querySelectorAll('.tab-btn')[map[t]].classList.add('active');
+  renderGrid();
+}
+
+function showResult(){
+  stopTimer();
+  const fmt=picks=>picks.map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
+  document.getElementById('resultTeams').innerHTML=`
+    <div class="rteam"><h3 class="a">${gs.aName}</h3><div class="rtotal">总分: ${gs.aUsed}/52</div><ul>${fmt(gs.aPicks)}</ul></div>
+    <div class="rteam"><h3 class="b">${gs.bName}</h3><div class="rtotal">总分: ${gs.bUsed}/50</div><ul>${fmt(gs.bPicks)}</ul></div>`;
+  document.getElementById('resultOv').style.display='flex';
+}
+</script>
+</body>
+</html>
