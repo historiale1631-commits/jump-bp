@@ -317,6 +317,12 @@ const SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 const ORDER_B_FIRST=['b','a','a','b','a','b','b','a','b','a']; // B队先手
 const ORDER_A_FIRST=['a','b','b','a','b','a','a','b','a','b']; // A队先手（换边后）
 function getOrder(){return (gs.swapped?ORDER_A_FIRST:ORDER_B_FIRST);}
+// 左边显示哪队，右边显示哪队
+function leftTeam(){return gs.swapped?'b':'a';}
+function rightTeam(){return gs.swapped?'a':'b';}
+// 左边颜色class
+function leftCls(){return gs.swapped?'b':'a';}
+function rightCls(){return gs.swapped?'a':'b';}
 // 分数上限根据换边动态变化：原来A队52分B队50分，换边后互换
 function getLIM(){return gs.swapped?{a:50,b:52}:{a:52,b:50};}
 
@@ -603,27 +609,26 @@ function syncUI(){
   const aEl=document.getElementById('aScore');aEl.textContent=`已用 ${au} / ${getLIM().a} 分`;aEl.className='score-total a'+(au>getLIM().a?' score-over':'');
   const bEl=document.getElementById('bScore');bEl.textContent=`已用 ${bu} / ${getLIM().b} 分`;bEl.className='score-total b'+(bu>getLIM().b?' score-over':'');
 
-  // 重置槽位
+  // 重置槽位（左侧=leftTeam, 右侧=rightTeam）
+  const ltColor=lt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
+  const rtColor=rt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
   for(let i=1;i<=5;i++){
-    ['a','b'].forEach(s=>{
-      const el=document.getElementById(s+'Slot'+i);
-      if(!el)return;
-      el.classList.remove('active','filled');
-      el.querySelector('.pname').textContent='等待选人';
-      el.querySelector('.pscore').textContent='—';
-      el.querySelector('.av').textContent=i;
-      el.querySelector('.av').style.background=s==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
-    });
+    const lEl=document.getElementById('aSlot'+i);
+    if(lEl){lEl.classList.remove('active','filled');lEl.querySelector('.pname').textContent='等待选人';lEl.querySelector('.pscore').textContent='—';lEl.querySelector('.av').textContent=i;lEl.querySelector('.av').style.background=ltColor;}
+    const rEl=document.getElementById('bSlot'+i);
+    if(rEl){rEl.classList.remove('active','filled');rEl.querySelector('.pname').textContent='等待选人';rEl.querySelector('.pscore').textContent='—';rEl.querySelector('.av').textContent=i;rEl.querySelector('.av').style.background=rtColor;}
   }
-  // 填入本轮已选
-  (gs.aPicks||[]).forEach((h,i)=>{
+  // 填入本轮已选：leftTeam的picks显示在左侧(aSlot)，rightTeam显示在右侧(bSlot)
+  const ltPicks=(gs[lt+'Picks']||[]);
+  const rtPicks=(gs[rt+'Picks']||[]);
+  ltPicks.forEach((h,i)=>{
     const el=document.getElementById('aSlot'+(i+1));if(!el)return;
     el.classList.add('filled');
     el.querySelector('.pname').textContent=h.name;
     el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';
     el.querySelector('.av').textContent=TI[h.type];
   });
-  (gs.bPicks||[]).forEach((h,i)=>{
+  rtPicks.forEach((h,i)=>{
     const el=document.getElementById('bSlot'+(i+1));if(!el)return;
     el.classList.add('filled');
     el.querySelector('.pname').textContent=h.name;
@@ -631,11 +636,13 @@ function syncUI(){
     el.querySelector('.av').textContent=TI[h.type];
   });
 
-  // 高亮当前槽
+  // 高亮当前槽（显示在左或右取决于换边状态）
   if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){
-    const t=ct();
-    const picks=(t==='a'?gs.aPicks:gs.bPicks)||[];
-    const sl=document.getElementById(t+'Slot'+(picks.length+1));
+    const t=ct(); // 当前该选的队(a或b)
+    const picks=(gs[t+'Picks'])||[];
+    // 如果当前队是leftTeam则高亮aSlot，否则高亮bSlot
+    const slotPrefix=t===lt?'aSlot':'bSlot';
+    const sl=document.getElementById(slotPrefix+(picks.length+1));
     if(sl)sl.classList.add('active');
   }
 
@@ -704,8 +711,8 @@ function syncUI(){
       return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮</div>${items}</div>`;
     }).join('');
   };
-  document.getElementById('histA').innerHTML=buildHist('a');
-  document.getElementById('histB').innerHTML=buildHist('b');
+  document.getElementById('histA').innerHTML=buildHist(lt);
+  document.getElementById('histB').innerHTML=buildHist(rt);
 
   // 全局已选池（问题8）
   const gp=gs.globalPicked||[];
