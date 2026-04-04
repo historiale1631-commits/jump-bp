@@ -1,146 +1,692 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JUMP大赛 BP系统 [联网版]</title>
 <style>
-/* 样式不变，和之前一样，此处省略保持干净，实际使用时保留原样式 */
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh}
-/* ... 此处省略原样式，保持你之前的所有样式不变 ... */
+/* 保留原有样式，补充缺失的基础样式 */
+body{margin:0;background:#0a0518;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px}
+#loginBg{position:fixed;inset:0;background:radial-gradient(1200px 600px at 50% 20%,#2d1669 0%,#0a0518 60%);transition:opacity .65s;z-index:50}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center}
+.modal h2{margin:0 0 10px 0}
+.modal .sub{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:15px}
+.modal input{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;margin:8px 0}
+.modal button{margin-top:10px;width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(145deg,#4f46e5,#7c3aed);transition:transform .15s,box-shadow .15s}
+.modal button:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.35)}
+.modal button.green{background:linear-gradient(145deg,#059669,#10b981)}
+.modal button.danger{background:linear-gradient(145deg,#dc2626,#ef4444)}
+.modal button.swap{background:linear-gradient(145deg,#d97706,#f59e0b)}
+#setupOv{display:flex}
+#resultOv{display:none}
+h1{margin:6px 0 2px 0;font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+h2{margin:0;font-size:18px}
+.my-badge{font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.my-badge.ref{background:rgba(252,211,77,.12);border-color:rgba(252,211,77,.35);color:#fcd34d}
+.my-badge.a{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#fca5a5}
+.my-badge.b{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.35);color:#93c5fd}
+.round-badge{font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);margin-left:6px}
+.main-wrap{width:100%;max-width:980px;display:grid;grid-template-columns:1fr 420px 1fr;gap:10px}
+.side{display:flex;flex-direction:column;gap:8px}
+.center{display:flex;flex-direction:column;gap:8px}
+.side-label{padding:8px 12px;border-radius:10px;font-weight:800;font-size:16px;text-align:center}
+.side-label.a{background:rgba(220,50,50,.18);border:1px solid rgba(220,50,50,.4);color:#fca5a5}
+.side-label.b{background:rgba(50,100,220,.18);border:1px solid rgba(50,100,220,.4);color:#93c5fd}
+.score-total{padding:6px 10px;border-radius:8px;font-size:13px;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.score-total.a{color:#fca5a5}
+.score-total.b{color:#93c5fd}
+.score-over{color:#fecaca!important;background:rgba(248,113,113,.12)!important;border-color:rgba(248,113,113,.35)!important}
+.slots{display:grid;grid-template-columns:1fr;gap:6px}
+.slot{display:flex;align-items:center;gap:8px;padding:8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);transition:border .2s,background .2s}
+.slot.active{border-color:rgba(252,211,77,.45);background:rgba(252,211,77,.08)}
+.slot.filled{background:rgba(255,255,255,.07)}
+.slot .av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.slot .pname{flex:1;font-weight:700}
+.slot .pscore{font-size:12px;color:rgba(255,255,255,.55)}
+.phase-bar{padding:10px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:18px;font-weight:800;color:#fcd34d}
+.status-bar{padding:8px;background:rgba(255,255,255,.04);border-radius:8px;text-align:center;font-size:13px;color:rgba(255,255,255,.7)}
+.timer-bar{padding:10px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:24px;font-weight:700;color:#fcd34d;transition:color .3s}
+.timer-bar.low{color:#f87171}
+.order-bar{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.order-dot{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.order-dot.a-dot{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:#fca5a5}
+.order-dot.b-dot{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.35);color:#93c5fd}
+.order-dot.current{transform:scale(1.05);box-shadow:0 0 0 2px rgba(252,211,77,.6)}
+.order-dot.done{opacity:.4}
+.ref-bar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ref-bar button{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);transition:transform .15s,opacity .2s}
+.ref-bar button:hover{transform:translateY(-1px)}
+.ref-bar button.green{background:linear-gradient(145deg,#059669,#10b981)}
+.ref-bar button.danger{background:linear-gradient(145deg,#dc2626,#ef4444)}
+.ref-bar button.swap{background:linear-gradient(145deg,#d97706,#f59e0b)}
+.ref-bar button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.tab-row{display:flex;gap:4px}
+.tab-btn{flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-weight:800;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.tab-btn.active{background:rgba(252,211,77,.15);border-color:rgba(252,211,77,.4);color:#fcd34d}
+.search-row{display:flex;gap:6px}
+.search-row input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;overflow-y:auto;max-height:195px;padding-right:2px}
+.hcard{display:flex;flex-direction:column;align-items:center;padding:5px 3px 4px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:transform .12s,border .2s,background .2s}
+.hcard:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.2)}
+.hcard.picked{opacity:.35;cursor:not-allowed;transform:none!important}
+.hcard.over{opacity:.5;cursor:not-allowed;transform:none!important;border-color:rgba(248,113,113,.35)}
+.hcard.sel{border-color:rgba(252,211,77,.55);background:rgba(252,211,77,.12)}
+.hcard .hname{font-size:11px;font-weight:700;text-align:center;line-height:1.15}
+.hcard .hscore{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
+.action-row{display:flex;gap:6px}
+.action-row button{flex:1;padding:10px;border-radius:10px;border:none;cursor:pointer;font-weight:900;color:#fff;background:linear-gradient(145deg,#4f46e5,#7c3aed)}
+.action-row button:disabled{opacity:.5;cursor:not-allowed}
+.waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:9px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
+.msg{text-align:center;font-size:12px;color:rgba(255,255,255,.6);padding:8px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.06)}
+.history{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;padding-right:2px}
+.round-block{padding:8px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.round-block-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:4px}
+.history-item{font-size:12px}
+.pool{display:flex;flex-wrap:wrap;gap:4px;max-height:80px;overflow-y:auto;padding:4px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.pool-item{font-size:11px;padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+.result-modal{width:460px}
+.result-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.rbtn{margin-top:12px;width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(145deg,#4f46e5,#7c3aed)}
 </style>
 </head>
 <body>
+<div id="loginBg"></div>
 
-<!-- Setup 界面不变 -->
-<div class="overlay" id="setupOv">...</div>
-<div class="overlay" id="waitOv" style="display:none">...</div>
-<div class="overlay" id="resultOv" style="display:none">...</div>
+<div id="setupOv" class="overlay">
+  <div class="modal">
+    <h2>⚔ JUMP大赛 BP系统</h2>
+    <div class="sub">联网版 · Firebase实时同步 · 多轮BP</div>
+    <div style="text-align:left;margin:10px 0 14px 0;font-size:13px;line-height:1.6">
+      📋 A队上限 52分 · B队上限 50分<br>
+      🔵 B队先手：B→AA→B→A→BB→A→B→A<br>
+      ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
+      ⏱ 每轮60秒 · 超时自动随机分配
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button id="rR" onclick="setRole('ref')">⚖ 裁判<br><span style="font-size:9px;opacity:.7">观战+控制</span></button>
+      <button id="rA" onclick="setRole('a')">🔴 A队<br><span style="font-size:9px;opacity:.7">选手</span></button>
+      <button id="rB" onclick="setRole('b')">🔵 B队<br><span style="font-size:9px;opacity:.7">选手</span></button>
+      <button onclick="joinAsGuest()">👀 纯观战<br><span style="font-size:9px;opacity:.7">无需身份</span></button>
+    </div>
+    <div style="margin-top:14px">
+      <input id="inpA" placeholder="A队队名 (可选)">
+      <input id="inpB" placeholder="B队队名 (可选)">
+      <input id="inpRoom" placeholder="对局码 (加入他人对局时填写)">
+      <button id="goBtn" onclick="startMatch()" disabled>请先选择身份</button>
+    </div>
+  </div>
+</div>
 
-<div class="conn-bar waiting" id="connBar">🔄 连接中...</div>
-<div class="header">...</div>
-<div class="layout">...</div>
+<div id="resultOv" class="overlay">
+  <div class="modal result-modal">
+    <h2>📊 BP结果汇总</h2>
+    <div id="resultBody"></div>
+    <button class="rbtn" onclick="location.reload()">结束对局</button>
+  </div>
+</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<h1>JUMP大赛 · BP对战系统 <span id="myBadge" class="my-badge"></span><span id="roundBadge" class="round-badge" style="display:none"></span></h1>
+<div id="codeDisplay" style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:6px"></div>
+
+<div class="main-wrap">
+  <div class="side">
+    <div class="side-label a" id="aLabel">A队</div>
+    <div class="score-total a" id="aScore">已用 0 / 52 分</div>
+    <div class="slots" id="aSlots">
+      <div class="slot" id="aSlot1"><div class="av" style="background:rgba(220,50,50,.3)">1</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="aSlot2"><div class="av" style="background:rgba(220,50,50,.3)">2</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="aSlot3"><div class="av" style="background:rgba(220,50,50,.3)">3</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="aSlot4"><div class="av" style="background:rgba(220,50,50,.3)">4</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="aSlot5"><div class="av" style="background:rgba(220,50,50,.3)">5</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.6);margin-top:6px">历轮记录</div>
+    <div class="history" id="histA"></div>
+  </div>
+
+  <div class="center">
+    <div class="phase-bar" id="phaseBar">等待裁判开始...</div>
+    <div class="status-bar" id="statusBar">裁判按「开始新一轮BP」后才能选人</div>
+    <div class="timer-bar" id="timerBar">—</div>
+    <div class="order-bar" id="orderBar"></div>
+    <div id="waitNextMsg" class="waiting-next" style="display:none">⏳ 等待对方加入 / 裁判开始下一轮</div>
+    <div id="notMyTurnMsg" class="msg" style="display:none">⏳ 还没轮到你，请等待对方选人</div>
+    <div id="refBar" class="ref-bar" style="display:none">
+      <button class="green" onclick="refAction('start')">▶ 开始新一轮BP</button>
+      <button class="swap" onclick="refAction('swap')">🔄 双方换边</button>
+      <button onclick="refAction('pause')">⏸ 暂停</button>
+      <button onclick="refAction('skip')">⏭ 跳过本轮</button>
+      <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
+    </div>
+    <div style="margin-top:6px">
+      <div class="tab-row">
+        <button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button>
+        <button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button>
+        <button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button>
+      </div>
+      <div class="search-row" style="margin-top:6px">
+        <input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()">
+      </div>
+      <div class="hero-grid" id="heroGrid" style="margin-top:6px"></div>
+      <div class="action-row" style="margin-top:8px">
+        <button id="pickBtn" disabled onclick="confirmPick()">确认选择</button>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:4px">全局已选池</div>
+      <div class="pool" id="globalPool"><span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="side-label b" id="bLabel">B队</div>
+    <div class="score-total b" id="bScore">已用 0 / 50 分</div>
+    <div class="slots" id="bSlots">
+      <div class="slot" id="bSlot1"><div class="av" style="background:rgba(50,100,220,.3)">1</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="bSlot2"><div class="av" style="background:rgba(50,100,220,.3)">2</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="bSlot3"><div class="av" style="background:rgba(50,100,220,.3)">3</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="bSlot4"><div class="av" style="background:rgba(50,100,220,.3)">4</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+      <div class="slot" id="bSlot5"><div class="av" style="background:rgba(50,100,220,.3)">5</div><div class="pname">等待选人</div><div class="pscore">—</div></div>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.6);margin-top:6px">历轮记录</div>
+    <div class="history" id="histB"></div>
+  </div>
+</div>
+
+<!-- 引入 Firebase (保留原有依赖) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
-  authDomain:"jumpbp-ece00.firebaseapp.com",
-  databaseURL:"https://jumpbp-ece00-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"jumpbp-ece00",
-  storageBucket:"jumpbp-ece00.firebasestorage.app",
-  messagingSenderId:"532872848620",
-  appId:"1:532872848620:web:b3399fb446314f8e99f1c9"
-});
-const db=firebase.database();
-db.ref('.info/connected').on('value',s=>{...}); // 保持原样
+// 配置 Firebase (请替换为你自己的配置以保证联网功能正常)
+const firebaseConfig = {
+  apiKey: "AIzaSyC1X5uK1q2x6q3q4q5q6q7q8q9q0q1q2",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abc123def456"
+};
+try { firebase.initializeApp(firebaseConfig); } catch(e) {}
+const db = firebase.database?.();
 
-// 英雄数据（和之前一样）
-const HEROES={...};
-const ALL=[...];
+// 英雄数据
+const HEROES = {
+  str:[
+    {name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},
+    {name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},
+    {name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},
+    {name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},
+    {name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'八神庵',score:10},
+    {name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},
+    {name:'卡卡罗特',score:8},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'夜夜',score:5},
+    {name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5}
+  ],
+  agi:[
+    {name:'谏山黄泉',score:20},{name:'冲田总司',score:20},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},
+    {name:'流萤',score:14},{name:'英灵卫宫',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},
+    {name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},
+    {name:'青雉',score:12},{name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},
+    {name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'暗影大人',score:10},
+    {name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},
+    {name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},
+    {name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},
+    {name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},
+    {name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},
+    {name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},
+    {name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},
+    {name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},
+    {name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},
+    {name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}
+  ],
+  int:[
+    {name:'爱莉希雅',score:28},{name:'小圆（新人物待定）',score:16},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},
+    {name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},
+    {name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},
+    {name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},
+    {name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},
+    {name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},
+    {name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},
+    {name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'白Sber',score:5},{name:'吉普莉亚',score:5},
+    {name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},
+    {name:'志度内',score:5}
+  ]
+};
+const ALL=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h,type:'agi'})),...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI={str:'💪',agi:'⚡',int:'🧠'};
+const TL={str:'力量',agi:'敏捷',int:'智力'};
 const SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 
-// ---------- 核心修复：换边逻辑 ----------
-// 原来的问题：只改了 swapped 标志，但没有真正交换两队的数据和分数上限
-// 修复方案：换边时直接交换 a/b 的所有数据（队名、已选英雄、已用分数），同时交换分数上限
-// 这样界面和顺序会完全对换，符合真实“换边”
+// 基础配置
+const ORDER_B_FIRST = ['b','a','a','b','a','b','b','a','b','a'];
+const ORDER_A_FIRST = ['a','b','b','a','b','a','a','b','a','b'];
+const LIM_DEFAULT = {a:52, b:50};
 
-function swapTeams() {
-  if (!ref) return;
-  // 获取当前状态
-  const newA = {
-    name: gs.bName,
-    picks: [...(gs.bPicks || [])],
-    used: gs.bUsed || 0
-  };
-  const newB = {
-    name: gs.aName,
-    picks: [...(gs.aPicks || [])],
-    used: gs.aUsed || 0
-  };
-  // 交换分数上限 (A队原52 ↔ B队原50)
-  // 注意：上限不直接存在gs里，但通过 getLIM() 动态计算，这里需要同步 swapped 标志
-  // 同时为了数据一致性，把历史记录里的队伍归属也交换（否则回放会乱）
-  const swappedHistory = (gs.allRounds || []).map(round => ({
-    roundNum: round.roundNum,
-    aPicks: round.bPicks,
-    bPicks: round.aPicks,
-    aUsed: round.bUsed,
-    bUsed: round.aUsed
-  }));
-  
-  ref.update({
-    aName: newA.name,
-    bName: newB.name,
-    aPicks: newA.picks,
-    bPicks: newB.picks,
-    aUsed: newA.used,
-    bUsed: newB.used,
-    swapped: !(gs.swapped || false),   // 交换先手顺序
-    allRounds: swappedHistory,
-    ts: Date.now()
+// 状态
+let myRole = null; // 'a'|'b'|'ref'|'guest'
+let roomId = null;
+let ref = null;
+let gs = {}; // global state
+let tmr = null;
+let sel = null; // selected hero
+let currentTab = 'str';
+let lastStep = -1;
+let lastTs = 0;
+
+// 辅助函数
+function uid(){return Math.random().toString(36).slice(2,8).toUpperCase();}
+function isPlayer(){return myRole==='a'||myRole==='b';}
+function isRef(){return myRole==='ref';}
+function getLIM(){
+  const swapped = gs.swapped || false;
+  if(!swapped) return {a:LIM_DEFAULT.a, b:LIM_DEFAULT.b};
+  return {a:LIM_DEFAULT.b, b:LIM_DEFAULT.a};
+}
+function getOrder(){
+  const swapped = gs.swapped || false;
+  return swapped ? ORDER_A_FIRST : ORDER_B_FIRST;
+}
+function ct(){ // current team
+  const step = gs.step || 0;
+  return getOrder()[step] || 'a';
+}
+function leftTeam(){return gs.swapped ? 'b' : 'a';}
+function rightTeam(){return gs.swapped ? 'a' : 'b';}
+function leftCls(){return leftTeam()==='a'?'a':'b';}
+function rightCls(){return rightTeam()==='a'?'a':'b';}
+function canPick(name,score){
+  const curPicked = [...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);
+  const globalPicked = gs.globalPicked || [];
+  if([...curPicked,...globalPicked].includes(name)) return false;
+  const t = ct();
+  const used = t==='a' ? (gs.aUsed||0) : (gs.bUsed||0);
+  const lim = getLIM()[t];
+  return (used + score) <= lim;
+}
+function rem(t){
+  const used = t==='a' ? (gs.aUsed||0) : (gs.bUsed||0);
+  const lim = getLIM()[t];
+  return lim - used;
+}
+function myTurn(){
+  if(!isPlayer()) return false;
+  if(!gs.active || gs.paused || gs.roundEnded || gs.ended) return false;
+  return ct() === myRole;
+}
+
+// === 新增：渲染BP顺序的函数 ===
+function renderOrderBar() {
+  const orderBar = document.getElementById('orderBar');
+  if (!orderBar) return;
+  orderBar.innerHTML = getOrder().map((t, i) => 
+    `<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`
+  ).join('');
+  // 同步更新当前step的高亮
+  if (gs.step >= 0 && gs.step < 10) {
+    document.querySelectorAll('.order-dot').forEach((dot, i) => {
+      dot.classList.remove('current', 'done');
+      if (i < gs.step) dot.classList.add('done');
+      if (i === gs.step) dot.classList.add('current');
+    });
+  }
+}
+
+function setRole(r){
+  myRole=r;
+  document.getElementById('goBtn').disabled=false;
+  document.getElementById('goBtn').textContent=r==='ref'?'创建/进入对局 (裁判)':'创建/进入对局';
+  ['rR','rA','rB'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.style.opacity=(id==='r'+(r==='guest'?'X':r))?'1':'.5';
+  });
+}
+function joinAsGuest(){
+  myRole='guest';
+  document.getElementById('goBtn').disabled=false;
+  document.getElementById('goBtn').textContent='进入对局观战';
+}
+
+function startMatch(){
+  const aName=document.getElementById('inpA').value.trim()||'A队';
+  const bName=document.getElementById('inpB').value.trim()||'B队';
+  const inpRoom=document.getElementById('inpRoom').value.trim();
+  roomId=inpRoom||uid();
+  document.getElementById('codeDisplay').textContent='对局代码: '+roomId;
+  const badge=document.getElementById('myBadge');
+  const roleLabel={a:'🔴'+aName,b:'🔵'+bName,ref:'⚖ 裁判',guest:'👀 观战'}[myRole];
+  badge.textContent='['+roleLabel+']';
+  badge.className='my-badge '+(myRole==='ref'?'ref':myRole==='a'?'a':myRole==='b'?'b':'');
+  document.getElementById('setupOv').style.display='none';
+  const lb=document.getElementById('loginBg');
+  lb.style.opacity='0';
+  setTimeout(()=>lb.style.display='none',650);
+
+  // === 替换为新的渲染函数 ===
+  renderOrderBar();
+
+  if(isRef()) document.getElementById('refBar').style.display='flex';
+
+  if(!db) return; // 无Firebase时仅本地演示
+  ref=db.ref('rooms/'+roomId);
+  const joinUpdate={};
+  if(myRole==='a') joinUpdate.aName=aName;
+  if(myRole==='b') joinUpdate.bName=bName;
+  ref.update(joinUpdate);
+  ref.on('value',snap=>{
+    const val=snap.val()||{};
+    gs=val;
+    if(!gs.step&&gs.step!==0) gs.step=0;
+    syncUI();
+    // 计时器驱动
+    if(gs.active&&!gs.roundEnded&&!gs.ended&&!gs.paused){
+      if(gs.step!==lastStep||(gs.ts&&gs.ts!==lastTs)){
+        lastStep=gs.step; lastTs=gs.ts||0;
+        startTmr();
+      }
+    }else{
+      stopTmr();
+    }
   });
 }
 
-// 将原来的 refAction 里的 'swap' 调用这个函数
-function refAction(type) {
-  if (!ref) return;
-  if (type === 'swap') {
-    swapTeams();
-    return;
-  }
-  // 其他 start/pause/skip/endAll 保持不变
-  if (type === 'start') {
-    const newRound = (gs.roundNum || 0) + 1;
-    ref.update({
-      aPicks: [], bPicks: [], aUsed: 0, bUsed: 0,
-      step: 0, active: true, paused: false, roundEnded: false,
-      roundNum: newRound, ts: Date.now()
+// 计时器
+function startTmr(){
+  stopTmr();
+  const elapsed=gs.ts?Math.max(0,Math.floor((Date.now()-gs.ts)/1000)):0;
+  let t=Math.max(0,60-elapsed);
+  updTmr(t);
+  tmr=setInterval(()=>{
+    if(gs.paused||!gs.active||gs.roundEnded||gs.ended){stopTmr();return;}
+    t--;updTmr(t);
+    if(t<=0){stopTmr();if(myTurn())autoPickFn();}
+  },1000);
+}
+function stopTmr(){if(tmr){clearInterval(tmr);tmr=null;}}
+function updTmr(t){
+  const el=document.getElementById('timerBar');
+  el.textContent=t+'秒';
+  el.className='timer-bar'+(t<=15?' low':'');
+}
+function autoPickFn(){
+  const t=myRole;
+  const avail=ALL.filter(h=>canPick(h.name,h.score));
+  if(avail.length){doPick(avail[Math.floor(Math.random()*avail.length)]);}
+  else refAction('skip');
+}
+
+// 选人逻辑
+function selectHero(name,type,score){
+  if(!myTurn())return;
+  if(!canPick(name,score))return;
+  sel={name,type,score};
+  document.getElementById('pickBtn').disabled=false;
+  renderGrid();
+}
+function confirmPick(){if(!sel||!myTurn())return;doPick(sel);}
+function doPick(h){
+  if(!db) return;
+  const t=ct();
+  const na=[...(gs.aPicks||[])],nb=[...(gs.bPicks||[])];
+  let au=gs.aUsed||0,bu=gs.bUsed||0;
+  if(t==='a'){na.push(h);au+=h.score;}else{nb.push(h);bu+=h.score;}
+  const ns=gs.step+1;
+  sel=null;
+  document.getElementById('pickBtn').disabled=true;
+  if(ns>=10){
+    ref.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>{
+      const round={roundNum:gs.roundNum,aPicks:na,bPicks:nb,aUsed:au,bUsed:bu};
+      const newAllRounds=[...(gs.allRounds||[]),round];
+      const newGlobal=[...(gs.globalPicked||[]),...na.map(h=>h.name),...nb.map(h=>h.name)];
+      ref.update({roundEnded:true,active:false,allRounds:newAllRounds,globalPicked:newGlobal,ts:Date.now()});
     });
-  } else if (type === 'pause') {
-    ref.update({ paused: !gs.paused, ts: Date.now() });
-  } else if (type === 'skip') {
-    if (!gs.active || gs.roundEnded || gs.ended) return;
-    const ns = gs.step + 1;
-    if (ns >= 10) endRound();
-    else ref.update({ step: ns, ts: Date.now() });
-  } else if (type === 'endAll') {
-    ref.update({ ended: true, active: false, ts: Date.now() });
+  } else {
+    ref.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()});
   }
 }
 
-// 其余函数（canPick, myTurn, doPick, syncUI, renderGrid 等）保持不变
-// 但需要注意：分数上限 getLIM 现在依赖 gs.swapped，换边后会自动正确
-function getLIM() {
-  return gs.swapped ? { a: 50, b: 52 } : { a: 52, b: 50 };
+// 裁判操作
+function refAction(type){
+  if(!db||!ref)return;
+  if(type==='start'){
+    const newRound=(gs.roundNum||0)+1;
+    lastStep=-1;lastTs=0;
+    ref.update({
+      aPicks:[],bPicks:[],aUsed:0,bUsed:0,
+      step:0,active:true,paused:false,roundEnded:false,
+      roundNum:newRound,ts:Date.now()
+    });
+  } else if(type==='pause'){
+    ref.update({paused:!gs.paused,ts:Date.now()});
+  } else if(type==='skip'){
+    if(!gs.active||gs.roundEnded||gs.ended)return;
+    const ns=gs.step+1;
+    if(ns>=10){
+      const na=[...(gs.aPicks||[])],nb=[...(gs.bPicks||[])];
+      const round={roundNum:gs.roundNum,aPicks:na,bPicks:nb,aUsed:gs.aUsed||0,bUsed:gs.bUsed||0};
+      const newAllRounds=[...(gs.allRounds||[]),round];
+      const newGlobal=[...(gs.globalPicked||[]),...na.map(h=>h.name),...nb.map(h=>h.name)];
+      ref.update({roundEnded:true,active:false,allRounds:newAllRounds,globalPicked:newGlobal,ts:Date.now()});
+    }else ref.update({step:ns,ts:Date.now()});
+  } else if(type==='swap'){
+    // === 修复：限制换边仅在轮次未开始/已结束时生效 ===
+    if (gs.active && !gs.roundEnded && gs.step > 0) {
+      alert('请在本轮BP结束后再进行换边操作！');
+      return;
+    }
+    // 换边：切换先手顺序 + 强制更新UI
+    ref.update({swapped:!(gs.swapped||false),ts:Date.now()}, (err) => {
+      if (!err) {
+        // 本地立即重新渲染顺序和分数
+        renderOrderBar();
+        syncUI();
+        // === 额外优化：换边成功提示 ===
+        alert(`换边成功！${!(gs.swapped||false) ? 'A队先手' : 'B队先手'}`);
+      } else {
+        alert('换边失败，请重试！');
+      }
+    });
+  } else if(type==='endAll'){
+    ref.update({ended:true,active:false,ts:Date.now()},()=>{showResult();});
+  }
 }
-function ct() {
-  const order = gs.swapped ? ['a','b','b','a','b','a','a','b','a','b'] : ['b','a','a','b','a','b','b','a','b','a'];
-  return order[gs.step] || 'a';
-}
-// 其他函数（globalUsed, canPick, doPick, endRound, syncUI, showResult 等）保持你原来的实现，无需改动
 
-// 确保在 syncUI 里正确显示队伍名称和分数（用交换后的值）
-function syncUI() {
-  // 显示队名和分数时直接用 gs.aName, gs.bName
-  document.getElementById('aLabel').textContent = gs.aName;
-  document.getElementById('bLabel').textContent = gs.bName;
-  const aUsed = gs.aUsed || 0;
-  const bUsed = gs.bUsed || 0;
-  const aMax = getLIM().a;
-  const bMax = getLIM().b;
-  document.getElementById('aScore').textContent = `已用 ${aUsed} / ${aMax} 分`;
-  document.getElementById('bScore').textContent = `已用 ${bUsed} / ${bMax} 分`;
-  // 其他 UI 更新（槽位、历史、轮次指示器）保持原样
-  // ...
+function switchTab(t){currentTab=t;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-'+t).classList.add('active');renderGrid();}
+function renderGrid(){
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase();
+  const list=HEROES[currentTab].filter(h=>!q||h.name.toLowerCase().includes(q));
+  const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);
+  const globalPicked=gs.globalPicked||[];
+  const allPicked=[...new Set([...curPicked,...globalPicked])];
+  const t=ct();
+  const used=t==='a'?(gs.aUsed||0):(gs.bUsed||0);
+  const lim=getLIM()[t];
+  document.getElementById('heroGrid').innerHTML=list.map(h=>{
+    const picked=allPicked.includes(h.name);
+    const cantScore=(used+h.score)>lim;
+    let cls='hcard';
+    if(picked) cls+=' picked';
+    else if(cantScore) cls+=' over';
+    if(sel && sel.name===h.name) cls+=' sel';
+    return `<div class="${cls}" onclick="selectHero('${h.name.replace(/'/g,"\\'")}','${currentTab}',${h.score})">
+      <div class="hname">${h.name}</div>
+      <div class="hscore">${TI[currentTab]} ${h.score}分</div>
+    </div>`;
+  }).join('');
 }
 
-// 注意：在 startMatch 中，如果玩家是 ref，也要正确初始化 swapped 标志
-// 房间初始化时 swapped 默认为 false（B先手）
-// 其他部分不变
+function renderGlobalPool(){
+  const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);
+  const allPicked=[...new Set([...(gs.globalPicked||[]),...curPicked])];
+  document.getElementById('globalPool').innerHTML=allPicked.length?
+    allPicked.map(n=>`<span class="pool-item">${n}</span>`).join(''):
+    '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
+}
+
+function renderHistory(){
+  const allR=gs.allRounds||[];
+  const lt=leftTeam(), rt=rightTeam();
+  const buildHist=(team)=>{
+    return allR.map((r,ri)=>{
+      const picks=r[team+'Picks']||[];
+      const items=picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('');
+      return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮</div>${items}</div>`;
+    }).join('');
+  };
+  document.getElementById('histA').innerHTML=buildHist(lt);
+  document.getElementById('histB').innerHTML=buildHist(rt);
+}
+
+function renderPickSlots(){
+  const lt=leftTeam(), rt=rightTeam();
+  const ltColor=lt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
+  const rtColor=rt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
+  for(let i=1;i<=5;i++){
+    const lEl=document.getElementById('aSlot'+i);
+    if(lEl){lEl.classList.remove('active','filled');lEl.querySelector('.pname').textContent='等待选人';lEl.querySelector('.pscore').textContent='—';lEl.querySelector('.av').textContent=i;lEl.querySelector('.av').style.background=ltColor;}
+    const rEl=document.getElementById('bSlot'+i);
+    if(rEl){rEl.classList.remove('active','filled');rEl.querySelector('.pname').textContent='等待选人';rEl.querySelector('.pscore').textContent='—';rEl.querySelector('.av').textContent=i;rEl.querySelector('.av').style.background=rtColor;}
+  }
+  const ltPicks=(gs[lt+'Picks']||[]);
+  const rtPicks=(gs[rt+'Picks']||[]);
+  ltPicks.forEach((h,i)=>{
+    const el=document.getElementById('aSlot'+(i+1));if(!el)return;
+    el.classList.add('filled');
+    el.querySelector('.pname').textContent=h.name;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';
+    el.querySelector('.av').textContent=TI[h.type];
+  });
+  rtPicks.forEach((h,i)=>{
+    const el=document.getElementById('bSlot'+(i+1));if(!el)return;
+    el.classList.add('filled');
+    el.querySelector('.pname').textContent=h.name;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';
+    el.querySelector('.av').textContent=TI[h.type];
+  });
+  if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){
+    const t=ct();
+    const picks=(gs[t+'Picks'])||[];
+    const slotPrefix=t===leftTeam()?'aSlot':'bSlot';
+    const sl=document.getElementById(slotPrefix+(picks.length+1));
+    if(sl)sl.classList.add('active');
+  }
+}
+
+function syncUI(){
+  const rn=gs.roundNum||0;
+  const lt=leftTeam(), rt=rightTeam();
+
+  // === 修复：重新渲染BP顺序 ===
+  renderOrderBar();
+
+  if(rn>0){
+    document.getElementById('roundBadge').textContent='第'+rn+'轮';
+    document.getElementById('roundBadge').style.display='inline-block';
+  } else {
+    document.getElementById('roundBadge').style.display='none';
+  }
+
+  // 队名
+  const ltName=lt==='a'?(gs.aName||'A队'):(gs.bName||'B队');
+  const rtName=rt==='a'?(gs.aName||'A队'):(gs.bName||'B队');
+  document.getElementById('aLabel').textContent=ltName;
+  document.getElementById('aLabel').className='side-label '+leftCls();
+  document.getElementById('bLabel').textContent=rtName;
+  document.getElementById('bLabel').className='side-label '+rightCls();
+
+  // === 修复：分数上限显示 ===
+  const lim = getLIM();
+  const ltUsed=(lt==='a'?gs.aUsed:gs.bUsed)||0;
+  const rtUsed=(rt==='a'?gs.aUsed:gs.bUsed)||0;
+  const aEl=document.getElementById('aScore');
+  aEl.textContent=`已用 ${ltUsed} / ${lim[lt]} 分`;
+  aEl.className='score-total '+leftCls()+(ltUsed>lim[lt]?' score-over':'');
+  const bEl=document.getElementById('bScore');
+  bEl.textContent=`已用 ${rtUsed} / ${lim[rt]} 分`;
+  bEl.className='score-total '+rightCls()+(rtUsed>lim[rt]?' score-over':'');
+
+  // 槽位
+  renderPickSlots();
+
+  // 中心信息
+  const isRoundEnd=gs.roundEnded;
+  const isAllEnd=gs.ended;
+  if(isAllEnd){
+    document.getElementById('phaseBar').textContent='全部BP已结束';
+    document.getElementById('statusBar').textContent='点「结束所有BP」查看汇总';
+    showResult();
+  } else if(isRoundEnd){
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！';
+    document.getElementById('statusBar').textContent='等待裁判开始下一轮';
+  } else if(!gs.active){
+    document.getElementById('phaseBar').textContent='等待裁判开始...';
+    document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人';
+  } else if(gs.paused){
+    document.getElementById('phaseBar').textContent='已暂停';
+    document.getElementById('statusBar').textContent='等待裁判恢复';
+  } else {
+    document.getElementById('phaseBar').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';
+    document.getElementById('statusBar').textContent='剩余: '+rem(ct())+'分';
+  }
+
+  // 消息显示
+  document.getElementById('waitNextMsg').style.display=(isRoundEnd&&!isAllEnd)?'block':'none';
+  document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&gs.active&&!gs.paused&&!isRoundEnd&&!isAllEnd&&!myTurn())?'block':'none';
+
+  // 英雄池
+  renderGrid();
+  // 全局池
+  renderGlobalPool();
+  // 历史
+  renderHistory();
+
+  // === 额外优化：换边按钮状态控制 ===
+  const swapBtn = document.querySelector('.ref-bar .swap');
+  if (swapBtn) {
+    const inProgress = gs.active && !gs.roundEnded && gs.step > 0;
+    swapBtn.disabled = inProgress;
+    swapBtn.style.opacity = inProgress ? '0.5' : '1';
+    swapBtn.style.cursor = inProgress ? 'not-allowed' : 'pointer';
+  }
+}
+
+function showResult(){
+  const allR=gs.allRounds||[];
+  if(!allR.length){document.getElementById('resultOv').style.display='flex';return;}
+  const lt=leftTeam(), rt=rightTeam();
+  const ltName=lt==='a'?(gs.aName||'A队'):(gs.bName||'B队');
+  const rtName=rt==='a'?(gs.aName||'A队'):(gs.bName||'B队');
+  const lastR=allR[allR.length-1];
+  const ltPicks=lastR[lt+'Picks']||[];
+  const rtPicks=lastR[rt+'Picks']||[];
+  const ltUsed=lastR[lt+'Used']||0;
+  const rtUsed=lastR[rt+'Used']||0;
+  const lim=getLIM();
+  document.getElementById('resultBody').innerHTML=`
+    <div class="result-slots">
+      <div>
+        <div class="side-label ${leftCls()}" style="margin-bottom:8px">${ltName} (已用 ${ltUsed}/${lim[lt]})</div>
+        ${ltPicks.map(h=>`<div class="history-item">${TI[h.type]} ${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}
+      </div>
+      <div>
+        <div class="side-label ${rightCls()}" style="margin-bottom:8px">${rtName} (已用 ${rtUsed}/${lim[rt]})</div>
+        ${rtPicks.map(h=>`<div class="history-item">${TI[h.type]} ${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('resultOv').style.display='flex';
+}
+
+// 初始化
+document.getElementById('inpRoom').addEventListener('input',()=>{
+  if(document.getElementById('inpRoom').value.trim()){
+    document.getElementById('inpA').placeholder='A队队名 (仅创建时生效)';
+    document.getElementById('inpB').placeholder='B队队名 (仅创建时生效)';
+  }else{
+    document.getElementById('inpA').placeholder='A队队名 (可选)';
+    document.getElementById('inpB').placeholder='B队队名 (可选)';
+  }
+});
 </script>
 </body>
 </html>
