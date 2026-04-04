@@ -7,7 +7,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh}
-/* 移除GIF背景图 */
 .conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3)}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
 .header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1)}
@@ -165,8 +164,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <h2>⚔ JUMP大赛 BP系统</h2>
     <div class="sub">联网版 · Firebase实时同步 · 多轮BP</div>
     <div class="rules">
-      📋 A队上限 52分 · B队上限 50分<br>
-      🔵 B队先手：B→AA→B→A→BB→A→B→A<br>
+      📋 Sunday方(先手) 上限50分 · JUMP方(后手) 上限52分<br>
+      🔵 默认B队先手(Sunday)，换边后A队先手(Sunday)<br>
       ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
       ⏱ 每轮60秒 · 超时自动随机分配
     </div>
@@ -317,13 +316,16 @@ const SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 const ORDER_B_FIRST=['b','a','a','b','a','b','b','a','b','a'];
 const ORDER_A_FIRST=['a','b','b','a','b','a','a','b','a','b'];
 function getOrder(){return (gs.swapped?ORDER_A_FIRST:ORDER_B_FIRST);}
+// 根据swapped获取Sunday方(先手)和JUMP方(后手)的队伍标识
+function getSundayTeam(){ return gs.swapped ? 'a' : 'b'; }
+function getJumpTeam(){ return gs.swapped ? 'b' : 'a'; }
 // 左侧永远是A队，右侧永远是B队，换边只改顺序和分数
 function leftTeam(){return 'a';}
 function rightTeam(){return 'b';}
 function leftCls(){return 'a';}
 function rightCls(){return 'b';}
-// 分数上限根据换边动态变化：原来A队52分B队50分，换边后互换
-function getLIM(){return gs.swapped?{a:50,b:52}:{a:52,b:50};} // 先手50分，后手52分
+// 分数上限：Sunday方(先手)50分，JUMP方(后手)52分
+function getLIM(){return {[getSundayTeam()]:50, [getJumpTeam()]:52};}
 
 // ── 本地变量 ──
 let roomId='',myRole='a',tab='str',sel=null,tmr=null,ref=null,lastStep=-1,lastTs=0,isCreator=false;
@@ -410,7 +412,7 @@ function startMatch(){
       document.getElementById('waitCode').textContent=roomId;
       document.getElementById('waitOv').style.display='flex';
     } else {
-      // 同步状态 - 始终使用Firebase的队名（解决问题1）
+      // 同步状态
       gs={...gs,...data,
         aPicks:data.aPicks||[],
         bPicks:data.bPicks||[],
@@ -418,15 +420,14 @@ function startMatch(){
         allRounds:data.allRounds||[]
       };
 
-      // 如果是加入方且players<2，写入players:2（解决等待问题）
+      // 如果是加入方且players<2，写入players:2
       if(!isCreator&&(data.players||0)<2){
-        // B加入时把自己填的名字同步写入Firebase（用startMatch里已保存的变量）
         const joinUpdate={players:2,ts:Date.now()};
         if(myRole==='b'&&bName!=='B队') joinUpdate.bName=bName;
         else if(myRole==='a'&&aName!=='A队') joinUpdate.aName=aName;
         ref.update(joinUpdate);
       }
-      // 如果加入方检测到队伍冲突，自动切换（解决问题2）
+      // 如果加入方检测到队伍冲突，自动切换
       if(!isCreator&&data.takenRoles){
         const taken=data.takenRoles||[];
         if(myRole!=='ref'&&taken.includes(myRole)){
@@ -445,7 +446,7 @@ function startMatch(){
       document.getElementById('waitOv').style.display='none';
       syncUI();
 
-      // 倒计时控制：step或 ts 변경시 재시작
+      // 倒计时控制
       if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){
         const curTs=data.ts||0;
         if(gs.step!==lastStep||curTs!==lastTs){
@@ -464,7 +465,6 @@ function startMatch(){
 function refAction(type){
   if(!ref)return;
   if(type==='start'){
-    // 开始新一轮：重置本轮数据，roundNum+1，保留globalPicked和allRounds
     const newRound=(gs.roundNum||0)+1;
     lastStep=-1;
     lastTs=0;
@@ -481,18 +481,13 @@ function refAction(type){
     if(ns>=10){endRound();}
     else ref.update({step:ns,ts:Date.now()});
   } else if(type==='swap'){
-    // 换边：只切换BP先手顺序，A队B队数据完全不变
-    // swapped=false：B队先手（默认）
-    // swapped=true：A队先手（换边后）
     ref.update({swapped:!(gs.swapped||false),ts:Date.now()});
-    // 本地不需要做任何改变，myRole不变，数据不变，只是顺序变了
   } else if(type==='endAll'){
     ref.update({ended:true,active:false,ts:Date.now()});
   }
 }
 
 function endRound(){
-  // 本轮结束：把本轮结果存入allRounds，更新globalPicked
   const round={
     roundNum:gs.roundNum,
     aPicks:[...(gs.aPicks||[])],
@@ -500,7 +495,6 @@ function endRound(){
     aUsed:gs.aUsed,bUsed:gs.bUsed
   };
   const newAllRounds=[...(gs.allRounds||[]),round];
-  // 把本轮所有选人加入全局池
   const newGlobal=[...(gs.globalPicked||[]),
     ...(gs.aPicks||[]).map(h=>h.name),
     ...(gs.bPicks||[]).map(h=>h.name)
@@ -525,15 +519,13 @@ function startTmr(){
 function stopTmr(){clearInterval(tmr);tmr=null;}
 function updTmr(t){const el=document.getElementById('timerBar');el.textContent=t+'秒';el.className='timer-bar'+(t<=15?' urgent':'');}
 
-// 超时自动随机分配（问题6）
 function autoPickFn(){
-  const t=myRole;
   const avail=ALL.filter(h=>canPick(h.name,h.score));
   if(avail.length){doPick(avail[Math.floor(Math.random()*avail.length)]);}
   else refAction('skip');
 }
 
-// ── 选人逻辑（问题4：智能判断）──
+// ── 选人逻辑 ──
 function selectHero(name,type,score){
   if(!myTurn())return;
   if(!canPick(name,score))return;
@@ -552,11 +544,8 @@ function doPick(h){
   sel=null;
   document.getElementById('pickBtn').disabled=true;
 
-  // 检查是否10轮全选完
   if(ns>=10){
-    // 先写入最后一选，然后结束本轮
     ref.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>{
-      // 在写入完成后结束本轮
       const round={roundNum:gs.roundNum,aPicks:na,bPicks:nb,aUsed:au,bUsed:bu};
       const newAllRounds=[...(gs.allRounds||[]),round];
       const newGlobal=[...(gs.globalPicked||[]),...na.map(h=>h.name),...nb.map(h=>h.name)];
@@ -570,8 +559,25 @@ function doPick(h){
 // ── UI同步 ──
 function syncUI(){
   const rn=gs.roundNum||0;
-  // 左右队伍动态分配（换边后互换）
   const lt=leftTeam(), rt=rightTeam();
+  const sundayTeam=getSundayTeam();
+  const jumpTeam=getJumpTeam();
+  // 更新侧边标签：显示Sunday/JUMP + 队名
+  const aIsSunday = (lt === sundayTeam);
+  const bIsSunday = (rt === sundayTeam);
+  const aLabelText = aIsSunday ? `☀️ Sunday方 (${gs.aName})` : `⚡ JUMP方 (${gs.aName})`;
+  const bLabelText = bIsSunday ? `☀️ Sunday方 (${gs.bName})` : `⚡ JUMP方 (${gs.bName})`;
+  document.getElementById('aLabel').innerHTML = aLabelText;
+  document.getElementById('bLabel').innerHTML = bLabelText;
+  // 分数显示使用getLIM动态
+  const aLim=getLIM()[lt], bLim=getLIM()[rt];
+  const aUsed=lt==='a'?gs.aUsed:gs.bUsed;
+  const bUsed=rt==='a'?gs.aUsed:gs.bUsed;
+  document.getElementById('aScore').innerHTML=`已用 ${aUsed} / ${aLim} 分`;
+  document.getElementById('aScore').className='score-total '+leftCls()+(aUsed>aLim?' score-over':'');
+  document.getElementById('bScore').innerHTML=`已用 ${bUsed} / ${bLim} 分`;
+  document.getElementById('bScore').className='score-total '+rightCls()+(bUsed>bLim?' score-over':'');
+
   // 换边后重建轮次指示条顺序
   document.getElementById('orderBar').innerHTML=getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
   if(rn>0){
@@ -579,21 +585,7 @@ function syncUI(){
     document.getElementById('roundBadge').style.display='inline-block';
   }
 
-  // 分数
-  // 分数和名字：左侧=leftTeam, 右侧=rightTeam
-  const ltName=lt==='a'?gs.aName:gs.bName;
-  const rtName=rt==='a'?gs.aName:gs.bName;
-  const ltUsed=(lt==='a'?gs.aUsed:gs.bUsed)||0;
-  const rtUsed=(rt==='a'?gs.aUsed:gs.bUsed)||0;
-  const ltLim=getLIM()[lt], rtLim=getLIM()[rt];
-  document.getElementById('aLabel').textContent=ltName;
-  document.getElementById('aLabel').className='side-label '+leftCls();
-  document.getElementById('bLabel').textContent=rtName;
-  document.getElementById('bLabel').className='side-label '+rightCls();
-  const aEl=document.getElementById('aScore');aEl.textContent=`已用 ${ltUsed} / ${ltLim} 分`;aEl.className='score-total '+leftCls()+(ltUsed>ltLim?' score-over':'');
-  const bEl=document.getElementById('bScore');bEl.textContent=`已用 ${rtUsed} / ${rtLim} 分`;bEl.className='score-total '+rightCls()+(rtUsed>rtLim?' score-over':'');
-
-  // 重置槽位（左侧=leftTeam, 右侧=rightTeam）
+  // 重置槽位颜色
   const ltColor=lt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
   const rtColor=rt==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
   for(let i=1;i<=5;i++){
@@ -602,7 +594,7 @@ function syncUI(){
     const rEl=document.getElementById('bSlot'+i);
     if(rEl){rEl.classList.remove('active','filled');rEl.querySelector('.pname').textContent='等待选人';rEl.querySelector('.pscore').textContent='—';rEl.querySelector('.av').textContent=i;rEl.querySelector('.av').style.background=rtColor;}
   }
-  // 填入本轮已选：leftTeam的picks显示在左侧(aSlot)，rightTeam显示在右侧(bSlot)
+  // 填入本轮已选
   const ltPicks=(gs[lt+'Picks']||[]);
   const rtPicks=(gs[rt+'Picks']||[]);
   ltPicks.forEach((h,i)=>{
@@ -620,11 +612,10 @@ function syncUI(){
     el.querySelector('.av').textContent=TI[h.type];
   });
 
-  // 高亮当前槽（显示在左或右取决于换边状态）
+  // 高亮当前槽
   if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){
-    const t=ct(); // 当前该选的队(a或b)
+    const t=ct();
     const picks=(gs[t+'Picks'])||[];
-    // 如果当前队是leftTeam则高亮aSlot，否则高亮bSlot
     const slotPrefix=t===lt?'aSlot':'bSlot';
     const sl=document.getElementById(slotPrefix+(picks.length+1));
     if(sl)sl.classList.add('active');
@@ -651,14 +642,17 @@ function syncUI(){
     document.getElementById('waitNextMsg').style.display='block';
   } else if(gs.active&&gs.step<10){
     document.getElementById('waitNextMsg').style.display='none';
-    const t=ct(),tName=t==='a'?gs.aName:gs.bName;
-    document.getElementById('curName').textContent=tName;
+    const t=ct();
+    const tName=t==='a'?gs.aName:gs.bName;
+    const isSunday = (t === sundayTeam);
+    const roleName = isSunday ? 'Sunday方' : 'JUMP方';
+    document.getElementById('curName').textContent=`${roleName} (${tName})`;
     document.getElementById('curTag').textContent=tName;
     document.getElementById('curTag').className='team-tag '+t;
     document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';
     document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分';
     document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选';
-    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':tName+' 正在选人...';
+    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':`${roleName} (${tName}) 正在选人...`;
     const mt=myTurn();
     const tip=document.getElementById('turnTip');
     tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中');
@@ -685,20 +679,21 @@ function syncUI(){
     else if(i===gs.step&&gs.active&&!gs.roundEnded)el.classList.add('current');
   });
 
-  // 历轮记录（问题7）
+  // 历轮记录
   const allR=gs.allRounds||[];
-  const buildHist=(team)=>{
+  const buildHist=(team, teamIsSunday)=>{
+    const sideName = teamIsSunday ? 'Sunday方' : 'JUMP方';
     return allR.map((r,ri)=>{
       const picks=team==='a'?r.aPicks:r.bPicks;
       if(!picks||!picks.length)return'';
       const items=picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('');
-      return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮</div>${items}</div>`;
+      return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${sideName}</div>${items}</div>`;
     }).join('');
   };
-  document.getElementById('histA').innerHTML=buildHist(lt);
-  document.getElementById('histB').innerHTML=buildHist(rt);
+  document.getElementById('histA').innerHTML=buildHist(lt, lt===sundayTeam);
+  document.getElementById('histB').innerHTML=buildHist(rt, rt===sundayTeam);
 
-  // 全局已选池（问题8）
+  // 全局已选池
   const gp=gs.globalPicked||[];
   const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);
   const allPicked=[...new Set([...gp,...curPicked])];
@@ -745,18 +740,35 @@ function switchTab(t){
 function showResult(){
   const allR=gs.allRounds||[];
   if(!allR.length){document.getElementById('resultOv').style.display='flex';return;}
+  const sundayTeam=getSundayTeam();
+  const jumpTeam=getJumpTeam();
+  const sundayName = sundayTeam==='a' ? gs.aName : gs.bName;
+  const jumpName = jumpTeam==='a' ? gs.aName : gs.bName;
   const fmt=(r,team)=>{
     const picks=team==='a'?r.aPicks:r.bPicks;
     return (picks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
   };
-  document.getElementById('resultContent').innerHTML=allR.map(r=>`
-    <div class="result-round">
-      <h3>第${r.roundNum}轮</h3>
-      <div class="result-teams">
-        <div class="rteam"><h4 class="a">${gs.aName}</h4><div class="rtotal">总分: ${r.aUsed}/52</div><ul>${fmt(r,'a')}</ul></div>
-        <div class="rteam"><h4 class="b">${gs.bName}</h4><div class="rtotal">总分: ${r.bUsed}/50</div><ul>${fmt(r,'b')}</ul></div>
+  // 汇总结果中按Sunday/JUMP展示
+  let sundayTotal=0, jumpTotal=0;
+  allR.forEach(r=>{
+    sundayTotal += (sundayTeam==='a'?r.aUsed:r.bUsed);
+    jumpTotal += (jumpTeam==='a'?r.aUsed:r.bUsed);
+  });
+  document.getElementById('resultContent').innerHTML=`
+    <div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left">
+      <div>☀️ Sunday方 (先手): ${sundayName} — 总分 ${sundayTotal}/ (每轮上限50分)</div>
+      <div>⚡ JUMP方 (后手): ${jumpName} — 总分 ${jumpTotal}/ (每轮上限52分)</div>
+    </div>
+    ${allR.map(r=>`
+      <div class="result-round">
+        <h3>第${r.roundNum}轮</h3>
+        <div class="result-teams">
+          <div class="rteam"><h4 class="a">☀️ Sunday方 (${sundayName})</h4><div class="rtotal">本轮总分: ${sundayTeam==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,sundayTeam)}</ul></div>
+          <div class="rteam"><h4 class="b">⚡ JUMP方 (${jumpName})</h4><div class="rtotal">本轮总分: ${jumpTeam==='a'?r.aUsed:r.bUsed}/52</div><ul>${fmt(r,jumpTeam)}</ul></div>
+        </div>
       </div>
-    </div>`).join('');
+    `).join('')}
+  `;
   document.getElementById('resultOv').style.display='flex';
 }
 </script>
