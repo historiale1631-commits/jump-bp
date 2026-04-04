@@ -378,9 +378,16 @@ function stopUiTick(){clearInterval(uiTick);uiTick=null;}
 
 function onTick(){
   if(!gs.active||gs.paused||gs.roundEnded||gs.ended||gs.step>=10){stopUiTick();updTimerUI();return;}
-  const {mainSec,bankSec,draining}=calcTime();
+  const {mainSec,bankSec,draining,elapsed,bank}=calcTime();
   updTimerUIWith(mainSec,bankSec,draining);
-  if(bankSec<=0&&!autoPickFired&&myTurn()){autoPickFired=true;stopUiTick();autoPickFn();}
+  // 触发条件：主计时耗尽（elapsed>=60）且备用时间耗尽（bankSec<=0）
+  // 用 elapsed >= 60 + bank 作为保底，避免浮点/时钟抖动卡在0不触发
+  const totalAllowed=60+(bank||0);
+  if(!autoPickFired&&myTurn()&&(bankSec<=0||elapsed>=totalAllowed)){
+    autoPickFired=true;
+    stopUiTick();
+    autoPickFn();
+  }
 }
 
 // 用服务器时间计算（消除本地时钟偏差）
@@ -393,7 +400,7 @@ function calcTime(){
   const bank=curTeam==='a'?gs.bankA:gs.bankB;
   const bankSec=Math.max(0,bank-overflowed);
   const draining=elapsed>=MAIN&&bankSec>0;
-  return{mainSec,bankSec,draining,overflowed,bank,curTeam};
+  return{mainSec,bankSec,draining,overflowed,bank,curTeam,elapsed};
 }
 
 function fmtBank(s){const m=Math.floor(Math.max(0,s)/60),sec=Math.max(0,s)%60;return m+':'+(sec<10?'0':'')+sec;}
@@ -507,7 +514,9 @@ function listenRoom(aName,bName){
     document.getElementById('waitOv').style.display='none';
     syncUI();
     if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){
-      if(!uiTick){autoPickFired=false;startUiTick();}
+      // 每次step变化都重新启动tick（startUiTick内部会先stop再start）
+      // 这样autoPickFired随step推进被自动清除，不会影响下一步
+      startUiTick();
     } else {
       stopUiTick();
       updTimerUI();
