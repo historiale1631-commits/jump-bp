@@ -184,14 +184,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <div class="overlay" id="setupOv">
   <div class="modal">
     <h2>⚔ JUMP大赛 BP系统</h2>
-    <div class="sub">联网版 · Firebase实时同步 · 多轮BP</div>
+    <div class="sub">联网版 · 实时同步 · 多轮BP</div>
     <div class="rules">
       📋 Sunday方(先手) 上限50分 · JUMP方(后手) 上限52分<br>
       🔵 默认B队先手(Sunday)，换边后A队先手(Sunday)<br>
       ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
-      ⏱ 每位置60秒主计时 + 各方300秒备用时间（全同步）<br>
-      <span style="color:#c4b5fd">🔗 同一人物皮肤(紫)：全局互斥</span><br>
-      <span style="color:#fcd34d">⚡ 变身关系(琥珀)：本轮互斥</span>
+      ⏱ 每位置60秒主计时 + 各方300秒备用时间<br>
+      <span style="color:#c4b5fd">🔗 同一人物皮肤：全局互斥</span><br>
+      <span style="color:#fcd34d">⚡ 变身关系：本轮互斥</span>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📤 你的对局码（发给对方）：</div>
     <div class="code-box"><div class="cval" id="myCode">...</div><button onclick="copyCode(this)">复制</button></div>
@@ -261,20 +261,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <div class="status-bar" id="statusBar">裁判按「开始新一轮BP」后才能选人</div>
 
     <div class="timer-wrap">
-      <div class="timer-main">
-        <div class="tlabel">⏱ 本位置倒计时</div>
-        <div class="tval" id="timerMain">—</div>
-      </div>
-      <div class="timer-bank">
-        <div class="tlabel" id="bankALabel">🔴 A队备用</div>
-        <div class="tval" id="bankAVal">5:00</div>
-        <div class="tmode" id="bankAMode">待机</div>
-      </div>
-      <div class="timer-bank">
-        <div class="tlabel" id="bankBLabel">🔵 B队备用</div>
-        <div class="tval" id="bankBVal">5:00</div>
-        <div class="tmode" id="bankBMode">待机</div>
-      </div>
+      <div class="timer-main"><div class="tlabel">⏱ 本位置倒计时</div><div class="tval" id="timerMain">—</div></div>
+      <div class="timer-bank"><div class="tlabel" id="bankALabel">🔴 A队备用</div><div class="tval" id="bankAVal">5:00</div><div class="tmode" id="bankAMode">待机</div></div>
+      <div class="timer-bank"><div class="tlabel" id="bankBLabel">🔵 B队备用</div><div class="tval" id="bankBVal">5:00</div><div class="tmode" id="bankBMode">待机</div></div>
     </div>
 
     <div class="tab-row"><button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button><button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button><button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button><button class="tab-btn tab-all" onclick="switchTab('all')">全部</button></div>
@@ -302,7 +291,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// Firebase配置
+// 初始化 Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
   authDomain: "jumpbp-ece00.firebaseapp.com",
@@ -314,14 +303,13 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-// 连接状态
 db.ref('.info/connected').on('value', s => {
   const el = document.getElementById('connBar');
   el.textContent = s.val() ? '🟢 已连接 Firebase' : '🔴 连接断开，请刷新';
   el.className = 'conn-bar ' + (s.val() ? 'online' : 'offline');
 });
 
-// ======================= 互斥规则 =======================
+// ---------- 互斥规则 ----------
 const GLOBAL_MUTEX = [['珂朵莉','暗影大人']];
 const ROUND_MUTEX = [
   ['两仪式','两仪式(pf)'],['刀藤绮凛','从鱼丸'],['宇智波佐助','阴之力佐助'],
@@ -329,49 +317,28 @@ const ROUND_MUTEX = [
   ['宇智波斑（原皮）','秽土宇智波斑'],['大师牌','舔牌','雨宫莲'],
   ['死神代理','黑崎一护pf'],['逆回十六夜','流萤'],['波风水门X4','秽土四代'],
   ['桐谷和人','桐谷和人UW'],['埃尔奎特','公主'],['朱雀院红叶(pf)','朱雀院红叶'],
-  ['坂田银时','皮肤银时'],['草薙京','NAO'],
+  ['坂田银时','皮肤银时'],['草薙京','NAO']
 ];
 function getGlobalMutexBlocked(gSet) { const b = new Set(); for (const g of GLOBAL_MUTEX) if (g.some(n => gSet.has(n))) g.forEach(n => b.add(n)); return b; }
 function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND_MUTEX) { const h = g.find(n => rSet.has(n)); if (h) g.forEach(n => { if (n !== h) b.add(n); }); } return b; }
 
-// ======================= 英雄数据 =======================
+// ---------- 英雄数据 ----------
 const HEROES = {
-  str: [
-    {name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},
-    {name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},
-    {name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},
-    {name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},
-    {name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},
-    {name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}
-  ],
-  agi: [
-    {name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},
-    {name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},
-    {name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},
-    {name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},
-    {name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},
-    {name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}
-  ],
-  int: [
-    {name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},
-    {name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},
-    {name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},
-    {name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},
-    {name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},
-    {name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}
-  ]
+  str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
+  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}],
+  int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
 };
 const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({...h,type:'agi'})), ...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI = {str:'💪', agi:'⚡', int:'🧠'};
 const SC = {str:'sc-str', agi:'sc-agi', int:'sc-int'};
 const ORDER_B = ['b','a','a','b','a','b','b','a','b','a'];
-const ORDER_A = ['a','b','b','a','b','a','a','b','a','a']; // 修正最后一位为a，保持10个
+const ORDER_A = ['a','b','b','a','b','a','a','b','a','a'];
 function getOrder() { return gs.swapped ? ORDER_A : ORDER_B; }
 function getSundayTeam() { return gs.swapped ? 'a' : 'b'; }
 function getJumpTeam() { return gs.swapped ? 'b' : 'a'; }
 function getLIM() { return { [getSundayTeam()]: 50, [getJumpTeam()]: 52 }; }
 
-// 全局状态
+// ---------- 全局状态 ----------
 let roomId = '', myRole = 'a', tab = 'str', sel = null, refDb = null, isCreator = false;
 let gs = {
   aName: 'A队', bName: 'B队', aPicks: [], bPicks: [], aUsed: 0, bUsed: 0,
@@ -405,7 +372,7 @@ function genCode() { return Math.random().toString(36).substr(2, 6).toUpperCase(
 function copyCode(btn) { navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(() => { btn.textContent = '✓'; setTimeout(() => btn.textContent = '复制', 1500); }); }
 function setRole(r) { myRole = r; document.getElementById('rA').className = r === 'a' ? 'sel-a' : ''; document.getElementById('rB').className = r === 'b' ? 'sel-b' : ''; document.getElementById('rR').className = r === 'ref' ? 'sel-r' : ''; document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none'; }
 
-// 计时器相关
+// 计时器
 function calcTime() {
   const cur = ct();
   const elapsed = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
@@ -487,7 +454,7 @@ function doPick(h) {
   if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
 }
 
-// UI同步与渲染
+// UI同步
 function syncUI() {
   const rn = gs.roundNum || 0;
   const sundayTeam = getSundayTeam();
@@ -544,7 +511,7 @@ function showResult() {
   document.getElementById('resultOv').style.display = 'flex';
 }
 
-// 主流程：开始匹配
+// 启动对局
 function startMatch() {
   if (myRole === 'ref' && document.getElementById('refCodeInput').value.trim() !== '759315') { alert('裁判码错误！'); return; }
   const inp = document.getElementById('inpRoom').value.trim().toUpperCase();
@@ -561,7 +528,8 @@ function startMatch() {
   refDb = db.ref('rooms/' + roomId);
   refDb.once('value', snap => {
     if (!snap.val()) {
-      refDb.set({ aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [] }).then(() => { document.getElementById('waitCode').textContent = roomId; document.getElementById('waitOv').style.display = 'flex'; listenRoom(aName, bName); });
+      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [] };
+      refDb.set(init).then(() => { document.getElementById('waitCode').textContent = roomId; document.getElementById('waitOv').style.display = 'flex'; listenRoom(aName, bName); });
     } else listenRoom(aName, bName);
   });
 }
@@ -569,9 +537,28 @@ function listenRoom(aName, bName) {
   refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
-    if (!isCreator && (data.players || 0) < 2) { const ju = { players: 2 }; if (myRole === 'b' && bName !== 'B队') ju.bName = bName; else if (myRole === 'a' && aName !== 'A队') ju.aName = aName; refDb.update(ju); }
-    if (!isCreator && myRole !== 'ref' && data.takenRoles && data.takenRoles.includes(myRole)) { myRole = myRole === 'a' ? 'b' : 'a'; document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']'; document.getElementById('myBadge').className = 'my-badge ' + myRole; }
-    if (!isCreator && myRole !== 'ref') { const roles = data.takenRoles || []; if (!roles.includes(myRole)) refDb.update({ takenRoles: [...roles, myRole], players: 2 }); }
+    // 关键修复：如果自己是加入方且房间内 players<2，更新 players 计数，并确保自己的队伍名称写入
+    if (!isCreator && (data.players || 0) < 2) {
+      const update = { players: 2 };
+      if (myRole === 'b' && bName !== 'B队') update.bName = bName;
+      else if (myRole === 'a' && aName !== 'A队') update.aName = aName;
+      refDb.update(update);
+    }
+    // 修复角色冲突：如果当前已存在的 takenRoles 包含了我的角色，则自动切换到另一个队伍（只针对玩家）
+    if (!isCreator && myRole !== 'ref' && data.takenRoles && data.takenRoles.includes(myRole)) {
+      const newRole = myRole === 'a' ? 'b' : 'a';
+      myRole = newRole;
+      document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']';
+      document.getElementById('myBadge').className = 'my-badge ' + myRole;
+      // 更新 takenRoles
+      const newTaken = [...(data.takenRoles || []), myRole];
+      refDb.update({ takenRoles: newTaken, players: 2 });
+    } else if (!isCreator && myRole !== 'ref') {
+      const roles = data.takenRoles || [];
+      if (!roles.includes(myRole)) {
+        refDb.update({ takenRoles: [...roles, myRole], players: 2 });
+      }
+    }
     document.getElementById('waitOv').style.display = 'none';
     syncUI();
     if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) startUiTick(); else { stopUiTick(); updTimerUI(); }
