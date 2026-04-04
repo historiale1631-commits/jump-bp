@@ -63,7 +63,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .history-item{font-size:9px;color:rgba(255,255,255,.55);padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.03);margin-bottom:1px;line-height:1.4}
 .global-pool{margin-top:4px}
 .pool-item{display:inline-block;font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.06);border-radius:3px;padding:1px 5px;margin:1px}
-.center{flex:1;display:flex;flex-direction:column;padding:7px 10px;gap:6px;min-width:0;overflow-y:auto}
+.center{flex:1;display:flex;flex-direction:column;padding:7px 10px;gap:5px;min-width:0;overflow-y:auto}
 .center::-webkit-scrollbar{width:3px}
 .center::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .info-bar{display:flex;align-items:center;gap:7px;padding:6px 10px;background:rgba(255,255,255,.07);border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:11px;flex-wrap:wrap}
@@ -73,11 +73,23 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .team-tag.b{background:rgba(50,100,220,.45);color:#93c5fd}
 .my-turn-tip{font-size:11px;color:#fcd34d;font-weight:700}
 .not-turn-tip{font-size:11px;color:rgba(255,255,255,.4)}
-.phase-bar{padding:6px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
-.status-bar{padding:7px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
-.timer-bar{padding:10px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:24px;font-weight:700;color:#fcd34d;transition:color .3s}
-.timer-bar.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
+.phase-bar{padding:5px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
+.status-bar{padding:5px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
+
+/* ── 计时器区域 ── */
+.timer-wrap{display:flex;gap:8px;align-items:stretch}
+.timer-main{flex:1;background:rgba(0,0,0,.45);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;border:1px solid rgba(255,255,255,.08)}
+.timer-main .tlabel{font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px}
+.timer-main .tval{font-size:26px;font-weight:700;color:#fcd34d;line-height:1;transition:color .3s}
+.timer-main .tval.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
+.timer-bank{background:rgba(0,0,0,.35);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 12px;border:1px solid rgba(255,160,0,.2);min-width:90px}
+.timer-bank .tlabel{font-size:9px;color:rgba(255,160,0,.7);margin-bottom:2px}
+.timer-bank .tval{font-size:18px;font-weight:700;color:#fb923c;line-height:1;transition:color .3s}
+.timer-bank .tval.empty{color:#f87171!important;animation:pulse .5s ease-in-out infinite alternate}
+.timer-bank .tmode{font-size:9px;margin-top:2px;color:rgba(255,255,255,.35)}
+.timer-bank .tmode.draining{color:#fb923c;font-weight:700}
 @keyframes pulse{from{opacity:1}to{opacity:.6}}
+
 .order-bar{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
 .order-dot{width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid transparent;transition:all .2s}
 .order-dot.a-dot{background:rgba(220,50,50,.25);color:#fca5a5;border-color:rgba(220,50,50,.4)}
@@ -85,45 +97,40 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .order-dot.done{opacity:.3}
 .order-dot.current{transform:scale(1.25);box-shadow:0 0 8px rgba(255,210,60,.5);border-color:#fcd34d!important;color:#fcd34d!important}
 .tab-row{display:flex;gap:4px}
-.tab-btn{flex:1;padding:6px 4px;border:1px solid rgba(255,255,255,.12);border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.tab-btn{flex:1;padding:5px 4px;border:1px solid rgba(255,255,255,.12);border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
 .tab-btn:hover:not(.active){background:rgba(255,255,255,.1)}
 .tab-str.active{background:rgba(220,80,80,.2);border-color:rgba(220,80,80,.5);color:#fca5a5;font-weight:700}
 .tab-agi.active{background:rgba(80,180,80,.2);border-color:rgba(80,180,80,.5);color:#86efac;font-weight:700}
 .tab-int.active{background:rgba(80,130,220,.2);border-color:rgba(80,130,220,.5);color:#93c5fd;font-weight:700}
 .tab-all.active{background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.5);color:#e9d5ff;font-weight:700}
 .search-row{display:flex;gap:6px}
-.search-row input{flex:1;padding:6px 10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
+.search-row input{flex:1;padding:5px 10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
 .search-row input:focus{border-color:rgba(255,210,60,.6)}
 .search-row input::placeholder{color:rgba(255,255,255,.3)}
-.btn-clr{padding:6px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
+.btn-clr{padding:5px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
 .btn-clr:hover{background:rgba(255,255,255,.15)}
-.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;overflow-y:auto;max-height:195px;padding-right:2px}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;overflow-y:auto;max-height:185px;padding-right:2px}
 .hero-grid::-webkit-scrollbar{width:3px}
 .hero-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .hcard{display:flex;flex-direction:column;align-items:center;padding:5px 3px 4px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
 .hcard:hover:not(.used):not(.over):not(.locked):not(.globalused):not(.mutex-round):not(.mutex-global){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
 .hcard.selected{border-color:#fcd34d;background:rgba(255,210,60,.15);box-shadow:0 0 10px rgba(255,210,60,.25)}
-/* 全局已用（灰） */
 .hcard.used,.hcard.globalused{opacity:.18;pointer-events:none;border-color:rgba(100,100,100,.3)!important}
-/* 分数超限（红） */
 .hcard.over{opacity:.38;pointer-events:none;border-color:rgba(248,113,113,.3)!important}
-/* 非自己回合锁定 */
 .hcard.locked{opacity:.45;pointer-events:none}
-/* 本轮互斥封锁（琥珀/变身） */
 .hcard.mutex-round{opacity:.35;pointer-events:none;border-color:rgba(251,191,36,.4)!important;background:rgba(251,191,36,.06)!important}
-/* 全局互斥封锁（蓝紫/同一人物） */
 .hcard.mutex-global{opacity:.2;pointer-events:none;border-color:rgba(139,92,246,.4)!important;background:rgba(139,92,246,.06)!important}
 .hcard .htype{font-size:12px;margin-bottom:2px}
 .hcard .hname{font-size:9px;color:rgba(255,255,255,.85);line-height:1.3;word-break:break-all}
 .hcard .hscore{font-size:9px;font-weight:700;margin-top:1px}
 .sc-str{color:#fca5a5}.sc-agi{color:#86efac}.sc-int{color:#93c5fd}
 .action-row{display:flex;gap:6px}
-.act-btn{flex:1;padding:9px;border:none;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.act-btn{flex:1;padding:8px;border:none;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
 .act-btn.pick{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff}
 .act-btn.pick:hover:not(:disabled){background:linear-gradient(135deg,#15803d,#22c55e)}
 .act-btn:disabled{opacity:.28;cursor:not-allowed}
-.not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:9px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
-.waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:9px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
+.not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:8px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
+.waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:8px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
 #setupOv{background:rgba(0,0,0,.45)!important}
 .modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center}
@@ -177,9 +184,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       📋 Sunday方(先手) 上限50分 · JUMP方(后手) 上限52分<br>
       🔵 默认B队先手(Sunday)，换边后A队先手(Sunday)<br>
       ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
-      ⏱ 每轮60秒 · 超时自动随机分配<br>
-      <span style="color:#c4b5fd">🔗 同一人物皮肤(紫)：全局互斥，选一禁全组</span><br>
-      <span style="color:#fcd34d">⚡ 变身关系(琥珀)：本轮互斥，下轮解锁</span>
+      ⏱ 每位置60秒主计时 + 各方300秒备用时间银行<br>
+      <span style="color:#c4b5fd">🔗 同一人物皮肤(紫)：全局互斥</span><br>
+      <span style="color:#fcd34d">⚡ 变身关系(琥珀)：本轮互斥</span>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📤 你的对局码（发给对方）：</div>
     <div class="code-box"><div class="cval" id="myCode">...</div><button onclick="copyCode(this)">复制</button></div>
@@ -245,14 +252,32 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <div class="order-bar" id="orderBar"></div>
     <div class="phase-bar" id="phaseBar">等待裁判开始...</div>
     <div class="status-bar" id="statusBar">裁判按「开始新一轮BP」后才能选人</div>
-    <div class="timer-bar" id="timerBar">60秒</div>
+
+    <!-- 双计时器 -->
+    <div class="timer-wrap" id="timerWrap">
+      <div class="timer-main">
+        <div class="tlabel">⏱ 本位置计时</div>
+        <div class="tval" id="timerMain">60</div>
+      </div>
+      <div class="timer-bank" id="bankA">
+        <div class="tlabel" id="bankALabel">🔴 A队备用</div>
+        <div class="tval" id="bankAVal">5:00</div>
+        <div class="tmode" id="bankAMode">待机</div>
+      </div>
+      <div class="timer-bank" id="bankB">
+        <div class="tlabel" id="bankBLabel">🔵 B队备用</div>
+        <div class="tval" id="bankBVal">5:00</div>
+        <div class="tmode" id="bankBMode">待机</div>
+      </div>
+    </div>
+
     <div class="tab-row"><button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button><button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button><button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button><button class="tab-btn tab-all" onclick="switchTab('all')">全部</button></div>
     <div class="search-row"><input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()"/><button class="btn-clr" onclick="document.getElementById('searchInp').value='';renderGrid()">清除</button></div>
     <div class="hero-grid" id="heroGrid"></div>
     <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button></div>
     <div id="notMyTurnMsg" class="not-my-turn-msg" style="display:none">请等待对方选人...</div>
     <div id="waitNextMsg" class="waiting-next" style="display:none">✅ 本轮BP结束！等待裁判开始下一轮...</div>
-    <div style="margin-top:4px"><div class="sec-label">— 全局已选（所有轮次不可重复）—</div><div id="globalPool" class="global-pool"></div></div>
+    <div style="margin-top:3px"><div class="sec-label">— 全局已选（所有轮次不可重复）—</div><div id="globalPool" class="global-pool"></div></div>
   </div>
 
   <div class="side b-side">
@@ -276,16 +301,15 @@ const db=firebase.database();
 db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connBar'); el.textContent=s.val()?'🟢 已连接 Firebase':'🔴 连接断开，请刷新'; el.className='conn-bar '+(s.val()?'online':'offline');});
 
 // =========================================================
-// 互斥规则定义
-// GLOBAL_MUTEX：同一人物/皮肤 → 全局禁用整组（选任意一个=整组永久封禁）
-// ROUND_MUTEX：变身关系 → 仅本轮禁用同组其余，下轮恢复；已选那个按全局正常计入
+// 互斥规则
+// GLOBAL_MUTEX：同一人物皮肤 → 全局封禁整组
+// ROUND_MUTEX：变身关系 → 仅本轮封禁同组其余
 // =========================================================
 const GLOBAL_MUTEX = [
-  ['两仪式','两仪式(pf)'],
   ['珂朵莉','暗影大人'],
 ];
-
 const ROUND_MUTEX = [
+  ['两仪式','两仪式(pf)'],
   ['刀藤绮凛','从鱼丸'],
   ['宇智波佐助','阴之力佐助'],
   ['xcw（万圣节）','xcw（春日）','xcw（原）'],
@@ -302,27 +326,15 @@ const ROUND_MUTEX = [
   ['草薙京','NAO'],
 ];
 
-// 给定全局已选集合，返回被全局互斥封禁的名字集合（整组封禁）
-function getGlobalMutexBlocked(globalPickedSet) {
-  const blocked = new Set();
-  for (const group of GLOBAL_MUTEX) {
-    if (group.some(n => globalPickedSet.has(n))) {
-      group.forEach(n => blocked.add(n));
-    }
-  }
-  return blocked;
+function getGlobalMutexBlocked(globalPickedSet){
+  const b=new Set();
+  for(const g of GLOBAL_MUTEX){ if(g.some(n=>globalPickedSet.has(n))) g.forEach(n=>b.add(n)); }
+  return b;
 }
-
-// 给定本轮已选名字集合，返回被本轮互斥封禁的名字集合（不含已选的那个）
-function getRoundMutexBlocked(roundPickedSet) {
-  const blocked = new Set();
-  for (const group of ROUND_MUTEX) {
-    const hit = group.find(n => roundPickedSet.has(n));
-    if (hit) {
-      group.forEach(n => { if (n !== hit) blocked.add(n); });
-    }
-  }
-  return blocked;
+function getRoundMutexBlocked(roundPickedSet){
+  const b=new Set();
+  for(const g of ROUND_MUTEX){ const hit=g.find(n=>roundPickedSet.has(n)); if(hit) g.forEach(n=>{if(n!==hit)b.add(n);}); }
+  return b;
 }
 
 // =========================================================
@@ -362,130 +374,265 @@ const HEROES={
     {name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}
   ]
 };
-
 const ALL=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h,type:'agi'})),...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI={str:'💪',agi:'⚡',int:'🧠'}, SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 const ORDER_B_FIRST=['b','a','a','b','a','b','b','a','b','a'], ORDER_A_FIRST=['a','b','b','a','b','a','a','b','a','b'];
 function getOrder(){return (gs.swapped?ORDER_A_FIRST:ORDER_B_FIRST);}
-function getSundayTeam(){ return gs.swapped ? 'a' : 'b'; }
-function getJumpTeam(){ return gs.swapped ? 'b' : 'a'; }
-function getLIM(){return {[getSundayTeam()]:50, [getJumpTeam()]:52};}
+function getSundayTeam(){return gs.swapped?'a':'b';}
+function getJumpTeam(){return gs.swapped?'b':'a';}
+function getLIM(){return {[getSundayTeam()]:50,[getJumpTeam()]:52};}
 
-let roomId='',myRole='a',tab='str',sel=null,tmr=null,refDb=null,lastStep=-1,lastTs=0,isCreator=false;
-let gs={ aName:'A队',bName:'B队',aPicks:[],bPicks:[],aUsed:0,bUsed:0, step:0,active:false,paused:false,roundEnded:false, roundNum:0,globalPicked:[],allRounds:[], players:0,swapped:false,ended:false };
+let roomId='',myRole='a',tab='str',sel=null,refDb=null,lastStep=-1,lastTs=0,isCreator=false;
+let gs={aName:'A队',bName:'B队',aPicks:[],bPicks:[],aUsed:0,bUsed:0,step:0,active:false,paused:false,roundEnded:false,roundNum:0,globalPicked:[],allRounds:[],players:0,swapped:false,ended:false,bankA:300,bankB:300};
+
+// =========================================================
+// 计时器状态（纯本地，每个客户端自己跑）
+// mainSec: 本位置剩余主计时秒数
+// bankDraining: 当前是否在消耗备用时间
+// =========================================================
+let tmrInterval=null;
+let mainSec=60;
+let bankA=300, bankB=300;  // 本地备用时间
+let bankDraining=false;    // 是否在扣备用时间
+
+function fmtBank(s){const m=Math.floor(Math.max(0,s)/60),sec=Math.max(0,s)%60; return m+':'+(sec<10?'0':'')+sec;}
+
+function startTmr(){
+  stopTmr();
+  mainSec=60;
+  bankDraining=false;
+  updTimerUI();
+  tmrInterval=setInterval(tickTmr,1000);
+}
+function stopTmr(){clearInterval(tmrInterval);tmrInterval=null;bankDraining=false;}
+
+function tickTmr(){
+  if(gs.paused||!gs.active||gs.roundEnded||gs.ended){stopTmr();return;}
+  const curTeam=ct(); // 当前选人方
+
+  if(mainSec>0){
+    mainSec--;
+    bankDraining=false;
+  } else {
+    // 主计时耗尽，开始扣备用时间
+    bankDraining=true;
+    if(curTeam==='a'){
+      bankA=Math.max(0,bankA-1);
+      if(bankA<=0){
+        // 备用耗尽，立即随机
+        stopTmr();
+        if(myTurn()) autoPickFn();
+        return;
+      }
+    } else {
+      bankB=Math.max(0,bankB-1);
+      if(bankB<=0){
+        stopTmr();
+        if(myTurn()) autoPickFn();
+        return;
+      }
+    }
+  }
+  updTimerUI();
+}
+
+function updTimerUI(){
+  const curTeam=ct();
+  // 主计时
+  const mEl=document.getElementById('timerMain');
+  if(mEl){
+    mEl.textContent=mainSec;
+    mEl.className='tval'+(mainSec<=10&&mainSec>0?' urgent':mainSec<=0?' urgent':'');
+  }
+  // 备用时间 A
+  const bAVal=document.getElementById('bankAVal');
+  const bAMode=document.getElementById('bankAMode');
+  const aLabel=document.getElementById('bankALabel');
+  if(bAVal){
+    bAVal.textContent=fmtBank(bankA);
+    const aIsCur=curTeam==='a'&&gs.active&&!gs.roundEnded&&!gs.ended;
+    const aDrain=aIsCur&&bankDraining;
+    bAVal.className='tval'+(bankA<=30?' empty':aDrain?' draining':'');
+    bAMode.textContent=aDrain?'⚠ 扣除中':'待机';
+    bAMode.className='tmode'+(aDrain?' draining':'');
+    if(aLabel) aLabel.textContent='🔴 '+gs.aName+' 备用';
+  }
+  // 备用时间 B
+  const bBVal=document.getElementById('bankBVal');
+  const bBMode=document.getElementById('bankBMode');
+  const bLabel=document.getElementById('bankBLabel');
+  if(bBVal){
+    bBVal.textContent=fmtBank(bankB);
+    const bIsCur=curTeam==='b'&&gs.active&&!gs.roundEnded&&!gs.ended;
+    const bDrain=bIsCur&&bankDraining;
+    bBVal.className='tval'+(bankB<=30?' empty':bDrain?' draining':'');
+    bBMode.textContent=bDrain?'⚠ 扣除中':'待机';
+    bBMode.className='tmode'+(bDrain?' draining':'');
+    if(bLabel) bLabel.textContent='🔵 '+gs.bName+' 备用';
+  }
+}
 
 function genCode(){return Math.random().toString(36).substr(2,6).toUpperCase();}
-
-// 全局已用：globalPicked 列表中的名字（每轮结束后写入）
-function getGlobalPickedSet(){
-  return new Set(gs.globalPicked||[]);
-}
-// 本轮已选：当前轮次双方已选的名字
-function getRoundPickedSet(){
-  const s=new Set();
-  [...(gs.aPicks||[]),...(gs.bPicks||[])].forEach(p=>s.add(p.name));
-  return s;
-}
-// 某英雄是否全局已用（包括全局互斥封禁）
+function getGlobalPickedSet(){return new Set(gs.globalPicked||[]);}
+function getRoundPickedSet(){const s=new Set();[...(gs.aPicks||[]),...(gs.bPicks||[])].forEach(p=>s.add(p.name));return s;}
 function isGloballyUnavailable(name){
-  const globalSet = getGlobalPickedSet();
-  // 直接在全局已选中
-  if(globalSet.has(name)) return true;
-  // 被全局互斥封禁（同组有人在全局已选）
-  const globalBlocked = getGlobalMutexBlocked(globalSet);
-  if(globalBlocked.has(name)) return true;
+  const gSet=getGlobalPickedSet();
+  if(gSet.has(name))return true;
+  if(getGlobalMutexBlocked(gSet).has(name))return true;
   return false;
 }
-// 某英雄是否被本轮互斥封锁（变身关系）
-function isRoundMutexBlocked(name){
-  const roundSet = getRoundPickedSet();
-  const roundBlocked = getRoundMutexBlocked(roundSet);
-  return roundBlocked.has(name);
-}
-// 本轮已选中（本轮选了这个）
-function isPickedThisRound(name){
-  return getRoundPickedSet().has(name);
-}
+function isRoundMutexBlocked(name){return getRoundMutexBlocked(getRoundPickedSet()).has(name);}
+function isPickedThisRound(name){return getRoundPickedSet().has(name);}
 
 function ct(){return getOrder()[gs.step]||'a';}
 function rem(t){return getLIM()[t]-((t==='a'?gs.aUsed:gs.bUsed)||0);}
-
 function canPick(name,score){
-  if(isGloballyUnavailable(name)) return false;
-  if(isPickedThisRound(name)) return false;
-  if(isRoundMutexBlocked(name)) return false;
-  const t=ct(); const r=rem(t); const picked=(t==='a'?gs.aPicks:gs.bPicks)||[]; const left=5-picked.length;
+  if(isGloballyUnavailable(name))return false;
+  if(isPickedThisRound(name))return false;
+  if(isRoundMutexBlocked(name))return false;
+  const t=ct(),r=rem(t),picked=(t==='a'?gs.aPicks:gs.bPicks)||[],left=5-picked.length;
   if(left<=0)return false;
   if(r-score<(left-1)*5)return false;
   return true;
 }
-
 function myTurn(){return gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10&&ct()===myRole;}
 function isPlayer(){return myRole==='a'||myRole==='b';}
 function copyCode(btn){navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='复制',1500);});}
-function setRole(r){ myRole=r; document.getElementById('rA').className=r==='a'?'sel-a':''; document.getElementById('rB').className=r==='b'?'sel-b':''; document.getElementById('rR').className=r==='ref'?'sel-r':''; const refDiv=document.getElementById('refCodeDiv'); if(refDiv) refDiv.style.display=(r==='ref'?'block':'none'); }
+function setRole(r){myRole=r;document.getElementById('rA').className=r==='a'?'sel-a':'';document.getElementById('rB').className=r==='b'?'sel-b':'';document.getElementById('rR').className=r==='ref'?'sel-r':'';const rd=document.getElementById('refCodeDiv');if(rd)rd.style.display=r==='ref'?'block':'none';}
 window.onload=()=>{document.getElementById('myCode').textContent=genCode();renderGrid();};
 
 function startMatch(){
-  if(myRole==='ref'){ const refCode=document.getElementById('refCodeInput').value.trim(); if(refCode!=='759315'){ alert('裁判码错误！无法以裁判身份登入。'); return; } }
-  const inp=document.getElementById('inpRoom').value.trim().toUpperCase(); roomId=inp||document.getElementById('myCode').textContent; isCreator=!inp;
-  const aName=document.getElementById('inpA').value.trim()||'A队', bName=document.getElementById('inpB').value.trim()||'B队';
+  if(myRole==='ref'){const rc=document.getElementById('refCodeInput').value.trim();if(rc!=='759315'){alert('裁判码错误！');return;}}
+  const inp=document.getElementById('inpRoom').value.trim().toUpperCase();roomId=inp||document.getElementById('myCode').textContent;isCreator=!inp;
+  const aName=document.getElementById('inpA').value.trim()||'A队',bName=document.getElementById('inpB').value.trim()||'B队';
   document.getElementById('codeDisplay').textContent='对局代码: '+roomId;
   const roleLabel={a:'🔴'+aName,b:'🔵'+bName,ref:'⚖ 裁判'}[myRole];
-  document.getElementById('myBadge').textContent='['+roleLabel+']'; document.getElementById('myBadge').className='my-badge '+(myRole==='ref'?'ref':myRole);
+  document.getElementById('myBadge').textContent='['+roleLabel+']';document.getElementById('myBadge').className='my-badge '+(myRole==='ref'?'ref':myRole);
   document.getElementById('setupOv').style.display='none';
   document.getElementById('orderBar').innerHTML=getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
-  if(myRole==='ref') document.getElementById('refBarContainer').style.display='block'; else document.getElementById('refBarContainer').style.display='none';
+  if(myRole==='ref')document.getElementById('refBarContainer').style.display='block';else document.getElementById('refBarContainer').style.display='none';
   refDb=db.ref('rooms/'+roomId);
   refDb.on('value',snap=>{
     const data=snap.val();
-    if(!data){ refDb.set({aName,bName,aPicks:[],bPicks:[],aUsed:0,bUsed:0,step:0,active:false,paused:false,roundEnded:false,roundNum:0,globalPicked:[],allRounds:[],players:1,ended:false,swapped:false,ts:Date.now()}); document.getElementById('waitCode').textContent=roomId; document.getElementById('waitOv').style.display='flex'; }
-    else { gs={...gs,...data, aPicks:data.aPicks||[],bPicks:data.bPicks||[],globalPicked:data.globalPicked||[],allRounds:data.allRounds||[]}; if(!isCreator&&(data.players||0)<2){ const joinUpdate={players:2,ts:Date.now()}; if(myRole==='b'&&bName!=='B队') joinUpdate.bName=bName; else if(myRole==='a'&&aName!=='A队') joinUpdate.aName=aName; refDb.update(joinUpdate); } if(!isCreator&&data.takenRoles&&myRole!=='ref'&&data.takenRoles.includes(myRole)){ myRole=myRole==='a'?'b':'a'; const badge=document.getElementById('myBadge'); const aLabel=gs.aName,bLabel=gs.bName; badge.textContent='['+(myRole==='a'?'🔴'+aLabel:'🔵'+bLabel)+']'; badge.className='my-badge '+myRole; } if(myRole!=='ref'&&!data.takenRoles) refDb.update({takenRoles:[myRole]}); document.getElementById('waitOv').style.display='none'; syncUI(); if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){ const curTs=data.ts||0; if(gs.step!==lastStep||curTs!==lastTs){ lastStep=gs.step; lastTs=curTs; startTmr(); } } else stopTmr(); }
+    if(!data){
+      refDb.set({aName,bName,aPicks:[],bPicks:[],aUsed:0,bUsed:0,step:0,active:false,paused:false,roundEnded:false,roundNum:0,globalPicked:[],allRounds:[],players:1,ended:false,swapped:false,ts:Date.now()});
+      document.getElementById('waitCode').textContent=roomId;document.getElementById('waitOv').style.display='flex';
+    } else {
+      gs={...gs,...data,aPicks:data.aPicks||[],bPicks:data.bPicks||[],globalPicked:data.globalPicked||[],allRounds:data.allRounds||[]};
+      if(!isCreator&&(data.players||0)<2){const ju={players:2,ts:Date.now()};if(myRole==='b'&&bName!=='B队')ju.bName=bName;else if(myRole==='a'&&aName!=='A队')ju.aName=aName;refDb.update(ju);}
+      if(!isCreator&&data.takenRoles&&myRole!=='ref'&&data.takenRoles.includes(myRole)){myRole=myRole==='a'?'b':'a';const bg=document.getElementById('myBadge');bg.textContent='['+(myRole==='a'?'🔴'+gs.aName:'🔵'+gs.bName)+']';bg.className='my-badge '+myRole;}
+      if(myRole!=='ref'&&!data.takenRoles)refDb.update({takenRoles:[myRole]});
+      document.getElementById('waitOv').style.display='none';
+      syncUI();
+      // 计时器逻辑：step或ts变化时重置主计时
+      if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){
+        const curTs=data.ts||0;
+        if(gs.step!==lastStep||curTs!==lastTs){lastStep=gs.step;lastTs=curTs;startTmr();}
+      } else {
+        stopTmr();
+        if(gs.roundEnded||!gs.active){
+          // 新一轮开始时重置备用时间（裁判start时step会变0且ts刷新）
+          const mEl=document.getElementById('timerMain');
+          if(mEl)mEl.textContent='—';
+        }
+      }
+    }
   });
 }
-function refAction(type){ if(!refDb || myRole!=='ref') return; if(type==='start'){ const newRound=(gs.roundNum||0)+1; lastStep=-1; lastTs=0; refDb.update({aPicks:[],bPicks:[],aUsed:0,bUsed:0,step:0,active:true,paused:false,roundEnded:false,roundNum:newRound,ts:Date.now()}); } else if(type==='pause') refDb.update({paused:!gs.paused,ts:Date.now()}); else if(type==='skip'){ if(!gs.active||gs.roundEnded||gs.ended)return; const ns=gs.step+1; if(ns>=10) endRound(); else refDb.update({step:ns,ts:Date.now()}); } else if(type==='swap') refDb.update({swapped:!(gs.swapped||false),ts:Date.now()}); else if(type==='endAll') refDb.update({ended:true,active:false,ts:Date.now()}); }
-function endRound(){ const round={roundNum:gs.roundNum, aPicks:[...(gs.aPicks||[])], bPicks:[...(gs.bPicks||[])], aUsed:gs.aUsed, bUsed:gs.bUsed, sundayTeamAtRound: getSundayTeam() }; const newAllRounds=[...(gs.allRounds||[]),round]; const newGlobal=[...(gs.globalPicked||[]), ...(gs.aPicks||[]).map(h=>h.name), ...(gs.bPicks||[]).map(h=>h.name)]; refDb.update({roundEnded:true,active:false, allRounds:newAllRounds, globalPicked:newGlobal, ts:Date.now()}); }
-function startTmr(){ stopTmr(); let t=60; updTmr(t); tmr=setInterval(()=>{ if(gs.paused||!gs.active||gs.roundEnded||gs.ended){stopTmr();return;} t--; updTmr(t); if(t<=0){stopTmr();if(myTurn())autoPickFn();} },1000); }
-function stopTmr(){clearInterval(tmr);tmr=null;}
-function updTmr(t){const el=document.getElementById('timerBar');el.textContent=t+'秒';el.className='timer-bar'+(t<=15?' urgent':'');}
-function autoPickFn(){ const avail=ALL.filter(h=>canPick(h.name,h.score)); if(avail.length) doPick(avail[Math.floor(Math.random()*avail.length)]); else refAction('skip'); }
-function selectHero(name,type,score){ if(!myTurn()||!canPick(name,score))return; sel={name,type,score}; document.getElementById('pickBtn').disabled=false; renderGrid(); }
-function confirmPick(){ if(sel&&myTurn()) doPick(sel); }
-function doPick(h){ const t=ct(); let na=[...gs.aPicks],nb=[...gs.bPicks], au=gs.aUsed, bu=gs.bUsed; if(t==='a'){ na.push(h); au+=h.score; } else { nb.push(h); bu+=h.score; } const ns=gs.step+1; sel=null; document.getElementById('pickBtn').disabled=true; if(ns>=10){ refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>{ endRound(); }); } else refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()}); }
+
+function refAction(type){
+  if(!refDb||myRole!=='ref')return;
+  if(type==='start'){
+    const newRound=(gs.roundNum||0)+1;lastStep=-1;lastTs=0;
+    // 重置备用时间
+    bankA=300;bankB=300;
+    refDb.update({aPicks:[],bPicks:[],aUsed:0,bUsed:0,step:0,active:true,paused:false,roundEnded:false,roundNum:newRound,ts:Date.now()});
+  } else if(type==='pause') refDb.update({paused:!gs.paused,ts:Date.now()});
+  else if(type==='skip'){if(!gs.active||gs.roundEnded||gs.ended)return;const ns=gs.step+1;if(ns>=10)endRound();else refDb.update({step:ns,ts:Date.now()});}
+  else if(type==='swap') refDb.update({swapped:!(gs.swapped||false),ts:Date.now()});
+  else if(type==='endAll') refDb.update({ended:true,active:false,ts:Date.now()});
+}
+
+function endRound(){
+  const round={roundNum:gs.roundNum,aPicks:[...(gs.aPicks||[])],bPicks:[...(gs.bPicks||[])],aUsed:gs.aUsed,bUsed:gs.bUsed,sundayTeamAtRound:getSundayTeam()};
+  const newAllRounds=[...(gs.allRounds||[]),round];
+  const newGlobal=[...(gs.globalPicked||[]),...(gs.aPicks||[]).map(h=>h.name),...(gs.bPicks||[]).map(h=>h.name)];
+  refDb.update({roundEnded:true,active:false,allRounds:newAllRounds,globalPicked:newGlobal,ts:Date.now()});
+}
+
+function autoPickFn(){
+  const avail=ALL.filter(h=>canPick(h.name,h.score));
+  if(avail.length) doPick(avail[Math.floor(Math.random()*avail.length)]);
+  else refAction('skip');
+}
+
+function selectHero(name,type,score){if(!myTurn()||!canPick(name,score))return;sel={name,type,score};document.getElementById('pickBtn').disabled=false;renderGrid();}
+function confirmPick(){if(sel&&myTurn())doPick(sel);}
+function doPick(h){
+  const t=ct();let na=[...gs.aPicks],nb=[...gs.bPicks],au=gs.aUsed,bu=gs.bUsed;
+  if(t==='a'){na.push(h);au+=h.score;}else{nb.push(h);bu+=h.score;}
+  const ns=gs.step+1;sel=null;document.getElementById('pickBtn').disabled=true;
+  if(ns>=10){refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>endRound());}
+  else refDb.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()});
+}
 
 function syncUI(){
-  const rn=gs.roundNum||0, lt='a', rt='b';
-  const sundayTeam=getSundayTeam(), jumpTeam=getJumpTeam();
-  const sundayTeamName = sundayTeam==='a'?gs.aName:gs.bName;
-  const jumpTeamName = jumpTeam==='a'?gs.aName:gs.bName;
+  const rn=gs.roundNum||0;
+  const sundayTeam=getSundayTeam(),jumpTeam=getJumpTeam();
+  const sundayTeamName=sundayTeam==='a'?gs.aName:gs.bName;
+  const jumpTeamName=jumpTeam==='a'?gs.aName:gs.bName;
   document.getElementById('sundayTeamHint').textContent=sundayTeamName;
   document.getElementById('jumpTeamHint').textContent=jumpTeamName;
-  const aRole = (lt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
-  const bRole = (rt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
-  document.getElementById('aLabel').innerHTML = `${gs.aName} <span class="role-badge ${(lt===sundayTeam)?'sunday':'jump'}">${aRole}</span>`;
-  document.getElementById('bLabel').innerHTML = `${gs.bName} <span class="role-badge ${(rt===sundayTeam)?'sunday':'jump'}">${bRole}</span>`;
-  const aLim=getLIM()[lt], bLim=getLIM()[rt];
-  const aUsed=lt==='a'?gs.aUsed:gs.bUsed, bUsed=rt==='a'?gs.aUsed:gs.bUsed;
-  document.getElementById('aScore').innerHTML=`已用 ${aUsed} / ${aLim} 分`; document.getElementById('aScore').className='score-total a'+(aUsed>aLim?' score-over':'');
-  document.getElementById('bScore').innerHTML=`已用 ${bUsed} / ${bLim} 分`; document.getElementById('bScore').className='score-total b'+(bUsed>bLim?' score-over':'');
+  const aRole=(('a'===sundayTeam)?'☀️ Sunday方':'⚡ JUMP方');
+  const bRole=(('b'===sundayTeam)?'☀️ Sunday方':'⚡ JUMP方');
+  document.getElementById('aLabel').innerHTML=`${gs.aName} <span class="role-badge ${'a'===sundayTeam?'sunday':'jump'}">${aRole}</span>`;
+  document.getElementById('bLabel').innerHTML=`${gs.bName} <span class="role-badge ${'b'===sundayTeam?'sunday':'jump'}">${bRole}</span>`;
+  const aLim=getLIM()['a'],bLim=getLIM()['b'];
+  document.getElementById('aScore').innerHTML=`已用 ${gs.aUsed} / ${aLim} 分`;document.getElementById('aScore').className='score-total a'+(gs.aUsed>aLim?' score-over':'');
+  document.getElementById('bScore').innerHTML=`已用 ${gs.bUsed} / ${bLim} 分`;document.getElementById('bScore').className='score-total b'+(gs.bUsed>bLim?' score-over':'');
   document.getElementById('orderBar').innerHTML=getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
-  if(rn>0){ document.getElementById('roundBadge').textContent='第'+rn+'轮'; document.getElementById('roundBadge').style.display='inline-block'; }
-  const ltColor='rgba(220,50,50,.3)', rtColor='rgba(50,100,220,.3)';
-  for(let i=1;i<=5;i++){ const lEl=document.getElementById('aSlot'+i); if(lEl){ lEl.classList.remove('active','filled'); lEl.querySelector('.pname').textContent='等待选人'; lEl.querySelector('.pscore').textContent='—'; lEl.querySelector('.av').textContent=i; lEl.querySelector('.av').style.background=ltColor; } const rEl=document.getElementById('bSlot'+i); if(rEl){ rEl.classList.remove('active','filled'); rEl.querySelector('.pname').textContent='等待选人'; rEl.querySelector('.pscore').textContent='—'; rEl.querySelector('.av').textContent=i; rEl.querySelector('.av').style.background=rtColor; } }
-  (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; el.querySelector('.av').textContent=TI[h.type]; } });
-  (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; el.querySelector('.av').textContent=TI[h.type]; } });
-  if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){ const t=ct(); const picks=(gs[t+'Picks'])||[]; const slotPrefix=t==='a'?'aSlot':'bSlot'; const sl=document.getElementById(slotPrefix+(picks.length+1)); if(sl)sl.classList.add('active'); }
-  const isRoundEnd=gs.roundEnded, isAllEnd=gs.ended;
-  if(isAllEnd){ document.getElementById('phaseBar').textContent='全部BP已结束'; document.getElementById('statusBar').textContent='点「结束所有BP」查看汇总'; document.getElementById('actionRow').style.display='none'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='none'; showResult(); }
-  else if(isRoundEnd){ document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！'; document.getElementById('statusBar').textContent='等待裁判开始下一轮...'; document.getElementById('timerBar').textContent='—'; document.getElementById('timerBar').className='timer-bar'; document.getElementById('actionRow').style.display='none'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='block'; }
-  else if(gs.active&&gs.step<10){ document.getElementById('waitNextMsg').style.display='none'; const t=ct(); const tName=t==='a'?gs.aName:gs.bName; const isSunday=(t===sundayTeam); const roleName=isSunday?'Sunday方':'JUMP方'; document.getElementById('curName').textContent=`${roleName} (${tName})`; document.getElementById('curTag').textContent=tName; document.getElementById('curTag').className='team-tag '+t; document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选'; document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分'; document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选'; document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':`${roleName} (${tName}) 正在选人...`; const mt=myTurn(); const tip=document.getElementById('turnTip'); tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中'); tip.className=mt?'my-turn-tip':'not-turn-tip'; document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none'; document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none'; if(!mt)sel=null; if(!isPlayer())document.getElementById('pickBtn').disabled=true; }
-  else{ document.getElementById('phaseBar').textContent='等待裁判开始...'; document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人'; document.getElementById('turnTip').textContent=''; document.getElementById('actionRow').style.display='flex'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='none'; document.getElementById('pickBtn').disabled=true; }
-  getOrder().forEach((_,i)=>{ const el=document.getElementById('dot'+i); if(!el)return; el.classList.remove('current','done'); if(i<gs.step)el.classList.add('done'); else if(i===gs.step&&gs.active&&!gs.roundEnded)el.classList.add('current'); });
+  if(rn>0){document.getElementById('roundBadge').textContent='第'+rn+'轮';document.getElementById('roundBadge').style.display='inline-block';}
+  for(let i=1;i<=5;i++){
+    const lEl=document.getElementById('aSlot'+i);if(lEl){lEl.classList.remove('active','filled');lEl.querySelector('.pname').textContent='等待选人';lEl.querySelector('.pscore').textContent='—';lEl.querySelector('.av').textContent=i;lEl.querySelector('.av').style.background='rgba(220,50,50,.3)';}
+    const rEl=document.getElementById('bSlot'+i);if(rEl){rEl.classList.remove('active','filled');rEl.querySelector('.pname').textContent='等待选人';rEl.querySelector('.pscore').textContent='—';rEl.querySelector('.av').textContent=i;rEl.querySelector('.av').style.background='rgba(50,100,220,.3)';}
+  }
+  (gs.aPicks||[]).forEach((h,i)=>{const el=document.getElementById('aSlot'+(i+1));if(el){el.classList.add('filled');el.querySelector('.pname').textContent=h.name;el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';el.querySelector('.av').textContent=TI[h.type];}});
+  (gs.bPicks||[]).forEach((h,i)=>{const el=document.getElementById('bSlot'+(i+1));if(el){el.classList.add('filled');el.querySelector('.pname').textContent=h.name;el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';el.querySelector('.av').textContent=TI[h.type];}});
+  if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){const t=ct();const picks=(gs[t+'Picks'])||[];const sl=document.getElementById((t==='a'?'aSlot':'bSlot')+(picks.length+1));if(sl)sl.classList.add('active');}
+  const isRoundEnd=gs.roundEnded,isAllEnd=gs.ended;
+  if(isAllEnd){
+    document.getElementById('phaseBar').textContent='全部BP已结束';document.getElementById('statusBar').textContent='点「结束所有BP」查看汇总';
+    document.getElementById('actionRow').style.display='none';document.getElementById('notMyTurnMsg').style.display='none';document.getElementById('waitNextMsg').style.display='none';
+    const mEl=document.getElementById('timerMain');if(mEl)mEl.textContent='—';showResult();
+  } else if(isRoundEnd){
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！';document.getElementById('statusBar').textContent='等待裁判开始下一轮...';
+    document.getElementById('actionRow').style.display='none';document.getElementById('notMyTurnMsg').style.display='none';document.getElementById('waitNextMsg').style.display='block';
+    const mEl=document.getElementById('timerMain');if(mEl)mEl.textContent='—';
+  } else if(gs.active&&gs.step<10){
+    document.getElementById('waitNextMsg').style.display='none';
+    const t=ct();const tName=t==='a'?gs.aName:gs.bName;const isSunday=(t===sundayTeam);const roleName=isSunday?'Sunday方':'JUMP方';
+    document.getElementById('curName').textContent=`${roleName} (${tName})`;document.getElementById('curTag').textContent=tName;document.getElementById('curTag').className='team-tag '+t;
+    document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分';
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选';
+    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':`${roleName} (${tName}) 正在选人...`;
+    const mt=myTurn();const tip=document.getElementById('turnTip');
+    tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中');tip.className=mt?'my-turn-tip':'not-turn-tip';
+    document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none';
+    document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none';
+    if(!mt)sel=null;if(!isPlayer())document.getElementById('pickBtn').disabled=true;
+  } else {
+    document.getElementById('phaseBar').textContent='等待裁判开始...';document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人';
+    document.getElementById('turnTip').textContent='';document.getElementById('actionRow').style.display='flex';
+    document.getElementById('notMyTurnMsg').style.display='none';document.getElementById('waitNextMsg').style.display='none';
+    document.getElementById('pickBtn').disabled=true;
+  }
+  getOrder().forEach((_,i)=>{const el=document.getElementById('dot'+i);if(!el)return;el.classList.remove('current','done');if(i<gs.step)el.classList.add('done');else if(i===gs.step&&gs.active&&!gs.roundEnded)el.classList.add('current');});
   const allR=gs.allRounds||[];
-  const buildHist=(team)=>{ return allR.map(r=>{ const picks=team==='a'?r.aPicks:r.bPicks; if(!picks||!picks.length)return ''; const sideName = (r.sundayTeamAtRound === team) ? 'Sunday方' : 'JUMP方'; const items=picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join(''); return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${sideName}</div>${items}</div>`; }).join(''); };
-  document.getElementById('histA').innerHTML=buildHist('a'); document.getElementById('histB').innerHTML=buildHist('b');
-  const gp=gs.globalPicked||[]; const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name); const allPicked=[...new Set([...gp,...curPicked])];
-  document.getElementById('globalPool').innerHTML=allPicked.length? allPicked.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
+  const buildHist=(team)=>allR.map(r=>{const picks=team==='a'?r.aPicks:r.bPicks;if(!picks||!picks.length)return '';const sideName=(r.sundayTeamAtRound===team)?'Sunday方':'JUMP方';const items=picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('');return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${sideName}</div>${items}</div>`;}).join('');
+  document.getElementById('histA').innerHTML=buildHist('a');document.getElementById('histB').innerHTML=buildHist('b');
+  const gp=gs.globalPicked||[];const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);const allPicked=[...new Set([...gp,...curPicked])];
+  document.getElementById('globalPool').innerHTML=allPicked.length?allPicked.map(n=>`<span class="pool-item">${n}</span>`).join(''):'<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
+  updTimerUI();
   renderGrid();
 }
 
@@ -494,37 +641,37 @@ function renderGrid(){
   const mt=myTurn();
   let list=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab}));
   if(q)list=list.filter(h=>h.name.toLowerCase().includes(q));
-
-  const globalSet = getGlobalPickedSet();
-  const globalBlocked = getGlobalMutexBlocked(globalSet);
-  const roundSet = getRoundPickedSet();
-  const roundBlocked = getRoundMutexBlocked(roundSet);
-
+  const globalSet=getGlobalPickedSet();
+  const globalBlocked=getGlobalMutexBlocked(globalSet);
+  const roundSet=getRoundPickedSet();
+  const roundBlocked=getRoundMutexBlocked(roundSet);
   document.getElementById('heroGrid').innerHTML=list.map(h=>{
     const name=h.name;
-    // 优先级从高到低判断状态
-    const inGlobal = globalSet.has(name);                    // 全局直接已选
-    const inRound = roundSet.has(name);                      // 本轮已选
-    const isGlobalMutex = !inGlobal && !inRound && globalBlocked.has(name);  // 全局互斥封禁（同一人物）
-    const isRoundMutex = !inGlobal && !inRound && !isGlobalMutex && roundBlocked.has(name);  // 本轮互斥（变身）
-    const cantScore = !inGlobal && !inRound && !isGlobalMutex && !isRoundMutex && !canPick(name,h.score) && gs.active;
-    const lk = gs.active && !gs.roundEnded && !gs.ended && !mt;
-    const sl = sel && sel.name===name;
-
+    const inGlobal=globalSet.has(name)||roundSet.has(name);
+    const isGM=!inGlobal&&globalBlocked.has(name);
+    const isRM=!inGlobal&&!isGM&&roundBlocked.has(name);
+    const cantScore=!inGlobal&&!isGM&&!isRM&&!canPick(name,h.score)&&gs.active;
+    const lk=gs.active&&!gs.roundEnded&&!gs.ended&&!mt;
+    const sl=sel&&sel.name===name;
     let cls='hcard';
-    if(inGlobal||inRound) cls+=' globalused';
-    else if(isGlobalMutex) cls+=' mutex-global';
-    else if(isRoundMutex) cls+=' mutex-round';
-    else if(cantScore) cls+=' over';
-    else if(lk) cls+=' locked';
-    if(sl) cls+=' selected';
-
+    if(inGlobal)cls+=' globalused';
+    else if(isGM)cls+=' mutex-global';
+    else if(isRM)cls+=' mutex-round';
+    else if(cantScore)cls+=' over';
+    else if(lk)cls+=' locked';
+    if(sl)cls+=' selected';
     return `<div class="${cls}" onclick="selectHero('${name}','${h.type}',${h.score})"><div class="htype">${TI[h.type]}</div><div class="hname">${name}</div><div class="hscore ${SC[h.type]}">${h.score}分</div></div>`;
   }).join('');
 }
 
-function switchTab(t){ tab=t; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); const idx={str:0,agi:1,int:2,all:3}[t]; document.querySelectorAll('.tab-btn')[idx].classList.add('active'); renderGrid(); }
-function showResult(){ const allR=gs.allRounds||[]; if(!allR.length){document.getElementById('resultOv').style.display='flex';return;} let sundayTotal=0,jumpTotal=0; allR.forEach(r=>{ const st=r.sundayTeamAtRound; sundayTotal += (st==='a'?r.aUsed:r.bUsed); jumpTotal += (st==='a'?r.bUsed:r.aUsed); }); const fmt=(r,team)=>{ const picks=team==='a'?r.aPicks:r.bPicks; return (picks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join(''); }; document.getElementById('resultContent').innerHTML=`<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 (先手) — 总分 ${sundayTotal} / (每轮上限50分)</div><div>⚡ JUMP方 (后手) — 总分 ${jumpTotal} / (每轮上限52分)</div></div>${allR.map(r=>{ const st=r.sundayTeamAtRound; const sundayNameAtRound = st==='a'?gs.aName:gs.bName; const jumpNameAtRound = st==='a'?gs.bName:gs.aName; return `<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sundayNameAtRound})</h4><div class="rtotal">本轮总分: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jumpNameAtRound})</h4><div class="rtotal">本轮总分: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`; }).join('')}`; document.getElementById('resultOv').style.display='flex'; }
+function switchTab(t){tab=t;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const idx={str:0,agi:1,int:2,all:3}[t];document.querySelectorAll('.tab-btn')[idx].classList.add('active');renderGrid();}
+function showResult(){
+  const allR=gs.allRounds||[];if(!allR.length){document.getElementById('resultOv').style.display='flex';return;}
+  let sT=0,jT=0;allR.forEach(r=>{const st=r.sundayTeamAtRound;sT+=(st==='a'?r.aUsed:r.bUsed);jT+=(st==='a'?r.bUsed:r.aUsed);});
+  const fmt=(r,team)=>(team==='a'?r.aPicks:r.bPicks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
+  document.getElementById('resultContent').innerHTML=`<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 (先手) — 总分 ${sT} / (每轮上限50分)</div><div>⚡ JUMP方 (后手) — 总分 ${jT} / (每轮上限52分)</div></div>${allR.map(r=>{const st=r.sundayTeamAtRound;const sN=st==='a'?gs.aName:gs.bName,jN=st==='a'?gs.bName:gs.aName;return `<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sN})</h4><div class="rtotal">本轮总分: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jN})</h4><div class="rtotal">本轮总分: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`;}).join('')}`;
+  document.getElementById('resultOv').style.display='flex';
+}
 </script>
 </body>
 </html>
