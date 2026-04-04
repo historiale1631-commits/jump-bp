@@ -369,11 +369,17 @@ let gs={aName:'A队',bName:'B队',aPicks:[],bPicks:[],aUsed:0,bUsed:0,
 // ── 本地计时器 ────────────────────────────────────────────
 let uiTick=null;
 let autoPickFired=false;
+let lastAutoPickStep=-1; // 记录上次触发随机的step，用于按step重置
 let serverTimeOffset=0;
 db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
 function serverNow(){return Date.now()+serverTimeOffset;}
 
-function startUiTick(){stopUiTick();autoPickFired=false;uiTick=setInterval(onTick,500);}
+function startUiTick(){
+  stopUiTick();
+  // 只有在新的step才重置autoPickFired，防止Firebase回调反复重置
+  if(gs.step!==lastAutoPickStep){autoPickFired=false;}
+  uiTick=setInterval(onTick,500);
+}
 function stopUiTick(){clearInterval(uiTick);uiTick=null;}
 
 function onTick(){
@@ -385,6 +391,7 @@ function onTick(){
   const totalAllowed=60+(bank||0);
   if(!autoPickFired&&myTurn()&&(bankSec<=0||elapsed>=totalAllowed)){
     autoPickFired=true;
+    lastAutoPickStep=gs.step;
     stopUiTick();
     autoPickFn();
   }
@@ -533,19 +540,16 @@ function refAction(type){
       stepStartTs:firebase.database.ServerValue.TIMESTAMP});
   } else if(type==='pause'){
     if(gs.paused){
-      // 恢复：重新写 stepStartTs，但要补偿已消耗的时间
-      // 计算当前已进入备用阶段消耗了多少，调整 bank
-      const {overflowed,curTeam,bank}=calcTime();
-      const newBank=Math.max(0,bank); // 当前实际剩余备用
+      // 恢复：暂停时已把正确 bank 写入 Firebase（gs.bankA/B已是暂停时剩余值）
+      // 直接重置 stepStartTs，主计时重新从60秒开始
+      const curTeam=ct();
       const update={paused:false,stepStartTs:firebase.database.ServerValue.TIMESTAMP};
-      // 恢复时把已消耗的备用量写回：新的bank = 恢复时的实际剩余
-      // 同时主计时重新从60秒开始（与真实bp规则一致，暂停期间不计时）
-      if(curTeam==='a')update.bankA=newBank;else update.bankB=newBank;
+      // bank 保持 gs 中的值不变（暂停时已正确写入）
       refDb.update(update);
     } else {
       // 暂停：先保存当前备用时间消耗量
       const {overflowed,curTeam,bank}=calcTime();
-      const usedBank=Math.max(0,overflowed-60); // 超出主计时部分已消耗的备用
+      const usedBank=overflowed; // overflowed即已消耗的备用秒数
       const savedBank=Math.max(0,(curTeam==='a'?gs.bankA:gs.bankB)-usedBank);
       const update={paused:true};
       if(curTeam==='a')update.bankA=savedBank;else update.bankB=savedBank;
@@ -555,7 +559,7 @@ function refAction(type){
     if(!gs.active||gs.roundEnded||gs.ended)return;
     // 跳过前先保存当前备用消耗
     const {overflowed,curTeam}=calcTime();
-    const usedBank=Math.max(0,overflowed-60);
+    const usedBank=overflowed;
     const update={};
     if(curTeam==='a')update.bankA=Math.max(0,gs.bankA-usedBank);
     else update.bankB=Math.max(0,gs.bankB-usedBank);
@@ -568,10 +572,14 @@ function refAction(type){
       refDb.update(update);
     }
   } else if(type==='drainA'){
-    // 测试用：直接扣A队备用30秒
-    refDb.update({bankA:Math.max(0,(gs.bankA||300)-30)});
+    // 测试用：把A队备用直接减30秒
+    if(!gs.active)return;
+    const curBankA = (gs.bankA==null?300:gs.bankA);
+    refDb.update({bankA:Math.max(0,curBankA-30)});
   } else if(type==='drainB'){
-    refDb.update({bankB:Math.max(0,(gs.bankB||300)-30)});
+    if(!gs.active)return;
+    const curBankB = (gs.bankB==null?300:gs.bankB);
+    refDb.update({bankB:Math.max(0,curBankB-30)});
   } else if(type==='swap'){
     refDb.update({swapped:!gs.swapped});
   } else if(type==='endAll'){
@@ -581,6 +589,7 @@ function refAction(type){
 
 // ── 轮结束 ──────────────────────────────────────────────
 function endRound(){
+  if(gs.roundEnded||!gs.active)return; // 防止重复触发
   const round={roundNum:gs.roundNum,aPicks:[...(gs.aPicks||[])],bPicks:[...(gs.bPicks||[])],
     aUsed:gs.aUsed,bUsed:gs.bUsed,sundayTeamAtRound:getSundayTeam()};
   const newAllRounds=[...(gs.allRounds||[]),round];
@@ -596,7 +605,9 @@ function autoPickFn(){
     // 没有可选英雄时跳过（只有裁判能写 skip，玩家这里直接写step）
     const ns=gs.step+1;
     const {curTeam}=calcTime();
-    const update={bankA:gs.bankA,bankB:gs.bankB};// bankA/B已经是0了
+    const update={};
+    // 备用耗尽才触发随机，把当前队备用归零写回
+    if(curTeam==='a')update.bankA=0; else update.bankB=0;
     if(ns>=10){refDb.update({...update,step:ns,stepStartTs:firebase.database.ServerValue.TIMESTAMP},()=>endRound());}
     else refDb.update({...update,step:ns,stepStartTs:firebase.database.ServerValue.TIMESTAMP});
   }
@@ -611,7 +622,7 @@ function doPick(h){
   const ns=gs.step+1;sel=null;document.getElementById('pickBtn').disabled=true;
   // 保存当前消耗的备用时间
   const {overflowed,curTeam}=calcTime();
-  const usedBank=Math.max(0,overflowed-60);
+  const usedBank=overflowed; // overflowed = elapsed-60，即已消耗的备用秒数
   const update={aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,stepStartTs:firebase.database.ServerValue.TIMESTAMP};
   if(curTeam==='a')update.bankA=Math.max(0,gs.bankA-usedBank);
   else update.bankB=Math.max(0,gs.bankB-usedBank);
@@ -697,7 +708,7 @@ function switchTab(t){tab=t;document.querySelectorAll('.tab-btn').forEach(b=>b.c
 function showResult(){
   const allR=gs.allRounds||[];if(!allR.length){document.getElementById('resultOv').style.display='flex';return;}
   let sT=0,jT=0;allR.forEach(r=>{const st=r.sundayTeamAtRound;sT+=st==='a'?r.aUsed:r.bUsed;jT+=st==='a'?r.bUsed:r.aUsed;});
-  const fmt=(r,tm)=>(tm==='a'?r.aPicks:r.bPicks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
+  const fmt=(r,tm)=>((tm==='a'?r.aPicks:r.bPicks)||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
   document.getElementById('resultContent').innerHTML=`<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 总分 ${sT}</div><div>⚡ JUMP方 总分 ${jT}</div></div>${allR.map(r=>{const st=r.sundayTeamAtRound;const sN=st==='a'?gs.aName:gs.bName,jN=st==='a'?gs.bName:gs.aName;return`<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sN})</h4><div class="rtotal">本轮: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jN})</h4><div class="rtotal">本轮: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`;}).join('')}`;
   document.getElementById('resultOv').style.display='flex';
 }
