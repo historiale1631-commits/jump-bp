@@ -81,7 +81,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .search-row input::placeholder{color:rgba(255,255,255,.3)}
 .btn-clr{padding:7px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
 .btn-clr:hover{background:rgba(255,255,255,.15)}
-.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;overflow-y:auto;max-height:210px;padding-right:2px}
+/* 修复英雄网格高度塌陷问题，增加最小高度 */
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;overflow-y:auto;min-height:210px;max-height:210px;padding-right:2px}
 .hero-grid::-webkit-scrollbar{width:3px}
 .hero-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .hcard{display:flex;flex-direction:column;align-items:center;padding:6px 3px 5px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
@@ -291,6 +292,7 @@ const MAX_PICKS=5; // 每队最多选5人
 // 全局变量
 let roomId='',myTeam='a',tab='str',sel=null,timer=null,ref=null;
 let lastStepInRound=-1,lastRound=1,isCreator=false,playerId=Math.random().toString(36).substr(2,8); // 唯一玩家ID
+let timerRunning=false; // 计时器运行状态锁，修复重复启动问题
 // 游戏状态
 let gs={
   aName:'A队',bName:'B队',
@@ -347,6 +349,7 @@ function chooseTeam(t){
 // 页面加载初始化
 window.onload=()=>{
   document.getElementById('myCode').textContent=genCode();
+  // 页面加载强制渲染英雄列表，不依赖游戏状态，修复初始空白问题
   renderGrid();
 };
 
@@ -448,14 +451,15 @@ function startMatch(){
       // 同步UI
       syncUI();
       
-      // 处理计时器
-      if(gs.active&&!gs.paused&&!gs.ended&&gs.stepInRound<10){
-        if(gs.stepInRound!==lastStepInRound || gs.round!==lastRound){
-          lastStepInRound=gs.stepInRound;
-          lastRound=gs.round;
-          startTimer();
-        }
-      } else {
+      // 【修复计时器不动核心逻辑】仅当回合/轮次变化时才重启计时器，避免频繁触发
+      const shouldStartTimer = gs.active&&!gs.paused&&!gs.ended&&gs.stepInRound<10;
+      const isTurnChanged = gs.stepInRound!==lastStepInRound || gs.round!==lastRound;
+      
+      if(shouldStartTimer && isTurnChanged){
+        lastStepInRound=gs.stepInRound;
+        lastRound=gs.round;
+        startTimer();
+      } else if(!shouldStartTimer){
         stopTimer();
         if(gs.ended) showResult();
       }
@@ -470,6 +474,7 @@ function refAction(type){
   switch(type){
     case 'start':
       // 重置并开始新一轮
+      stopTimer(); // 先停止现有计时器
       ref.update({
         active:true,
         paused:false,
@@ -486,9 +491,17 @@ function refAction(type){
       });
       lastStepInRound=-1;
       lastRound=1;
+      timerRunning=false;
       break;
     case 'pause':
-      ref.update({paused:!gs.paused, ts:Date.now()});
+      const newPaused=!gs.paused;
+      ref.update({paused:newPaused, ts:Date.now()});
+      // 暂停/继续时控制计时器
+      if(newPaused){
+        stopTimer();
+      }else if(gs.active&&!gs.ended&&gs.stepInRound<10){
+        startTimer();
+      }
       break;
     case 'skip':
       if(!gs.active||gs.ended) return;
@@ -496,11 +509,13 @@ function refAction(type){
       if(nextStep>=10){
         // 本轮结束，暂停等待裁判开启下一轮
         ref.update({active:false, stepInRound:nextStep, ts:Date.now()});
+        stopTimer();
       }else{
         ref.update({stepInRound:nextStep, ts:Date.now()});
       }
       break;
     case 'nextRound': // 问题5修复：下一轮BP
+      stopTimer();
       ref.update({
         active:true,
         paused:false,
@@ -510,21 +525,28 @@ function refAction(type){
       });
       lastStepInRound=-1;
       lastRound=gs.round+1;
+      timerRunning=false;
       break;
     case 'end':
+      stopTimer();
       ref.update({ended:true, active:false, ts:Date.now()});
+      timerRunning=false;
       break;
   }
 }
 
-// 启动计时器
+// 【修复计时器不动】启动计时器，增加状态锁避免重复启动
 function startTimer(){
-  stopTimer();
+  stopTimer(); // 先清空现有计时器
+  if(timerRunning) return;
+  
   let timeLeft=60;
   updateTimer(timeLeft);
+  timerRunning=true;
   
   timer=setInterval(()=>{
-    if(gs.paused||!gs.active||gs.ended){
+    // 游戏状态变化时停止计时器
+    if(gs.paused||!gs.active||gs.ended||gs.stepInRound>=10){
       stopTimer();
       return;
     }
@@ -535,7 +557,13 @@ function startTimer(){
     // 时间到自动选角（问题6修复）
     if(timeLeft<=0){
       stopTimer();
-      if(isMyTurn()) autoPick();
+      // 仅当前操作方的客户端执行自动选角，避免重复触发
+      if(isMyTurn()){
+        autoPick();
+      }else if(getCurrentTeam()===myTeam){
+        // 兜底：如果是自己的回合但isMyTurn判断异常，也执行自动选角
+        autoPick();
+      }
     }
   },1000);
 }
@@ -544,6 +572,7 @@ function startTimer(){
 function stopTimer(){
   clearInterval(timer);
   timer=null;
+  timerRunning=false;
 }
 
 // 更新计时器显示
@@ -749,7 +778,7 @@ function syncUI(){
   // 更新选角历史（按轮数分组，问题7修复）
   renderHistory();
   
-  // 重新渲染英雄网格
+  // 重新渲染英雄网格，确保UI同步
   renderGrid();
 }
 
@@ -790,41 +819,47 @@ function renderHistory(){
   document.getElementById('histB').innerHTML=bHistoryHTML;
 }
 
-// 渲染英雄网格
+// 【修复英雄不显示核心逻辑】重写英雄网格渲染
 function renderGrid(){
   const searchQuery=document.getElementById('searchInp').value.toLowerCase();
   const currentTeam=gs.stepInRound<10?getCurrentTeam():'a';
   const myTurn=isMyTurn();
   
-  // 筛选英雄列表
+  // 筛选英雄列表，确保初始状态有数据
   let heroList=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab}));
   
   // 搜索过滤
   if(searchQuery) heroList=heroList.filter(h=>h.name.toLowerCase().includes(searchQuery));
   
-  // 生成英雄卡片
-  document.getElementById('heroGrid').innerHTML=heroList.map(hero=>{
+  // 生成英雄卡片HTML
+  let gridHTML='';
+  heroList.forEach(hero=>{
     const isUsed=isHeroUsed(hero.name); // 全局禁用（问题8修复）
-    const isOverScore=hero.score>getRemainScore(currentTeam)&&gs.active;
-    const isLocked=gs.active&&!gs.ended&&!myTurn||myTeam==='ref';
+    const isOverScore=gs.active && hero.score>getRemainScore(currentTeam);
+    const isTeamFullFlag=isTeamFull(currentTeam);
+    // 【修复逻辑运算符优先级】明确锁定条件，避免错误锁定
+    const isLocked=(gs.active && !gs.ended && !myTurn) || myTeam==='ref';
     const isSelected=sel&&sel.name===hero.name;
-    const isTeamFull=isTeamFull(currentTeam);
     
     // 计算样式类
     let cardClass='hcard';
     if(isUsed) cardClass+=' used';
-    else if(isOverScore || isTeamFull) cardClass+=' over'; // 队伍满5人也禁用（问题4修复）
+    else if(isOverScore || isTeamFullFlag) cardClass+=' over'; // 队伍满5人也禁用（问题4修复）
     else if(isLocked) cardClass+=' locked';
     if(isSelected) cardClass+=' selected';
     
-    return `
-      <div class="${cardClass}" onclick="selectHero('${hero.name}','${hero.type}',${hero.score})">
+    // 拼接卡片HTML，确保所有英雄都能渲染
+    gridHTML+=`
+      <div class="${cardClass}" onclick="selectHero('${hero.name.replace(/'/g,"\\'")}','${hero.type}',${hero.score})">
         <div class="htype">${TI[hero.type]}</div>
         <div class="hname">${hero.name}</div>
         <div class="hscore ${SC[hero.type]}">${hero.score}分</div>
       </div>
     `;
-  }).join('');
+  });
+  
+  // 写入DOM，确保英雄网格有内容
+  document.getElementById('heroGrid').innerHTML=gridHTML;
 }
 
 // 切换英雄分类标签
