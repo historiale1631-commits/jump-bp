@@ -19,6 +19,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .ref-bar .danger:hover{background:rgba(248,113,113,.15)}
 .ref-bar .green{color:#4ade80;border-color:rgba(74,222,128,.4)}
 .ref-bar .green:hover{background:rgba(74,222,128,.15)}
+.ref-bar .swap{color:#c4b5fd;border-color:rgba(196,181,253,.4)}
+.ref-bar .swap:hover{background:rgba(196,181,253,.15)}
 .my-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:4px;-webkit-text-fill-color:initial}
 .my-badge.a{background:rgba(220,50,50,.45);color:#fca5a5}
 .my-badge.b{background:rgba(50,100,220,.45);color:#93c5fd}
@@ -208,6 +210,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   <div class="code" id="codeDisplay">对局代码: ------</div>
   <div class="ref-bar">
     <button class="green" onclick="refAction('start')">▶ 开始新一轮BP</button>
+    <button class="swap" onclick="refAction('swap')">🔄 双方换边</button>
     <button onclick="refAction('pause')">⏸ 暂停</button>
     <button onclick="refAction('skip')">⏭ 跳过本轮</button>
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
@@ -462,6 +465,22 @@ function refAction(type){
     const ns=gs.step+1;
     if(ns>=10){endRound();}
     else ref.update({step:ns,ts:Date.now()});
+  } else if(type==='swap'){
+    // 换边：交换队名，把历史记录里的a/b互换
+    const newAName=gs.bName, newBName=gs.aName;
+    const swappedRounds=(gs.allRounds||[]).map(r=>({
+      roundNum:r.roundNum,
+      aPicks:r.bPicks||[], bPicks:r.aPicks||[],
+      aUsed:r.bUsed||0, bUsed:r.aUsed||0
+    }));
+    ref.update({aName:newAName,bName:newBName,allRounds:swappedRounds,ts:Date.now()});
+    // 本地身份也跟着换
+    if(myRole==='a'){myRole='b';}
+    else if(myRole==='b'){myRole='a';}
+    const badge=document.getElementById('myBadge');
+    const rl={a:'🔴'+newAName,b:'🔵'+newBName,ref:'⚖ 裁判'}[myRole];
+    badge.textContent='['+rl+']';
+    badge.className='my-badge '+(myRole==='ref'?'ref':myRole);
   } else if(type==='endAll'){
     ref.update({ended:true,active:false,ts:Date.now()});
   }
