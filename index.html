@@ -10,60 +10,70 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3)}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
 .header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1)}
-.header h1{font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header .code{font-size:12px;color:rgba(255,255,255,.45);margin-top:2px}
+.header h1{font-size:17px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .code{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 .ref-bar{display:flex;gap:5px;justify-content:center;margin-top:5px;flex-wrap:wrap}
 .ref-bar button{padding:4px 10px;font-size:11px;font-weight:700;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:5px;color:#fcd34d;cursor:pointer;font-family:inherit}
 .ref-bar button:hover{background:rgba(255,210,60,.2)}
 .ref-bar .danger{color:#f87171;border-color:rgba(248,113,113,.4)}
 .ref-bar .danger:hover{background:rgba(248,113,113,.15)}
-.ref-bar .ref-only{color:#a78bfa;border-color:rgba(167,139,250,.4)}
-.ref-bar .ref-only:hover{background:rgba(167,139,250,.15)}
-.my-team-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:6px;-webkit-text-fill-color:initial}
-.my-team-badge.a{background:rgba(220,50,50,.45);color:#fca5a5}
-.my-team-badge.b{background:rgba(50,100,220,.45);color:#93c5fd}
-.my-team-badge.ref{background:rgba(167,139,250,.45);color:#e9d5ff}
-.layout{display:flex;height:calc(100vh - 82px);overflow:hidden}
-.side{width:182px;flex-shrink:0;display:flex;flex-direction:column;padding:8px 6px;gap:4px;overflow-y:auto;background:rgba(0,0,0,.3)}
+.ref-bar .green{color:#4ade80;border-color:rgba(74,222,128,.4)}
+.ref-bar .green:hover{background:rgba(74,222,128,.15)}
+.my-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:4px;-webkit-text-fill-color:initial}
+.my-badge.a{background:rgba(220,50,50,.45);color:#fca5a5}
+.my-badge.b{background:rgba(50,100,220,.45);color:#93c5fd}
+.my-badge.ref{background:rgba(167,139,250,.35);color:#e9d5ff}
+.round-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,210,60,.2);color:#fcd34d;margin-left:4px;-webkit-text-fill-color:initial}
+
+.layout{display:flex;height:calc(100vh - 85px);overflow:hidden}
+.side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.3)}
 .side.a-side{border-right:1px solid rgba(255,255,255,.08)}
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
 .side::-webkit-scrollbar{width:3px}
 .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.side-label{text-align:center;font-size:11px;font-weight:700;padding:5px;border-radius:5px;letter-spacing:2px;margin-bottom:2px}
+.side-label{text-align:center;font-size:11px;font-weight:700;padding:4px;border-radius:5px;letter-spacing:2px;margin-bottom:2px}
 .side-label.a{background:rgba(220,50,50,.35);color:#fca5a5}
 .side-label.b{background:rgba(50,100,220,.35);color:#93c5fd}
-.score-total{text-align:center;font-size:12px;font-weight:700;padding:5px 4px;border-radius:6px;margin-bottom:3px}
+.score-total{text-align:center;font-size:12px;font-weight:700;padding:4px;border-radius:5px;margin-bottom:2px}
 .score-total.a{background:rgba(220,50,50,.2);color:#fca5a5;border:1px solid rgba(220,50,50,.3)}
 .score-total.b{background:rgba(50,100,220,.2);color:#93c5fd;border:1px solid rgba(50,100,220,.3)}
 .score-over{color:#f87171!important;border-color:#f87171!important}
-.sec-label{font-size:9px;color:rgba(255,255,255,.3);padding:2px 4px;margin-top:2px}
-.pick-slot{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);min-height:40px;transition:all .15s}
+.sec-label{font-size:9px;color:rgba(255,255,255,.3);padding:2px 4px;margin-top:3px}
+.pick-slot{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);min-height:38px;transition:all .15s}
 .pick-slot.active{border-color:rgba(255,210,60,.85);background:rgba(255,210,60,.1);box-shadow:0 0 8px rgba(255,210,60,.2)}
 .pick-slot.filled{background:rgba(60,180,100,.1);border-color:rgba(60,180,100,.3)}
-.pick-slot .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.pick-slot .av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
 .pick-slot .info{flex:1;min-width:0}
-.pick-slot .pname{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pick-slot .pscore{font-size:10px;color:rgba(255,255,255,.5)}
-.history-box{margin-top:6px}
-.history-item{font-size:9px;color:rgba(255,255,255,.55);padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.03);margin-bottom:2px;line-height:1.4}
-.history-round-label{font-size:10px;color:#e9d5ff;margin:4px 0 2px;padding:2px 4px;background:rgba(167,139,250,.1);border-radius:3px;text-align:center}
-.center{flex:1;display:flex;flex-direction:column;padding:8px 12px;gap:7px;min-width:0;overflow-y:auto}
+.pick-slot .pname{font-size:10px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick-slot .pscore{font-size:9px;color:rgba(255,255,255,.5)}
+
+/* 轮次历史 */
+.round-history{margin-top:4px}
+.round-block{margin-bottom:6px}
+.round-block-title{font-size:9px;color:#fcd34d;padding:2px 4px;margin-bottom:2px;background:rgba(255,210,60,.08);border-radius:3px}
+.history-item{font-size:9px;color:rgba(255,255,255,.55);padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.03);margin-bottom:1px;line-height:1.4}
+
+/* 全局已选池 */
+.global-pool{margin-top:4px}
+.pool-item{display:inline-block;font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.06);border-radius:3px;padding:1px 5px;margin:1px}
+
+.center{flex:1;display:flex;flex-direction:column;padding:7px 10px;gap:6px;min-width:0;overflow-y:auto}
 .center::-webkit-scrollbar{width:3px}
 .center::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.info-bar{display:flex;align-items:center;gap:8px;padding:7px 11px;background:rgba(255,255,255,.07);border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:12px;flex-wrap:wrap}
-.info-bar .iname{font-weight:700;font-size:13px}
+.info-bar{display:flex;align-items:center;gap:7px;padding:6px 10px;background:rgba(255,255,255,.07);border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:11px;flex-wrap:wrap}
+.info-bar .iname{font-weight:700;font-size:12px}
 .team-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
 .team-tag.a{background:rgba(220,50,50,.45);color:#fca5a5}
 .team-tag.b{background:rgba(50,100,220,.45);color:#93c5fd}
 .my-turn-tip{font-size:11px;color:#fcd34d;font-weight:700}
 .not-turn-tip{font-size:11px;color:rgba(255,255,255,.4)}
-.phase-bar{padding:7px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
-.status-bar{padding:8px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
-.timer-bar{padding:11px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:26px;font-weight:700;color:#fcd34d;transition:color .3s}
+.phase-bar{padding:6px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
+.status-bar{padding:7px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
+.timer-bar{padding:10px;background:rgba(0,0,0,.4);border-radius:8px;text-align:center;font-size:24px;font-weight:700;color:#fcd34d;transition:color .3s}
 .timer-bar.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
 @keyframes pulse{from{opacity:1}to{opacity:.6}}
 .order-bar{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
-.order-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid transparent;transition:all .2s}
+.order-dot{width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid transparent;transition:all .2s}
 .order-dot.a-dot{background:rgba(220,50,50,.25);color:#fca5a5;border-color:rgba(220,50,50,.4)}
 .order-dot.b-dot{background:rgba(50,100,220,.3);color:#93c5fd;border-color:rgba(50,100,220,.4)}
 .order-dot.done{opacity:.3}
@@ -76,94 +86,103 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .tab-int.active{background:rgba(80,130,220,.2);border-color:rgba(80,130,220,.5);color:#93c5fd;font-weight:700}
 .tab-all.active{background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.5);color:#e9d5ff;font-weight:700}
 .search-row{display:flex;gap:6px}
-.search-row input{flex:1;padding:7px 11px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
+.search-row input{flex:1;padding:6px 10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
 .search-row input:focus{border-color:rgba(255,210,60,.6)}
 .search-row input::placeholder{color:rgba(255,255,255,.3)}
-.btn-clr{padding:7px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
+.btn-clr{padding:6px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;font-family:inherit}
 .btn-clr:hover{background:rgba(255,255,255,.15)}
-/* 修复英雄网格高度塌陷问题，增加最小高度 */
-.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;overflow-y:auto;min-height:210px;max-height:210px;padding-right:2px}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;overflow-y:auto;max-height:195px;padding-right:2px}
 .hero-grid::-webkit-scrollbar{width:3px}
 .hero-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.hcard{display:flex;flex-direction:column;align-items:center;padding:6px 3px 5px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
-.hcard:hover:not(.used):not(.over):not(.locked){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
+.hcard{display:flex;flex-direction:column;align-items:center;padding:5px 3px 4px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
+.hcard:hover:not(.used):not(.over):not(.locked):not(.globalused){background:rgba(255,255,255,.13);border-color:rgba(255,210,60,.5);transform:translateY(-1px)}
 .hcard.selected{border-color:#fcd34d;background:rgba(255,210,60,.15);box-shadow:0 0 10px rgba(255,210,60,.25)}
 .hcard.used{opacity:.22;pointer-events:none}
+.hcard.globalused{opacity:.18;pointer-events:none;border-color:rgba(100,100,100,.3)!important}
 .hcard.over{opacity:.38;pointer-events:none;border-color:rgba(248,113,113,.3)!important}
-.hcard.locked{opacity:.45;pointer-events:none;cursor:not-allowed}
-.hcard .htype{font-size:13px;margin-bottom:2px}
+.hcard.locked{opacity:.45;pointer-events:none}
+.hcard .htype{font-size:12px;margin-bottom:2px}
 .hcard .hname{font-size:9px;color:rgba(255,255,255,.85);line-height:1.3;word-break:break-all}
-.hcard .hscore{font-size:10px;font-weight:700;margin-top:2px}
+.hcard .hscore{font-size:9px;font-weight:700;margin-top:1px}
 .sc-str{color:#fca5a5}.sc-agi{color:#86efac}.sc-int{color:#93c5fd}
 .action-row{display:flex;gap:6px}
-.act-btn{flex:1;padding:10px;border:none;border-radius:7px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.act-btn{flex:1;padding:9px;border:none;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
 .act-btn.pick{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff}
 .act-btn.pick:hover:not(:disabled){background:linear-gradient(135deg,#15803d,#22c55e)}
 .act-btn:disabled{opacity:.28;cursor:not-allowed}
-.not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:10px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
+.not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:9px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
+.waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:9px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
+
+/* Overlays */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:24px 28px;width:350px;text-align:center}
-.modal h2{font-size:17px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px}
-.modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:10px;text-align:left;line-height:1.7}
-.modal input{width:100%;padding:9px 11px;margin-bottom:8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
+.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center}
+.modal h2{font-size:16px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px}
+.modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:10px;text-align:left;line-height:1.8}
+.modal input{width:100%;padding:8px 11px;margin-bottom:7px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;outline:none}
 .modal input:focus{border-color:rgba(167,139,250,.6)}
 .modal input::placeholder{color:rgba(255,255,255,.3)}
-.code-box{display:flex;align-items:center;gap:6px;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.3);border-radius:7px;padding:8px 12px;margin-bottom:10px}
-.code-box .cval{flex:1;font-size:16px;font-weight:700;color:#fcd34d;letter-spacing:2px;text-align:center}
-.code-box button{padding:4px 10px;background:rgba(255,210,60,.2);border:1px solid rgba(255,210,60,.4);border-radius:5px;color:#fcd34d;font-size:11px;cursor:pointer;font-family:inherit}
-.mbtn{width:100%;padding:11px;margin-top:4px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:1px}
+.code-box{display:flex;align-items:center;gap:6px;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.3);border-radius:7px;padding:7px 12px;margin-bottom:9px}
+.code-box .cval{flex:1;font-size:15px;font-weight:700;color:#fcd34d;letter-spacing:2px;text-align:center}
+.code-box button{padding:4px 9px;background:rgba(255,210,60,.2);border:1px solid rgba(255,210,60,.4);border-radius:5px;color:#fcd34d;font-size:11px;cursor:pointer;font-family:inherit}
+.mbtn{width:100%;padding:10px;margin-top:4px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
 .mbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
-.team-choose{display:flex;gap:8px;margin-bottom:10px}
-.team-choose button{flex:1;padding:9px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s}
-.team-choose .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
-.team-choose .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
-.team-choose .sel-ref{background:rgba(167,139,250,.3);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
-.wait-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:28px 32px;text-align:center;min-width:280px}
-.wait-modal h3{font-size:16px;font-weight:700;color:#fcd34d;margin-bottom:8px}
-.wait-modal p{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px}
-.wcode{font-size:20px;font-weight:700;color:#e9d5ff;letter-spacing:3px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:10px 20px;margin-bottom:14px}
-.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+.role-btns{display:flex;gap:7px;margin-bottom:9px}
+.role-btns button{flex:1;padding:8px 4px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .15s;line-height:1.4}
+.role-btns .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
+.role-btns .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
+.role-btns .sel-r{background:rgba(167,139,250,.25);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
+.wait-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:26px 30px;text-align:center;min-width:280px}
+.wait-modal h3{font-size:15px;font-weight:700;color:#fcd34d;margin-bottom:7px}
+.wait-modal p{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.wcode{font-size:19px;font-weight:700;color:#e9d5ff;letter-spacing:3px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:9px 18px;margin-bottom:12px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:5px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.result-modal{background:linear-gradient(145deg,#1a0a3d,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:24px 32px;text-align:center;min-width:320px;max-width:480px}
-.result-modal h2{font-size:20px;font-weight:700;color:#fcd34d;margin-bottom:14px;letter-spacing:2px}
-.result-teams{display:flex;gap:24px;justify-content:center;margin-bottom:14px}
-.rteam h3{font-size:12px;font-weight:700;margin-bottom:6px}
-.rteam h3.a{color:#fca5a5}.rteam h3.b{color:#93c5fd}
-.rteam .rtotal{font-size:11px;margin-bottom:5px;color:rgba(255,255,255,.45)}
+.result-modal{background:linear-gradient(145deg,#1a0a3d,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 30px;text-align:center;min-width:300px;max-width:500px;max-height:85vh;overflow-y:auto}
+.result-modal h2{font-size:18px;font-weight:700;color:#fcd34d;margin-bottom:12px;letter-spacing:2px}
+.result-round{margin-bottom:14px;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px}
+.result-round h3{font-size:11px;color:#a78bfa;margin-bottom:8px}
+.result-teams{display:flex;gap:20px;justify-content:center}
+.rteam h4{font-size:11px;font-weight:700;margin-bottom:5px}
+.rteam h4.a{color:#fca5a5}.rteam h4.b{color:#93c5fd}
+.rteam .rtotal{font-size:10px;margin-bottom:4px;color:rgba(255,255,255,.4)}
 .rteam ul{list-style:none}
-.rteam li{font-size:11px;color:rgba(255,255,255,.75);padding:2px 0;display:flex;justify-content:space-between;gap:10px}
+.rteam li{font-size:10px;color:rgba(255,255,255,.7);padding:1px 0;display:flex;justify-content:space-between;gap:8px}
 .rteam li span{color:rgba(255,255,255,.4)}
-.rbtn{padding:9px 22px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.rbtn{padding:8px 20px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px}
 .rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
 </style>
 </head>
 <body>
 
+<!-- Setup -->
 <div class="overlay" id="setupOv">
   <div class="modal">
     <h2>⚔ JUMP大赛 BP系统</h2>
-    <div class="sub">联网版 · Firebase实时同步</div>
-    <div class="rules">📋 A队上限 52分 · B队上限 50分<br>🔵 B队先手 · 每轮10次选择 · ⏱ 每轮60秒</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;text-align:left">📤 你的对局码（发给对方）：</div>
-    <div class="code-box">
-      <div class="cval" id="myCode">...</div>
-      <button onclick="copyMyCode(this)">复制</button>
+    <div class="sub">联网版 · Firebase实时同步 · 多轮BP</div>
+    <div class="rules">
+      📋 A队上限 52分 · B队上限 50分<br>
+      🔵 B队先手：B→AA→B→A→BB→A→B→A<br>
+      ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
+      ⏱ 每轮60秒 · 超时自动随机分配
     </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📤 你的对局码（发给对方）：</div>
+    <div class="code-box"><div class="cval" id="myCode">...</div><button onclick="copyCode(this)">复制</button></div>
     <input id="inpA" placeholder="A队名称（默认：A队）"/>
     <input id="inpB" placeholder="B队名称（默认：B队）"/>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;text-align:left">📥 加入对方对局（输入对方的码）：</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📥 加入对方对局（填对方的码）：</div>
     <input id="inpRoom" placeholder="留空=用自己的码  /  填入=加入对方"/>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin:8px 0 6px;text-align:left">👤 你是？</div>
-    <div class="team-choose">
-      <button id="btnA" onclick="chooseTeam('a')" class="sel-a">🔴 A队</button>
-      <button id="btnB" onclick="chooseTeam('b')">🔵 B队</button>
-      <button id="btnRef" onclick="chooseTeam('ref')">🎯 裁判</button>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin:7px 0 5px;text-align:left">👤 你的身份：</div>
+    <div class="role-btns">
+      <button id="rA" onclick="setRole('a')" class="sel-a">🔴 A队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
+      <button id="rB" onclick="setRole('b')">🔵 B队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
+      <button id="rR" onclick="setRole('ref')">⚖ 裁判<br><span style="font-size:9px;opacity:.7">观战+控制</span></button>
     </div>
     <button class="mbtn" onclick="startMatch()">进入对局</button>
   </div>
 </div>
 
+<!-- Waiting -->
 <div class="overlay" id="waitOv" style="display:none">
   <div class="wait-modal">
     <h3>⏳ 等待对方加入</h3>
@@ -174,43 +193,42 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
+<!-- Result -->
 <div class="overlay" id="resultOv" style="display:none">
   <div class="result-modal">
-    <h2>🏆 对局结束</h2>
-    <div class="result-teams" id="resultTeams"></div>
-    <button class="rbtn" onclick="location.reload()">再来一局</button>
+    <h2>📊 BP结果汇总</h2>
+    <div id="resultContent"></div>
+    <button class="rbtn" onclick="location.reload()">结束对局</button>
   </div>
 </div>
 
 <div class="conn-bar waiting" id="connBar">🔄 连接中...</div>
 <div class="header">
-  <h1>JUMP大赛 · BP对战系统 <span id="myBadge" class="my-team-badge"></span></h1>
+  <h1>JUMP大赛 · BP对战系统 <span id="myBadge" class="my-badge"></span><span id="roundBadge" class="round-badge" style="display:none"></span></h1>
   <div class="code" id="codeDisplay">对局代码: ------</div>
   <div class="ref-bar">
-    <button onclick="refAction('start')">▶ 开始BP</button>
+    <button class="green" onclick="refAction('start')">▶ 开始新一轮BP</button>
     <button onclick="refAction('pause')">⏸ 暂停</button>
     <button onclick="refAction('skip')">⏭ 跳过本轮</button>
-    <button class="ref-only" onclick="refAction('nextRound')">🔄 下一轮BP</button>
-    <button class="danger" onclick="refAction('end')">■ 结束对局</button>
+    <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
   </div>
 </div>
 
 <div class="layout">
+  <!-- A side -->
   <div class="side a-side">
     <div class="side-label a" id="aLabel">A队</div>
     <div class="score-total a" id="aScore">已用 0 / 52 分</div>
-    <div class="sec-label">— 已选人物 —</div>
+    <div class="sec-label">— 本轮已选 —</div>
     <div class="pick-slot" id="aSlot1"><div class="av" style="background:rgba(220,50,50,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="aSlot2"><div class="av" style="background:rgba(220,50,50,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="aSlot3"><div class="av" style="background:rgba(220,50,50,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="aSlot4"><div class="av" style="background:rgba(220,50,50,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="aSlot5"><div class="av" style="background:rgba(220,50,50,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="history-box">
-      <div class="sec-label">— 选角记录 —</div>
-      <div id="histA"></div>
-    </div>
+    <div class="round-history"><div class="sec-label">— 历轮记录 —</div><div id="histA"></div></div>
   </div>
 
+  <!-- Center -->
   <div class="center">
     <div class="info-bar">
       <span class="iname" id="curName">-</span>
@@ -220,8 +238,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <span id="turnTip"></span>
     </div>
     <div class="order-bar" id="orderBar"></div>
-    <div class="phase-bar" id="phaseBar">等待开始...</div>
-    <div class="status-bar" id="statusBar">裁判按「开始BP」后才能选人</div>
+    <div class="phase-bar" id="phaseBar">等待裁判开始...</div>
+    <div class="status-bar" id="statusBar">裁判按「开始新一轮BP」后才能选人</div>
     <div class="timer-bar" id="timerBar">60秒</div>
     <div class="tab-row">
       <button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button>
@@ -238,21 +256,26 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button>
     </div>
     <div id="notMyTurnMsg" class="not-my-turn-msg" style="display:none">请等待对方选人...</div>
+    <div id="waitNextMsg" class="waiting-next" style="display:none">✅ 本轮BP结束！等待裁判开始下一轮...</div>
+
+    <!-- 全局已选池 -->
+    <div style="margin-top:4px">
+      <div class="sec-label">— 全局已选（所有轮次不可重复）—</div>
+      <div id="globalPool" class="global-pool"></div>
+    </div>
   </div>
 
+  <!-- B side -->
   <div class="side b-side">
     <div class="side-label b" id="bLabel">B队</div>
     <div class="score-total b" id="bScore">已用 0 / 50 分</div>
-    <div class="sec-label">— 已选人物 —</div>
+    <div class="sec-label">— 本轮已选 —</div>
     <div class="pick-slot" id="bSlot1"><div class="av" style="background:rgba(50,100,220,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="bSlot2"><div class="av" style="background:rgba(50,100,220,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="bSlot3"><div class="av" style="background:rgba(50,100,220,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="bSlot4"><div class="av" style="background:rgba(50,100,220,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="bSlot5"><div class="av" style="background:rgba(50,100,220,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="history-box">
-      <div class="sec-label">— 选角记录 —</div>
-      <div id="histB"></div>
-    </div>
+    <div class="round-history"><div class="sec-label">— 历轮记录 —</div><div id="histB"></div></div>
   </div>
 </div>
 
@@ -275,7 +298,7 @@ db.ref('.info/connected').on('value',s=>{
   el.className='conn-bar '+(s.val()?'online':'offline');
 });
 
-// 英雄数据
+// ── 英雄数据 ──
 const HEROES={
   str:[{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'卡卡罗特',score:8},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5}],
   agi:[{name:'谏山黄泉',score:20},{name:'冲田总司',score:20},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'英灵卫宫',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'暗影大人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
@@ -285,611 +308,419 @@ const ALL=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h
 const TI={str:'💪',agi:'⚡',int:'🧠'};
 const TL={str:'力量',agi:'敏捷',int:'智力'};
 const SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
-const ORDER=['b','a','a','b','a','b','b','a','b','a']; // 每轮10步的选人权顺序
-const LIM={a:52,b:50}; // 分数上限
-const MAX_PICKS=5; // 每队最多选5人
+const ORDER=['b','a','a','b','a','b','b','a','b','a']; // B队先手
+const LIM={a:52,b:50};
 
-// 全局变量
-let roomId='',myTeam='a',tab='str',sel=null,timer=null,ref=null;
-let lastStepInRound=-1,lastRound=1,isCreator=false,playerId=Math.random().toString(36).substr(2,8); // 唯一玩家ID
-let timerRunning=false; // 计时器运行状态锁，修复重复启动问题
-// 游戏状态
+// ── 本地变量 ──
+let roomId='',myRole='a',tab='str',sel=null,tmr=null,ref=null,lastStep=-1,isCreator=false;
+// gs = 从Firebase同步的完整状态
 let gs={
   aName:'A队',bName:'B队',
-  aPicks:[],bPicks:[], // 各队已选英雄
-  aUsed:0,bUsed:0,     // 各队已用分数
-  round:1,             // 当前BP轮数
-  stepInRound:0,       // 当前轮内步骤(0-9)
-  active:false,        // BP是否激活
-  paused:false,        // 是否暂停
-  ended:false,         // 是否结束
-  players:0,           // 已加入玩家数
-  playersTeam:{},      // 玩家队伍分配 {playerId: 'a'/'b'/'ref'}
-  usedHeroes:[],       // 全局已选英雄（整局BP禁用）
-  history:[]           // 选角历史
+  // 本轮
+  aPicks:[],bPicks:[],aUsed:0,bUsed:0,
+  step:0,active:false,paused:false,roundEnded:false,
+  // 全局
+  roundNum:0,           // 当前第几轮（从1开始）
+  globalPicked:[],      // 全局已选人物名称数组（跨轮不可重选）
+  allRounds:[],         // 每轮结果存档
+  players:0,
+  ended:false           // 整个BP结束
 };
 
-// 生成6位随机对局码
 function genCode(){return Math.random().toString(36).substr(2,6).toUpperCase();}
 
-// 检查英雄是否全局已选
-function isHeroUsed(n){return gs.usedHeroes.includes(n);}
+// 全局已选（包含当前轮）
+function globalUsed(name){
+  return (gs.globalPicked||[]).includes(name)||
+    [...(gs.aPicks||[]),...(gs.bPicks||[])].some(p=>p.name===name);
+}
+function ct(){return ORDER[gs.step]||'a';}
+function rem(t){return LIM[t]-((t==='a'?gs.aUsed:gs.bUsed)||0);}
+// 是否可以选（分数检查 + 未被选过）
+function canPick(name,score){
+  if(globalUsed(name))return false;
+  const t=ct();
+  const r=rem(t);
+  // 剩余人数
+  const picked=(t==='a'?gs.aPicks:gs.bPicks)||[];
+  const left=5-picked.length; // 还需选几人
+  if(left<=0)return false;
+  // 智能判断：选了这个后剩余分数能否选满剩余人数
+  const minPerPick=5; // 每人最低5分
+  const afterScore=r-score;
+  if(afterScore<(left-1)*minPerPick)return false; // 分数不够选满
+  return true;
+}
+function myTurn(){return gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10&&ct()===myRole;}
+function isPlayer(){return myRole==='a'||myRole==='b';}
 
-// 检查队伍是否选满5人
-function isTeamFull(t){return (t==='a'?gs.aPicks:gs.bPicks).length >= MAX_PICKS;}
+function copyCode(btn){navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='复制',1500);});}
 
-// 获取当前轮次的选权队伍
-function getCurrentTeam(){return ORDER[gs.stepInRound]||'a';}
-
-// 获取队伍剩余分数
-function getRemainScore(t){return LIM[t]-((t==='a'?gs.aUsed:gs.bUsed)||0);}
-
-// 检查是否是自己的回合
-function isMyTurn(){
-  if(myTeam==='ref') return false; // 裁判无选人权
-  return gs.active&&!gs.paused&&!gs.ended&&gs.stepInRound<10&&getCurrentTeam()===myTeam&&!isTeamFull(myTeam);
+function setRole(r){
+  myRole=r;
+  ['a','b','ref'].forEach(x=>document.getElementById('r'+x.charAt(0).toUpperCase()+(x==='ref'?'R':x.slice(1))).className='');
+  const map={a:'rA',b:'rB',ref:'rR'};
+  document.getElementById(map[r]).className='sel-'+r;
+}
+// 初始化身份按钮id修正
+function setRole(r){
+  myRole=r;
+  document.getElementById('rA').className=r==='a'?'sel-a':'';
+  document.getElementById('rB').className=r==='b'?'sel-b':'';
+  document.getElementById('rR').className=r==='ref'?'sel-r':'';
 }
 
-// 复制对局码
-function copyMyCode(btn){
-  navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(()=>{
-    btn.textContent='✓';
-    setTimeout(()=>btn.textContent='复制',1500);
-  });
-}
+window.onload=()=>{document.getElementById('myCode').textContent=genCode();renderGrid();};
 
-// 选择队伍/裁判
-function chooseTeam(t){
-  myTeam=t;
-  document.getElementById('btnA').className=t==='a'?'sel-a':'';
-  document.getElementById('btnB').className=t==='b'?'sel-b':'';
-  document.getElementById('btnRef').className=t==='ref'?'sel-ref':'';
-}
-
-// 页面加载初始化
-window.onload=()=>{
-  document.getElementById('myCode').textContent=genCode();
-  // 页面加载强制渲染英雄列表，不依赖游戏状态，修复初始空白问题
-  renderGrid();
-};
-
-// 开始对局
 function startMatch(){
-  const inpRoom=document.getElementById('inpRoom').value.trim().toUpperCase();
-  roomId=inpRoom||document.getElementById('myCode').textContent;
-  isCreator=!inpRoom;
-  
-  // 获取自定义队伍名
-  const customAName=document.getElementById('inpA').value.trim();
-  const customBName=document.getElementById('inpB').value.trim();
-  
-  // 更新显示
+  const inp=document.getElementById('inpRoom').value.trim().toUpperCase();
+  roomId=inp||document.getElementById('myCode').textContent;
+  isCreator=!inp;
+  const aName=document.getElementById('inpA').value.trim()||'A队';
+  const bName=document.getElementById('inpB').value.trim()||'B队';
+
   document.getElementById('codeDisplay').textContent='对局代码: '+roomId;
   const badge=document.getElementById('myBadge');
-  if(myTeam==='ref'){
-    badge.textContent='[裁判]';
-    badge.className='my-team-badge ref';
-  }else{
-    const teamName=myTeam==='a'?(customAName||'A队'):(customBName||'B队');
-    badge.textContent=`[我是${teamName}]`;
-    badge.className='my-team-badge '+myTeam;
-  }
-  
-  // 隐藏设置面板
+  const roleLabel={a:'🔴'+aName,b:'🔵'+bName,ref:'⚖ 裁判'}[myRole];
+  badge.textContent='['+roleLabel+']';
+  badge.className='my-badge '+(myRole==='ref'?'ref':myRole);
   document.getElementById('setupOv').style.display='none';
-  
-  // 生成轮次指示器
-  document.getElementById('orderBar').innerHTML=ORDER.map((t,i)=>
-    `<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`
-  ).join('');
-  
-  // 连接数据库
+  document.getElementById('orderBar').innerHTML=ORDER.map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
+
   ref=db.ref('rooms/'+roomId);
   ref.on('value',snap=>{
     const data=snap.val();
     if(!data){
-      // 新建房间
-      const initGS={
-        ...gs,
-        aName: customAName||'A队',
-        bName: customBName||'B队',
-        players:1,
-        playersTeam:{[playerId]:myTeam},
-        ts:Date.now()
-      };
-      ref.set(initGS);
+      // 创建新房间
+      ref.set({
+        aName,bName,
+        aPicks:[],bPicks:[],aUsed:0,bUsed:0,
+        step:0,active:false,paused:false,roundEnded:false,
+        roundNum:0,globalPicked:[],allRounds:[],
+        players:1,ended:false,ts:Date.now()
+      });
       document.getElementById('waitCode').textContent=roomId;
       document.getElementById('waitOv').style.display='flex';
     } else {
-      // 同步房间数据
-      gs={
-        ...gs,
-        ...data,
+      // 同步状态 - 始终使用Firebase的队名（解决问题1）
+      gs={...gs,...data,
         aPicks:data.aPicks||[],
         bPicks:data.bPicks||[],
-        usedHeroes:data.usedHeroes||[],
-        history:data.history||[],
-        playersTeam:data.playersTeam||{}
+        globalPicked:data.globalPicked||[],
+        allRounds:data.allRounds||[]
       };
-      
-      // 处理队伍名同步（问题1修复）
-      if(customAName && gs.aName!==customAName) ref.update({aName: customAName});
-      if(customBName && gs.bName!==customBName) ref.update({bName: customBName});
-      
-      // 处理重复队伍分配（问题2修复）
-      if(!isCreator && !gs.playersTeam[playerId]){
-        let assignedTeam=myTeam;
-        // 统计已分配的队伍
-        const teamCount={a:0,b:0};
-        Object.values(gs.playersTeam).forEach(t=>{
-          if(t==='a') teamCount.a++;
-          else if(t==='b') teamCount.b++;
-        });
-        
-        // 如果选择的队伍已有人，自动切换
-        if(assignedTeam!=='ref' && teamCount[assignedTeam]>0){
-          assignedTeam=assignedTeam==='a'?'b':'a';
-          myTeam=assignedTeam;
-          // 更新徽章显示
-          const badge=document.getElementById('myBadge');
-          const teamName=assignedTeam==='a'?gs.aName:gs.bName;
-          badge.textContent=`[我是${teamName}]`;
-          badge.className='my-team-badge '+assignedTeam;
-        }
-        
-        // 更新玩家队伍分配
-        ref.update({
-          players:Math.min(3, (gs.players||0)+1), // 最多2玩家+1裁判
-          playersTeam:{...gs.playersTeam, [playerId]:myTeam},
-          ts:Date.now()
-        });
+
+      // 如果是加入方且players<2，写入players:2（解决等待问题）
+      if(!isCreator&&(data.players||0)<2){
+        ref.update({players:2,ts:Date.now()});
       }
-      
-      // 隐藏等待面板
+      // 如果加入方检测到队伍冲突，自动切换（解决问题2）
+      if(!isCreator&&data.takenRoles){
+        const taken=data.takenRoles||[];
+        if(myRole!=='ref'&&taken.includes(myRole)){
+          myRole=myRole==='a'?'b':'a';
+          const badge=document.getElementById('myBadge');
+          const aLabel=gs.aName,bLabel=gs.bName;
+          badge.textContent='['+(myRole==='a'?'🔴'+aLabel:'🔵'+bLabel)+']';
+          badge.className='my-badge '+myRole;
+        }
+      }
+      // 记录自己占用的队伍
+      if(myRole!=='ref'&&data.takenRoles===undefined){
+        ref.update({takenRoles:[myRole]});
+      }
+
       document.getElementById('waitOv').style.display='none';
-      
-      // 同步UI
       syncUI();
-      
-      // 【修复计时器不动核心逻辑】仅当回合/轮次变化时才重启计时器，避免频繁触发
-      const shouldStartTimer = gs.active&&!gs.paused&&!gs.ended&&gs.stepInRound<10;
-      const isTurnChanged = gs.stepInRound!==lastStepInRound || gs.round!==lastRound;
-      
-      if(shouldStartTimer && isTurnChanged){
-        lastStepInRound=gs.stepInRound;
-        lastRound=gs.round;
-        startTimer();
-      } else if(!shouldStartTimer){
-        stopTimer();
-        if(gs.ended) showResult();
+
+      // 倒计时控制
+      if(gs.active&&!gs.paused&&!gs.roundEnded&&!gs.ended&&gs.step<10){
+        if(gs.step!==lastStep){lastStep=gs.step;startTmr();}
+      } else {
+        stopTmr();
       }
     }
   });
 }
 
-// 裁判操作
+// ── 裁判操作 ──
 function refAction(type){
-  if(!ref || myTeam!=='ref') return; // 仅限裁判操作
-  
-  switch(type){
-    case 'start':
-      // 重置并开始新一轮
-      stopTimer(); // 先停止现有计时器
-      ref.update({
-        active:true,
-        paused:false,
-        round:1,
-        stepInRound:0,
-        aPicks:[],
-        bPicks:[],
-        aUsed:0,
-        bUsed:0,
-        usedHeroes:[],
-        history:[],
-        ended:false,
-        ts:Date.now()
-      });
-      lastStepInRound=-1;
-      lastRound=1;
-      timerRunning=false;
-      break;
-    case 'pause':
-      const newPaused=!gs.paused;
-      ref.update({paused:newPaused, ts:Date.now()});
-      // 暂停/继续时控制计时器
-      if(newPaused){
-        stopTimer();
-      }else if(gs.active&&!gs.ended&&gs.stepInRound<10){
-        startTimer();
-      }
-      break;
-    case 'skip':
-      if(!gs.active||gs.ended) return;
-      const nextStep=gs.stepInRound+1;
-      if(nextStep>=10){
-        // 本轮结束，暂停等待裁判开启下一轮
-        ref.update({active:false, stepInRound:nextStep, ts:Date.now()});
-        stopTimer();
-      }else{
-        ref.update({stepInRound:nextStep, ts:Date.now()});
-      }
-      break;
-    case 'nextRound': // 问题5修复：下一轮BP
-      stopTimer();
-      ref.update({
-        active:true,
-        paused:false,
-        round:gs.round+1,
-        stepInRound:0,
-        ts:Date.now()
-      });
-      lastStepInRound=-1;
-      lastRound=gs.round+1;
-      timerRunning=false;
-      break;
-    case 'end':
-      stopTimer();
-      ref.update({ended:true, active:false, ts:Date.now()});
-      timerRunning=false;
-      break;
+  if(!ref)return;
+  if(type==='start'){
+    // 开始新一轮：重置本轮数据，roundNum+1，保留globalPicked和allRounds
+    const newRound=(gs.roundNum||0)+1;
+    lastStep=-1;
+    ref.update({
+      aPicks:[],bPicks:[],aUsed:0,bUsed:0,
+      step:0,active:true,paused:false,roundEnded:false,
+      roundNum:newRound,ts:Date.now()
+    });
+  } else if(type==='pause'){
+    ref.update({paused:!gs.paused,ts:Date.now()});
+  } else if(type==='skip'){
+    if(!gs.active||gs.roundEnded||gs.ended)return;
+    const ns=gs.step+1;
+    if(ns>=10){endRound();}
+    else ref.update({step:ns,ts:Date.now()});
+  } else if(type==='endAll'){
+    ref.update({ended:true,active:false,ts:Date.now()});
   }
 }
 
-// 【修复计时器不动】启动计时器，增加状态锁避免重复启动
-function startTimer(){
-  stopTimer(); // 先清空现有计时器
-  if(timerRunning) return;
-  
-  let timeLeft=60;
-  updateTimer(timeLeft);
-  timerRunning=true;
-  
-  timer=setInterval(()=>{
-    // 游戏状态变化时停止计时器
-    if(gs.paused||!gs.active||gs.ended||gs.stepInRound>=10){
-      stopTimer();
-      return;
-    }
-    
-    timeLeft--;
-    updateTimer(timeLeft);
-    
-    // 时间到自动选角（问题6修复）
-    if(timeLeft<=0){
-      stopTimer();
-      // 仅当前操作方的客户端执行自动选角，避免重复触发
-      if(isMyTurn()){
-        autoPick();
-      }else if(getCurrentTeam()===myTeam){
-        // 兜底：如果是自己的回合但isMyTurn判断异常，也执行自动选角
-        autoPick();
-      }
-    }
+function endRound(){
+  // 本轮结束：把本轮结果存入allRounds，更新globalPicked
+  const round={
+    roundNum:gs.roundNum,
+    aPicks:[...(gs.aPicks||[])],
+    bPicks:[...(gs.bPicks||[])],
+    aUsed:gs.aUsed,bUsed:gs.bUsed
+  };
+  const newAllRounds=[...(gs.allRounds||[]),round];
+  // 把本轮所有选人加入全局池
+  const newGlobal=[...(gs.globalPicked||[]),
+    ...(gs.aPicks||[]).map(h=>h.name),
+    ...(gs.bPicks||[]).map(h=>h.name)
+  ];
+  ref.update({
+    roundEnded:true,active:false,
+    allRounds:newAllRounds,
+    globalPicked:newGlobal,
+    ts:Date.now()
+  });
+}
+
+// ── 倒计时 ──
+function startTmr(){
+  stopTmr();let t=60;updTmr(t);
+  tmr=setInterval(()=>{
+    if(gs.paused||!gs.active||gs.roundEnded||gs.ended){stopTmr();return;}
+    t--;updTmr(t);
+    if(t<=0){stopTmr();if(myTurn())autoPickFn();}
   },1000);
 }
+function stopTmr(){clearInterval(tmr);tmr=null;}
+function updTmr(t){const el=document.getElementById('timerBar');el.textContent=t+'秒';el.className='timer-bar'+(t<=15?' urgent':'');}
 
-// 停止计时器
-function stopTimer(){
-  clearInterval(timer);
-  timer=null;
-  timerRunning=false;
+// 超时自动随机分配（问题6）
+function autoPickFn(){
+  const t=myRole;
+  const avail=ALL.filter(h=>canPick(h.name,h.score));
+  if(avail.length){doPick(avail[Math.floor(Math.random()*avail.length)]);}
+  else refAction('skip');
 }
 
-// 更新计时器显示
-function updateTimer(t){
-  const el=document.getElementById('timerBar');
-  el.textContent=t+'秒';
-  el.className='timer-bar'+(t<=15?' urgent':'');
-}
-
-// 自动随机选角（问题6修复）
-function autoPick(){
-  const currentTeam=getCurrentTeam();
-  // 过滤条件：未全局使用、分数足够、队伍未满5人
-  const availableHeroes=ALL.filter(h=>
-    !isHeroUsed(h.name) && 
-    h.score<=getRemainScore(currentTeam) && 
-    !isTeamFull(currentTeam)
-  );
-  
-  if(availableHeroes.length>0){
-    // 随机选一个
-    const randomHero=availableHeroes[Math.floor(Math.random()*availableHeroes.length)];
-    doPick(randomHero);
-  }else{
-    // 无可用英雄则跳过
-    refAction('skip');
-  }
-}
-
-// 选择英雄
+// ── 选人逻辑（问题4：智能判断）──
 function selectHero(name,type,score){
-  if(!isMyTurn()) return;
-  if(isHeroUsed(name) || score>getRemainScore(myTeam) || isTeamFull(myTeam)) return;
-  
+  if(!myTurn())return;
+  if(!canPick(name,score))return;
   sel={name,type,score};
   document.getElementById('pickBtn').disabled=false;
   renderGrid();
 }
+function confirmPick(){if(!sel||!myTurn())return;doPick(sel);}
 
-// 确认选角
-function confirmPick(){
-  if(!sel||!isMyTurn()) return;
-  doPick(sel);
-}
-
-// 执行选角操作
-function doPick(hero){
-  const currentTeam=getCurrentTeam();
-  if(isTeamFull(currentTeam) || isHeroUsed(hero.name)) return;
-  
-  // 复制数据避免直接修改
-  const newAPicks=[...gs.aPicks];
-  const newBPicks=[...gs.bPicks];
-  let newAUsed=gs.aUsed||0;
-  let newBUsed=gs.bUsed||0;
-  const newUsedHeroes=[...gs.usedHeroes, hero.name]; // 全局禁用（问题8修复）
-  
-  // 更新队伍选角数据
-  if(currentTeam==='a'){
-    newAPicks.push(hero);
-    newAUsed+=hero.score;
-  }else{
-    newBPicks.push(hero);
-    newBUsed+=hero.score;
-  }
-  
-  // 更新历史记录（记录轮数，问题7修复）
-  const newHistory=[...gs.history, {
-    round:gs.round,
-    step:gs.stepInRound+1,
-    team:currentTeam,
-    teamName:currentTeam==='a'?gs.aName:gs.bName,
-    hero:hero.name,
-    type:hero.type,
-    score:hero.score
-  }];
-  
-  // 计算下一步
-  const newStepInRound=gs.stepInRound+1;
-  const isRoundEnd=newStepInRound>=10;
-  
-  // 更新数据库
-  ref.update({
-    aPicks:newAPicks,
-    bPicks:newBPicks,
-    aUsed:newAUsed,
-    bUsed:newBUsed,
-    stepInRound:isRoundEnd?0:newStepInRound,
-    usedHeroes:newUsedHeroes,
-    history:newHistory,
-    active:!isRoundEnd, // 本轮结束后暂停，等待裁判开启下一轮（问题5修复）
-    ts:Date.now()
-  });
-  
-  // 重置选中状态
+function doPick(h){
+  const t=ct();
+  const na=[...(gs.aPicks||[])],nb=[...(gs.bPicks||[])];
+  let au=gs.aUsed||0,bu=gs.bUsed||0;
+  if(t==='a'){na.push(h);au+=h.score;}else{nb.push(h);bu+=h.score;}
+  const ns=gs.step+1;
   sel=null;
   document.getElementById('pickBtn').disabled=true;
+
+  // 检查是否10轮全选完
+  if(ns>=10){
+    // 先写入最后一选，然后结束本轮
+    ref.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()},()=>{
+      // 在写入完成后结束本轮
+      const round={roundNum:gs.roundNum,aPicks:na,bPicks:nb,aUsed:au,bUsed:bu};
+      const newAllRounds=[...(gs.allRounds||[]),round];
+      const newGlobal=[...(gs.globalPicked||[]),...na.map(h=>h.name),...nb.map(h=>h.name)];
+      ref.update({roundEnded:true,active:false,allRounds:newAllRounds,globalPicked:newGlobal,ts:Date.now()});
+    });
+  } else {
+    ref.update({aPicks:na,bPicks:nb,aUsed:au,bUsed:bu,step:ns,ts:Date.now()});
+  }
 }
 
-// 同步UI显示
+// ── UI同步 ──
 function syncUI(){
-  // 更新队伍名
+  const rn=gs.roundNum||0;
   document.getElementById('aLabel').textContent=gs.aName;
   document.getElementById('bLabel').textContent=gs.bName;
-  
-  // 更新分数显示
-  const aUsed=gs.aUsed||0;
-  const bUsed=gs.bUsed||0;
-  const aScoreEl=document.getElementById('aScore');
-  const bScoreEl=document.getElementById('bScore');
-  
-  aScoreEl.textContent=`已用 ${aUsed} / 52 分`;
-  aScoreEl.className='score-total a'+(aUsed>52?' score-over':'');
-  
-  bScoreEl.textContent=`已用 ${bUsed} / 50 分`;
-  bScoreEl.className='score-total b'+(bUsed>50?' score-over':'');
-  
-  // 重置选角槽位
-  for(let i=1;i<=MAX_PICKS;i++){
-    ['a','b'].forEach(t=>{
-      const el=document.getElementById(`${t}Slot${i}`);
-      if(!el) return;
-      
+  if(rn>0){
+    document.getElementById('roundBadge').textContent='第'+rn+'轮';
+    document.getElementById('roundBadge').style.display='inline-block';
+  }
+
+  // 分数
+  const au=gs.aUsed||0,bu=gs.bUsed||0;
+  const aEl=document.getElementById('aScore');aEl.textContent=`已用 ${au} / 52 分`;aEl.className='score-total a'+(au>52?' score-over':'');
+  const bEl=document.getElementById('bScore');bEl.textContent=`已用 ${bu} / 50 分`;bEl.className='score-total b'+(bu>50?' score-over':'');
+
+  // 重置槽位
+  for(let i=1;i<=5;i++){
+    ['a','b'].forEach(s=>{
+      const el=document.getElementById(s+'Slot'+i);
+      if(!el)return;
       el.classList.remove('active','filled');
       el.querySelector('.pname').textContent='等待选人';
       el.querySelector('.pscore').textContent='—';
       el.querySelector('.av').textContent=i;
-      el.querySelector('.av').style.background=t==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
+      el.querySelector('.av').style.background=s==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
     });
   }
-  
-  // 填充已选英雄
+  // 填入本轮已选
   (gs.aPicks||[]).forEach((h,i)=>{
-    const el=document.getElementById(`aSlot${i+1}`);
-    if(!el) return;
+    const el=document.getElementById('aSlot'+(i+1));if(!el)return;
     el.classList.add('filled');
     el.querySelector('.pname').textContent=h.name;
-    el.querySelector('.pscore').textContent=`${TI[h.type]} ${TL[h.type]} · ${h.score}分`;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';
     el.querySelector('.av').textContent=TI[h.type];
   });
-  
   (gs.bPicks||[]).forEach((h,i)=>{
-    const el=document.getElementById(`bSlot${i+1}`);
-    if(!el) return;
+    const el=document.getElementById('bSlot'+(i+1));if(!el)return;
     el.classList.add('filled');
     el.querySelector('.pname').textContent=h.name;
-    el.querySelector('.pscore').textContent=`${TI[h.type]} ${TL[h.type]} · ${h.score}分`;
+    el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分';
     el.querySelector('.av').textContent=TI[h.type];
   });
-  
-  // 更新当前选角状态
-  if(gs.active&&!gs.ended&&gs.stepInRound<10){
-    const currentTeam=getCurrentTeam();
-    const teamPicks=currentTeam==='a'?gs.aPicks:gs.bPicks;
-    const slotIndex=teamPicks.length+1;
-    
-    // 高亮当前选角槽位
-    if(slotIndex<=MAX_PICKS){
-      const activeSlot=document.getElementById(`${currentTeam}Slot${slotIndex}`);
-      if(activeSlot) activeSlot.classList.add('active');
-    }
-    
-    // 更新信息栏
-    const teamName=currentTeam==='a'?gs.aName:gs.bName;
-    document.getElementById('curName').textContent=teamName;
-    document.getElementById('curTag').textContent=teamName;
-    document.getElementById('curTag').className='team-tag '+currentTeam;
-    document.getElementById('curRound').textContent=`第${gs.round}轮 · 第${gs.stepInRound+1}步`;
-    document.getElementById('curLimit').textContent=`剩余: ${getRemainScore(currentTeam)}分`;
-    document.getElementById('phaseBar').textContent=`第${gs.round}轮BP — 第${gs.stepInRound+1}步`;
-    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':`${teamName} 正在选人...`;
-    
-    // 回合提示
-    const turnTip=document.getElementById('turnTip');
-    const myTurn=isMyTurn();
-    turnTip.textContent=myTurn?'← 你的回合！':'等待对方...';
-    turnTip.className=myTurn?'my-turn-tip':'not-turn-tip';
-    
-    // 显示/隐藏操作区
-    document.getElementById('actionRow').style.display=myTurn&&myTeam!=='ref'?'flex':'none';
-    document.getElementById('notMyTurnMsg').style.display=myTurn||myTeam==='ref'?'none':'block';
-    
-    if(!myTurn) sel=null;
-  }else if(!gs.active&&!gs.ended){
-    // 等待开始状态
-    document.getElementById('statusBar').textContent=gs.round>1?'本轮结束，裁判可开启下一轮':'裁判按「开始BP」后才能选人';
-    document.getElementById('phaseBar').textContent=`第${gs.round}轮BP · 等待开始`;
-    document.getElementById('turnTip').textContent='';
+
+  // 高亮当前槽
+  if(gs.active&&!gs.roundEnded&&!gs.ended&&gs.step<10){
+    const t=ct();
+    const picks=(t==='a'?gs.aPicks:gs.bPicks)||[];
+    const sl=document.getElementById(t+'Slot'+(picks.length+1));
+    if(sl)sl.classList.add('active');
+  }
+
+  // 中心信息
+  const isRoundEnd=gs.roundEnded;
+  const isAllEnd=gs.ended;
+
+  if(isAllEnd){
+    document.getElementById('phaseBar').textContent='全部BP已结束';
+    document.getElementById('statusBar').textContent='点「结束所有BP」查看汇总';
     document.getElementById('actionRow').style.display='none';
     document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='none';
+    showResult();
+  } else if(isRoundEnd){
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！';
+    document.getElementById('statusBar').textContent='等待裁判开始下一轮...';
+    document.getElementById('timerBar').textContent='—';
+    document.getElementById('timerBar').className='timer-bar';
+    document.getElementById('actionRow').style.display='none';
+    document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='block';
+  } else if(gs.active&&gs.step<10){
+    document.getElementById('waitNextMsg').style.display='none';
+    const t=ct(),tName=t==='a'?gs.aName:gs.bName;
+    document.getElementById('curName').textContent=tName;
+    document.getElementById('curTag').textContent=tName;
+    document.getElementById('curTag').className='team-tag '+t;
+    document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';
+    document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分';
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选';
+    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':tName+' 正在选人...';
+    const mt=myTurn();
+    const tip=document.getElementById('turnTip');
+    tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中');
+    tip.className=mt?'my-turn-tip':'not-turn-tip';
+    document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none';
+    document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none';
+    if(!mt)sel=null;
+    if(!isPlayer())document.getElementById('pickBtn').disabled=true;
+  } else {
+    document.getElementById('phaseBar').textContent='等待裁判开始...';
+    document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人';
+    document.getElementById('turnTip').textContent='';
+    document.getElementById('actionRow').style.display='flex';
+    document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='none';
     document.getElementById('pickBtn').disabled=true;
   }
-  
-  // 更新轮次指示器
+
+  // 轮次指示条
   ORDER.forEach((_,i)=>{
-    const dot=document.getElementById(`dot${i}`);
-    if(!dot) return;
-    dot.classList.remove('current','done');
-    if(i<gs.stepInRound) dot.classList.add('done');
-    else if(i===gs.stepInRound&&gs.active&&!gs.ended) dot.classList.add('current');
+    const el=document.getElementById('dot'+i);if(!el)return;
+    el.classList.remove('current','done');
+    if(i<gs.step)el.classList.add('done');
+    else if(i===gs.step&&gs.active&&!gs.roundEnded)el.classList.add('current');
   });
-  
-  // 更新选角历史（按轮数分组，问题7修复）
-  renderHistory();
-  
-  // 重新渲染英雄网格，确保UI同步
+
+  // 历轮记录（问题7）
+  const allR=gs.allRounds||[];
+  const buildHist=(team)=>{
+    return allR.map((r,ri)=>{
+      const picks=team==='a'?r.aPicks:r.bPicks;
+      if(!picks||!picks.length)return'';
+      const items=picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('');
+      return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮</div>${items}</div>`;
+    }).join('');
+  };
+  document.getElementById('histA').innerHTML=buildHist('a');
+  document.getElementById('histB').innerHTML=buildHist('b');
+
+  // 全局已选池（问题8）
+  const gp=gs.globalPicked||[];
+  const curPicked=[...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name);
+  const allPicked=[...new Set([...gp,...curPicked])];
+  document.getElementById('globalPool').innerHTML=allPicked.length?
+    allPicked.map(n=>`<span class="pool-item">${n}</span>`).join(''):
+    '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
+
   renderGrid();
 }
 
-// 渲染选角历史（按轮数分组）
-function renderHistory(){
-  // 按队伍和轮数分组
-  const aHistoryByRound={};
-  const bHistoryByRound={};
-  
-  gs.history.forEach(item=>{
-    if(item.team==='a'){
-      if(!aHistoryByRound[item.round]) aHistoryByRound[item.round]=[];
-      aHistoryByRound[item.round].push(item);
-    }else{
-      if(!bHistoryByRound[item.round]) bHistoryByRound[item.round]=[];
-      bHistoryByRound[item.round].push(item);
-    }
-  });
-  
-  // 渲染A队历史
-  let aHistoryHTML='';
-  Object.keys(aHistoryByRound).sort((a,b)=>a-b).forEach(round=>{
-    aHistoryHTML+=`<div class="history-round-label">第${round}轮</div>`;
-    aHistoryHTML+=aHistoryByRound[round].map(h=>
-      `<div class="history-item">第${h.step}步 ${TI[h.type]}${h.hero} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`
-    ).join('');
-  });
-  document.getElementById('histA').innerHTML=aHistoryHTML;
-  
-  // 渲染B队历史
-  let bHistoryHTML='';
-  Object.keys(bHistoryByRound).sort((a,b)=>a-b).forEach(round=>{
-    bHistoryHTML+=`<div class="history-round-label">第${round}轮</div>`;
-    bHistoryHTML+=bHistoryByRound[round].map(h=>
-      `<div class="history-item">第${h.step}步 ${TI[h.type]}${h.hero} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`
-    ).join('');
-  });
-  document.getElementById('histB').innerHTML=bHistoryHTML;
-}
-
-// 【修复英雄不显示核心逻辑】重写英雄网格渲染
 function renderGrid(){
-  const searchQuery=document.getElementById('searchInp').value.toLowerCase();
-  const currentTeam=gs.stepInRound<10?getCurrentTeam():'a';
-  const myTurn=isMyTurn();
-  
-  // 筛选英雄列表，确保初始状态有数据
-  let heroList=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab}));
-  
-  // 搜索过滤
-  if(searchQuery) heroList=heroList.filter(h=>h.name.toLowerCase().includes(searchQuery));
-  
-  // 生成英雄卡片HTML
-  let gridHTML='';
-  heroList.forEach(hero=>{
-    const isUsed=isHeroUsed(hero.name); // 全局禁用（问题8修复）
-    const isOverScore=gs.active && hero.score>getRemainScore(currentTeam);
-    const isTeamFullFlag=isTeamFull(currentTeam);
-    // 【修复逻辑运算符优先级】明确锁定条件，避免错误锁定
-    const isLocked=(gs.active && !gs.ended && !myTurn) || myTeam==='ref';
-    const isSelected=sel&&sel.name===hero.name;
-    
-    // 计算样式类
-    let cardClass='hcard';
-    if(isUsed) cardClass+=' used';
-    else if(isOverScore || isTeamFullFlag) cardClass+=' over'; // 队伍满5人也禁用（问题4修复）
-    else if(isLocked) cardClass+=' locked';
-    if(isSelected) cardClass+=' selected';
-    
-    // 拼接卡片HTML，确保所有英雄都能渲染
-    gridHTML+=`
-      <div class="${cardClass}" onclick="selectHero('${hero.name.replace(/'/g,"\\'")}','${hero.type}',${hero.score})">
-        <div class="htype">${TI[hero.type]}</div>
-        <div class="hname">${hero.name}</div>
-        <div class="hscore ${SC[hero.type]}">${hero.score}分</div>
-      </div>
-    `;
-  });
-  
-  // 写入DOM，确保英雄网格有内容
-  document.getElementById('heroGrid').innerHTML=gridHTML;
+  const q=document.getElementById('searchInp').value.toLowerCase();
+  const mt=myTurn();
+  let list=tab==='all'?ALL:HEROES[tab].map(h=>({...h,type:tab}));
+  if(q)list=list.filter(h=>h.name.toLowerCase().includes(q));
+  document.getElementById('heroGrid').innerHTML=list.map(h=>{
+    const gu=globalUsed(h.name);
+    const cu=[...(gs.aPicks||[]),...(gs.bPicks||[])].some(p=>p.name===h.name);
+    const cantScore=!gu&&!canPick(h.name,h.score)&&gs.active;
+    const lk=gs.active&&!gs.roundEnded&&!gs.ended&&!mt;
+    const sl=sel&&sel.name===h.name;
+    let cls='hcard';
+    if(gu)cls+=' globalused';
+    else if(cu)cls+=' used';
+    else if(cantScore)cls+=' over';
+    else if(lk)cls+=' locked';
+    if(sl)cls+=' selected';
+    return `<div class="${cls}" onclick="selectHero('${h.name}','${h.type}',${h.score})">
+      <div class="htype">${TI[h.type]}</div>
+      <div class="hname">${h.name}</div>
+      <div class="hscore ${SC[h.type]}">${h.score}分</div>
+    </div>`;
+  }).join('');
 }
 
-// 切换英雄分类标签
 function switchTab(t){
   tab=t;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  const tabIndex={str:0,agi:1,int:2,all:3}[t];
-  document.querySelectorAll('.tab-btn')[tabIndex].classList.add('active');
+  const idx={str:0,agi:1,int:2,all:3}[t];
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
   renderGrid();
 }
 
-// 显示对局结果
 function showResult(){
-  stopTimer();
-  const formatPicks=picks=>picks.map(h=>
-    `<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`
-  ).join('');
-  
-  document.getElementById('resultTeams').innerHTML=`
-    <div class="rteam">
-      <h3 class="a">${gs.aName}</h3>
-      <div class="rtotal">总分: ${gs.aUsed}/52</div>
-      <ul>${formatPicks(gs.aPicks)}</ul>
-    </div>
-    <div class="rteam">
-      <h3 class="b">${gs.bName}</h3>
-      <div class="rtotal">总分: ${gs.bUsed}/50</div>
-      <ul>${formatPicks(gs.bPicks)}</ul>
-    </div>
-  `;
+  const allR=gs.allRounds||[];
+  if(!allR.length){document.getElementById('resultOv').style.display='flex';return;}
+  const fmt=(r,team)=>{
+    const picks=team==='a'?r.aPicks:r.bPicks;
+    return (picks||[]).map(h=>`<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
+  };
+  document.getElementById('resultContent').innerHTML=allR.map(r=>`
+    <div class="result-round">
+      <h3>第${r.roundNum}轮</h3>
+      <div class="result-teams">
+        <div class="rteam"><h4 class="a">${gs.aName}</h4><div class="rtotal">总分: ${r.aUsed}/52</div><ul>${fmt(r,'a')}</ul></div>
+        <div class="rteam"><h4 class="b">${gs.bName}</h4><div class="rtotal">总分: ${r.bUsed}/50</div><ul>${fmt(r,'b')}</ul></div>
+      </div>
+    </div>`).join('');
   document.getElementById('resultOv').style.display='flex';
 }
 </script>
