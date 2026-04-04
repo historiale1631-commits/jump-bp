@@ -27,8 +27,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-badge.ref{background:rgba(167,139,250,.35);color:#e9d5ff}
 .round-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,210,60,.2);color:#fcd34d;margin-left:4px;-webkit-text-fill-color:initial}
 
-/* 独立阵营框 - 只显示阵营角色，不混队伍名 */
-.camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,210,60,.3);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
+/* 阵营框 - JUMP方在左，Sunday方在右 */
+.camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,255,255,.15);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
 .camp-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border-radius:30px;padding:3px 12px}
 .camp-icon{font-size:18px}
 .camp-name{font-size:13px;font-weight:700;letter-spacing:1px}
@@ -42,10 +42,13 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
 .side::-webkit-scrollbar{width:3px}
 .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.side-label{text-align:center;font-size:12px;font-weight:700;padding:5px;border-radius:6px;letter-spacing:1px;margin-bottom:3px}
-.side-label.a{background:rgba(220,50,50,.35);color:#fca5a5}
-.side-label.b{background:rgba(50,100,220,.35);color:#93c5fd}
-.score-total{text-align:center;font-size:12px;font-weight:700;padding:4px;border-radius:5px;margin-bottom:2px}
+.side-label{text-align:center;font-size:13px;font-weight:800;padding:6px 4px;border-radius:8px;letter-spacing:1px;margin-bottom:3px;background:rgba(0,0,0,.4)}
+.side-label.a{color:#fca5a5;border-left:3px solid #fca5a5}
+.side-label.b{color:#93c5fd;border-left:3px solid #93c5fd}
+.role-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(0,0,0,.5);border-radius:20px;padding:2px 8px;vertical-align:middle}
+.role-badge.sunday{color:#fcd34d;border:1px solid #fcd34d}
+.role-badge.jump{color:#86efac;border:1px solid #86efac}
+.score-total{text-align:center;font-size:12px;font-weight:700;padding:4px;border-radius:5px;margin-bottom:4px}
 .score-total.a{background:rgba(220,50,50,.2);color:#fca5a5;border:1px solid rgba(220,50,50,.3)}
 .score-total.b{background:rgba(50,100,220,.2);color:#93c5fd;border:1px solid rgba(50,100,220,.3)}
 .score-over{color:#f87171!important;border-color:#f87171!important}
@@ -218,10 +221,10 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div></div>
 </div>
 
-<!-- 独立阵营框 - 只显示阵营角色，队伍名单独显示在侧边栏 -->
+<!-- 阵营框：JUMP方在左，Sunday方在右 -->
 <div class="camp-panel" id="campPanel">
-  <div class="camp-item"><span class="camp-icon">☀️</span><span class="camp-name sunday">Sunday方</span><span id="sundayTeamHint" class="camp-sub">—</span></div>
   <div class="camp-item"><span class="camp-icon">⚡</span><span class="camp-name jump">JUMP方</span><span id="jumpTeamHint" class="camp-sub">—</span></div>
+  <div class="camp-item"><span class="camp-icon">☀️</span><span class="camp-name sunday">Sunday方</span><span id="sundayTeamHint" class="camp-sub">—</span></div>
 </div>
 
 <div class="layout">
@@ -272,7 +275,41 @@ firebase.initializeApp({ apiKey:"AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs", authD
 const db=firebase.database();
 db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connBar'); el.textContent=s.val()?'🟢 已连接 Firebase':'🔴 连接断开，请刷新'; el.className='conn-bar '+(s.val()?'online':'offline');});
 
-const HEROES={ str:[{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'秽土宇智波斑',score:14},{name:'迪亚波罗',score:12},{name:'迈特凯',score:5}], agi:[{name:'谏山黄泉',score:18},{name:'冲田总司',score:20},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'英灵卫宫',score:12},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'暗影大人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}], int:[{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}] };
+// 英雄数据，每个属性内按分数降序排列
+const HEROES={
+  str:[
+    {name:'七代目火影',score:20},
+    {name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},
+    {name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},
+    {name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},
+    {name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},
+    {name:'黑贞德',score:8},
+    {name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},
+    {name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5}
+  ],
+  agi:[
+    {name:'冲田总司',score:20},
+    {name:'谏山黄泉',score:18},{name:'建御雷神',score:18},
+    {name:'卫宫切嗣',score:16},
+    {name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},
+    {name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},
+    {name:'黑铁一辉Another',score:10},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'暗影大人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},
+    {name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉',score:8},{name:'御坂美琴',score:8},{name:'雨宫莲',score:8},
+    {name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},
+    {name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}
+  ],
+  int:[
+    {name:'爱莉希雅',score:28},
+    {name:'小圆',score:18},
+    {name:'塞西莉亚',score:15},
+    {name:'伊蕾娜',score:14},{name:'公主',score:14},
+    {name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},
+    {name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},
+    {name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},
+    {name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},
+    {name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}
+  ]
+};
 const ALL=[...HEROES.str.map(h=>({...h,type:'str'})),...HEROES.agi.map(h=>({...h,type:'agi'})),...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI={str:'💪',agi:'⚡',int:'🧠'}, SC={str:'sc-str',agi:'sc-agi',int:'sc-int'};
 const ORDER_B_FIRST=['b','a','a','b','a','b','b','a','b','a'], ORDER_A_FIRST=['a','b','b','a','b','a','a','b','a','b'];
@@ -326,14 +363,18 @@ function syncUI(){
   const sundayTeam=getSundayTeam(), jumpTeam=getJumpTeam();
   const sundayTeamName = sundayTeam==='a'?gs.aName:gs.bName;
   const jumpTeamName = jumpTeam==='a'?gs.aName:gs.bName;
+  // 阵营框更新
   document.getElementById('sundayTeamHint').textContent=sundayTeamName;
   document.getElementById('jumpTeamHint').textContent=jumpTeamName;
+  // 侧边栏阵营标识
+  const aRole = (lt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
+  const bRole = (rt === sundayTeam) ? '☀️ Sunday方' : '⚡ JUMP方';
+  document.getElementById('aLabel').innerHTML = `${gs.aName} <span class="role-badge ${(lt===sundayTeam)?'sunday':'jump'}">${aRole}</span>`;
+  document.getElementById('bLabel').innerHTML = `${gs.bName} <span class="role-badge ${(rt===sundayTeam)?'sunday':'jump'}">${bRole}</span>`;
   const aLim=getLIM()[lt], bLim=getLIM()[rt];
   const aUsed=lt==='a'?gs.aUsed:gs.bUsed, bUsed=rt==='a'?gs.aUsed:gs.bUsed;
   document.getElementById('aScore').innerHTML=`已用 ${aUsed} / ${aLim} 分`; document.getElementById('aScore').className='score-total a'+(aUsed>aLim?' score-over':'');
   document.getElementById('bScore').innerHTML=`已用 ${bUsed} / ${bLim} 分`; document.getElementById('bScore').className='score-total b'+(bUsed>bLim?' score-over':'');
-  document.getElementById('aLabel').innerHTML=gs.aName;
-  document.getElementById('bLabel').innerHTML=gs.bName;
   document.getElementById('orderBar').innerHTML=getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
   if(rn>0){ document.getElementById('roundBadge').textContent='第'+rn+'轮'; document.getElementById('roundBadge').style.display='inline-block'; }
   const ltColor='rgba(220,50,50,.3)', rtColor='rgba(50,100,220,.3)';
