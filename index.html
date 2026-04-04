@@ -361,6 +361,7 @@ let localSelected=null;
 let timerInterval=null;
 let roomRef=null;
 let lastStep=-1;
+let isCreator=false;
 
 // 当前从Firebase同步来的游戏状态
 let gs = {
@@ -412,19 +413,21 @@ function startMatch(){
     `<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`
   ).join('');
 
+  isCreator = !inputRoom; // 没有输入码的是创建者
   roomRef=db.ref('rooms/'+roomId);
 
   // 监听Firebase数据变化
   roomRef.on('value', snap=>{
     const data=snap.val();
     if(!data){
-      // 房间不存在，初始化
+      // 房间不存在，说明我是A，创建房间
       roomRef.set({
         aName:a, bName:b,
         aPicks:[], bPicks:[],
         aUsed:0, bUsed:0,
         step:0, timer:60,
         active:false, paused:false, ended:false,
+        players:1,
         ts:Date.now()
       });
       showWaiting();
@@ -432,7 +435,20 @@ function startMatch(){
       gs={...gs,...data};
       gs.aPicks=data.aPicks||[];
       gs.bPicks=data.bPicks||[];
-      hideWaiting();
+
+      // 如果是B加入（房间已存在），写入players:2通知A
+      if(data.players===1 && !isCreator){
+        roomRef.update({players:2, ts:Date.now()});
+      }
+
+      // 只要players>=2就隐藏等待弹窗
+      if(data.players>=2){
+        hideWaiting();
+      } else if(isCreator){
+        showWaiting();
+        return;
+      }
+
       syncUI();
       // 新一轮时重启本地倒计时
       if(gs.active && !gs.paused && !gs.ended){
