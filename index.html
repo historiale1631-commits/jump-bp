@@ -177,6 +177,31 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .rteam li span{color:rgba(255,255,255,.4)}
 .rbtn{padding:8px 20px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px}
 .rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
+.scoreboard{display:flex;align-items:center;justify-content:center;gap:0;margin:5px 10px 0;flex-shrink:0}
+.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)}
+.sb-team.a{border-radius:10px 0 0 10px;border-right:none}
+.sb-team.b{border-radius:0 10px 10px 0;border-left:none}
+.sb-name{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px}
+.sb-score{font-size:28px;font-weight:700;font-family:monospace;line-height:1}
+.sb-team.a .sb-score{color:#fca5a5}
+.sb-team.b .sb-score{color:#93c5fd}
+.sb-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 14px;background:rgba(255,210,60,.08);border:1px solid rgba(255,210,60,.2);font-size:9px;color:#fcd34d;font-weight:700;letter-spacing:1px}
+.win-badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.win-badge.win{background:rgba(74,222,128,.25);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
+.win-badge.lose{background:rgba(248,113,113,.2);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.win-badge.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.3)}
+.judge-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200}
+.judge-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:24px 28px;text-align:center;min-width:300px}
+.judge-modal h3{font-size:15px;font-weight:700;color:#fcd34d;margin-bottom:6px}
+.judge-modal p{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px}
+.judge-btns{display:flex;gap:8px;justify-content:center}
+.jbtn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.jbtn.a{background:rgba(220,50,50,.5);color:#fca5a5;border:1px solid rgba(220,50,50,.6)}
+.jbtn.a:hover{background:rgba(220,50,50,.75)}
+.jbtn.b{background:rgba(50,100,220,.5);color:#93c5fd;border:1px solid rgba(50,100,220,.6)}
+.jbtn.b:hover{background:rgba(50,100,220,.75)}
+.jbtn.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.4)}
+.jbtn.draw:hover{background:rgba(255,210,60,.35)}
 </style>
 </head>
 <body>
@@ -233,12 +258,39 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <button class="orange" onclick="refAction('drainA')">🔴-30s A备用</button>
     <button class="orange" onclick="refAction('drainB')">🔵-30s B备用</button>
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
+    <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
+    <button class="swap" onclick="openJudge()" id="judgeBtn">⚖ 判定胜负</button>
+    <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
   </div></div>
 </div>
 
 <div class="camp-panel">
   <div class="camp-item"><span class="camp-icon">⚡</span><span class="camp-name jump">JUMP方</span><span id="jumpTeamHint" class="camp-sub">—</span></div>
   <div class="camp-item"><span class="camp-icon">☀️</span><span class="camp-name sunday">Sunday方</span><span id="sundayTeamHint" class="camp-sub">—</span></div>
+</div>
+
+<div class="scoreboard">
+  <div class="sb-team a">
+    <div class="sb-name" id="sbNameA">A队</div>
+    <div class="sb-score" id="sbScoreA">0</div>
+  </div>
+  <div class="sb-mid">VS</div>
+  <div class="sb-team b">
+    <div class="sb-name" id="sbNameB">B队</div>
+    <div class="sb-score" id="sbScoreB">0</div>
+  </div>
+</div>
+
+<div class="judge-overlay" id="judgeOv" style="display:none">
+  <div class="judge-modal">
+    <h3>⚖ 判定本轮胜负</h3>
+    <p id="judgeRoundLabel">第1轮BP结束，请裁判判定胜负</p>
+    <div class="judge-btns">
+      <button class="jbtn a" id="jbtnA" onclick="submitJudge('a')">🔴 A队胜</button>
+      <button class="jbtn draw" onclick="submitJudge('draw')">🤝 平局</button>
+      <button class="jbtn b" id="jbtnB" onclick="submitJudge('b')">🔵 B队胜</button>
+    </div>
+  </div>
 </div>
 
 <div class="layout">
@@ -331,7 +383,7 @@ function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND
 
 const HEROES = {
   str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
-  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}],
+  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:8}],
   int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
 };
 const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({...h,type:'agi'})), ...HEROES.int.map(h=>({...h,type:'int'}))];
@@ -349,7 +401,7 @@ let gs = {
   aName: 'A队', bName: 'B队', aPicks: [], bPicks: [], aUsed: 0, bUsed: 0,
   step: 0, active: false, paused: false, roundEnded: false, roundNum: 0,
   globalPicked: [], allRounds: [], players: 0, swapped: false, ended: false,
-  stepStartTs: 0, bankA: 300, bankB: 300, mainUsed: 0
+  stepStartTs: 0, bankA: 300, bankB: 300, mainUsed: 0, scoreA: 0, scoreB: 0
 };
 let uiTick = null, serverTimeOffset = 0;
 // ── 修复2：用变量追踪 listener，方便清理 ──
@@ -528,6 +580,10 @@ function refAction(type) {
     refDb.update({ bankB: Math.max(0, (gs.bankB || 300) - 30) });
   } else if (type === 'swap') {
     refDb.update({ swapped: !gs.swapped });
+  } else if (type === 'deleteRoom') {
+    if (!confirm('确定要删除这个对局的所有数据吗？此操作不可撤销。')) return;
+    stopUiTick();
+    refDb.remove().then(() => { location.reload(); });
   } else if (type === 'endAll') {
     refDb.update({ ended: true, active: false });
   }
@@ -702,7 +758,13 @@ function syncUI() {
     const picks=team==='a'?r.aPicks:r.bPicks;
     if(!picks||!picks.length) return '';
     const side = (r.sundayTeamAtRound === team) ? 'Sunday方' : 'JUMP方';
-    return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${side}</div>${picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}</div>`;
+    let winBadge = '';
+    if (r.winner) {
+      if (r.winner === 'draw') winBadge = '<span class="win-badge draw">平局</span>';
+      else if (r.winner === team) winBadge = '<span class="win-badge win">胜</span>';
+      else winBadge = '<span class="win-badge lose">负</span>';
+    }
+    return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${side}${winBadge}</div>${picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}</div>`;
   }).join('');
   document.getElementById('histA').innerHTML = buildHist('a');
   document.getElementById('histB').innerHTML = buildHist('b');
@@ -710,6 +772,7 @@ function syncUI() {
   const gp = gs.globalPicked||[]; const curP = [...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name); const allP = [...new Set([...gp,...curP])];
   document.getElementById('globalPool').innerHTML = allP.length ? allP.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
   updTimerUI(); renderGrid();
+  updateScoreboard();
 }
 
 function renderGrid() {
@@ -740,6 +803,53 @@ function switchTab(t) {
   const idx = {str:0, agi:1, int:2, all:3}[t];
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
   renderGrid();
+}
+
+// ── 判定胜负逻辑 ──
+function openJudge() {
+  if (!refDb || myRole !== 'ref') return;
+  const rn = gs.roundNum || 0;
+  if (rn === 0) { alert('还没有进行过任何轮次，无法判定。'); return; }
+  // 找到最近一轮已结束的轮次
+  const allR = gs.allRounds || [];
+  // 优先判定最新一轮（roundEnded 时已存入 allRounds）
+  const lastRound = allR.find(r => r.roundNum === rn) || allR[allR.length - 1];
+  if (!lastRound) { alert('当前轮次尚未结束，无法判定。'); return; }
+  const targetRn = lastRound.roundNum;
+  const existing = lastRound.winner;
+  let hint = `第${targetRn}轮`;
+  if (existing) hint += `（已判定：${existing === 'a' ? gs.aName+'胜' : existing === 'b' ? gs.bName+'胜' : '平局'}，可重新判定）`;
+  document.getElementById('judgeRoundLabel').textContent = hint;
+  document.getElementById('jbtnA').textContent = '🔴 ' + gs.aName + ' 胜';
+  document.getElementById('jbtnB').textContent = '🔵 ' + gs.bName + ' 胜';
+  // 存入目标轮次，供 submitJudge 使用
+  document.getElementById('judgeOv').dataset.targetRn = targetRn;
+  document.getElementById('judgeOv').style.display = 'flex';
+}
+
+function submitJudge(winner) {
+  if (!refDb || myRole !== 'ref') return;
+  document.getElementById('judgeOv').style.display = 'none';
+  const allR = gs.allRounds || [];
+  const targetRn = parseInt(document.getElementById('judgeOv').dataset.targetRn || '0');
+  // 找出旧判定，用于计分修正
+  const oldRound = allR.find(r => r.roundNum === targetRn);
+  const oldWinner = oldRound ? (oldRound.winner || null) : null;
+  const updated = allR.map(r => r.roundNum === targetRn ? { ...r, winner } : r);
+  // 重新从头统计总分（避免反复修改导致分数错误）
+  let scoreA = 0, scoreB = 0;
+  updated.forEach(r => {
+    if (r.winner === 'a') scoreA++;
+    else if (r.winner === 'b') scoreB++;
+  });
+  refDb.update({ allRounds: updated, scoreA, scoreB });
+}
+
+function updateScoreboard() {
+  document.getElementById('sbNameA').textContent = gs.aName || 'A队';
+  document.getElementById('sbNameB').textContent = gs.bName || 'B队';
+  document.getElementById('sbScoreA').textContent = gs.scoreA || 0;
+  document.getElementById('sbScoreB').textContent = gs.scoreB || 0;
 }
 
 function showResult() {
@@ -783,8 +893,23 @@ async function startMatch() {
 
   refDb.once('value', snap => {
     if (!snap.val()) {
-      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [], mainUsed: 0 };
-      refDb.set(init).then(() => { document.getElementById('waitCode').textContent = roomId; document.getElementById('waitOv').style.display = 'flex'; listenRoom(aName, bName); });
+      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [], mainUsed: 0, scoreA: 0, scoreB: 0 };
+      refDb.set(init).then(() => {
+        document.getElementById('waitCode').textContent = roomId;
+        document.getElementById('waitOv').style.display = 'flex';
+        listenRoom(aName, bName);
+        // 30分钟后检查：如果从未开始过BP则自动删除（无效对局清理）
+        setTimeout(() => {
+          if (!refDb) return;
+          refDb.once('value', snap => {
+            const d = snap.val();
+            if (d && (d.roundNum || 0) === 0) {
+              refDb.remove();
+              console.log('无效对局已自动清理:', roomId);
+            }
+          });
+        }, 30 * 60 * 1000);
+      });
     } else {
       listenRoom(aName, bName);
     }
