@@ -349,7 +349,7 @@ let gs = {
   aName: 'A队', bName: 'B队', aPicks: [], bPicks: [], aUsed: 0, bUsed: 0,
   step: 0, active: false, paused: false, roundEnded: false, roundNum: 0,
   globalPicked: [], allRounds: [], players: 0, swapped: false, ended: false,
-  stepStartTs: 0, bankA: 300, bankB: 300
+  stepStartTs: 0, bankA: 300, bankB: 300, mainUsed: 0
 };
 let uiTick = null, serverTimeOffset = 0;
 // ── 修复2：用变量追踪 listener，方便清理 ──
@@ -390,27 +390,34 @@ function setRole(r) {
   document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
 }
 
+// calcTime：基于 mainUsed（累计已用主计时秒）+ 本次 resume 以来经过的秒数
+// Firebase 额外存 mainUsed 字段（暂停前累计），默认0
 function calcTime() {
   const cur = ct();
-  const elapsed = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
-  const MAIN = 60;
-  const mainSec = Math.max(0, MAIN - elapsed);
-  const overflowed = Math.max(0, elapsed - MAIN);
   const bank = cur === 'a' ? gs.bankA : gs.bankB;
-  const bankSec = Math.max(0, bank - overflowed);
-  const draining = elapsed >= MAIN && bankSec > 0;
-  const isTimeout = elapsed >= MAIN && bankSec <= 0;
-  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout };
+  if (gs.paused || gs.stepStartTs <= 0) {
+    const mainUsed = gs.mainUsed || 0;
+    const mainSec = Math.max(0, 60 - mainUsed);
+    return { mainSec, bankSec: bank, draining: false, overflowedBank: 0, curTeam: cur, isTimeout: false };
+  }
+  const sinceResume = Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000));
+  const mainUsed = (gs.mainUsed || 0) + sinceResume;
+  const mainSec = Math.max(0, 60 - mainUsed);
+  const overflowedBank = Math.max(0, mainUsed - 60);
+  const bankSec = Math.max(0, bank - overflowedBank);
+  const draining = mainUsed >= 60 && bankSec > 0;
+  const isTimeout = mainUsed >= 60 && bankSec <= 0;
+  return { mainSec, bankSec, draining, overflowedBank, curTeam: cur, isTimeout };
 }
-function fmtBank(s) { const m = Math.floor(Math.max(0, s) / 60), sec = Math.max(0, s) % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
+function fmtBank(s) { const m = Math.floor(Math.max(0,s)/60), sec = Math.max(0,s)%60; return m+':'+(sec<10?'0':'')+sec; }
 function updBankUI(team, sec, draining) {
-  const valEl = document.getElementById('bank' + team.toUpperCase() + 'Val');
-  const modeEl = document.getElementById('bank' + team.toUpperCase() + 'Mode');
+  const valEl = document.getElementById('bank'+team.toUpperCase()+'Val');
+  const modeEl = document.getElementById('bank'+team.toUpperCase()+'Mode');
   if (!valEl) return;
   valEl.textContent = fmtBank(sec);
-  valEl.className = 'tval' + (sec <= 0 ? ' low' : draining ? ' draining' : '');
+  valEl.className = 'tval'+(sec<=0?' low':draining?' draining':'');
   modeEl.textContent = draining ? '⚠ 扣除中' : '待机';
-  modeEl.className = 'tmode' + (draining ? ' on' : '');
+  modeEl.className = 'tmode'+(draining?' on':'');
 }
 function updTimerUI() {
   if (!gs.active || gs.roundEnded || gs.ended || gs.step >= 10) {
@@ -422,39 +429,47 @@ function updTimerUI() {
   const { mainSec, bankSec, draining, curTeam } = calcTime();
   const tEl = document.getElementById('timerMain');
   tEl.textContent = mainSec;
-  tEl.className = 'tval' + (mainSec <= 10 ? ' urgent' : '');
-  updBankUI('a', curTeam === 'a' && draining ? bankSec : gs.bankA, curTeam === 'a' && draining);
-  updBankUI('b', curTeam === 'b' && draining ? bankSec : gs.bankB, curTeam === 'b' && draining);
+  tEl.className = 'tval'+(mainSec<=10?' urgent':'');
+  updBankUI('a', curTeam==='a' && draining ? bankSec : gs.bankA, curTeam==='a' && draining);
+  updBankUI('b', curTeam==='b' && draining ? bankSec : gs.bankB, curTeam==='b' && draining);
 }
-function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(() => { if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) checkTimeoutAndTick(); }, 300); }
+function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(checkTimeoutAndTick, 300); }
 function stopUiTick() { if (uiTick) clearInterval(uiTick); uiTick = null; }
 
+// 防止重复写入 bank=0 的标记
+let bankZeroFiredKey = -1;
+
 function checkTimeoutAndTick() {
+  if (!gs.active || gs.paused || gs.roundEnded || gs.ended || gs.step >= 10) return;
   updTimerUI();
-  if (gs.paused || gs.roundEnded || gs.ended) return;
   const { isTimeout, curTeam } = calcTime();
-  if (isTimeout && firedForStep !== firedKey()) {
-    const picksCount = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
-    // 只有轮到自己才触发自动选（避免双客户端同时触发）
-    if (picksCount === gs.step && ct() === myRole) {
-      firedForStep = firedKey();
-      stopUiTick();
-      forceAutoPick();
-    }
+
+  // 备用耗尽时，无论谁的回合都要持久化 bank=0（只写一次）
+  // 这样下一步开始时 Firebase 里的 bankX 是正确的 0
+  if (isTimeout && bankZeroFiredKey !== firedKey()) {
+    bankZeroFiredKey = firedKey();
+    const bankUpdate = {};
+    if (curTeam === 'a') bankUpdate.bankA = 0; else bankUpdate.bankB = 0;
+    refDb.update(bankUpdate);
+  }
+
+  // 只有轮到自己时才触发自动选，防止双端竞争
+  if (isTimeout && firedForStep !== firedKey() && ct() === myRole) {
+    firedForStep = firedKey();
+    stopUiTick();
+    forceAutoPick();
   }
 }
 
 function forceAutoPick() {
-  const t = ct();
   const available = ALL.filter(h => canPick(h.name, h.score));
   if (available.length > 0) {
-    const randomPick = available[Math.floor(Math.random() * available.length)];
-    doPick(randomPick);
+    doPick(available[Math.floor(Math.random() * available.length)]);
   } else {
     const ns = gs.step + 1;
-    const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
-    const { curTeam } = calcTime();
-    if (curTeam === 'a') update.bankA = 0; else update.bankB = 0;
+    const cur = ct();
+    const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
+    if (cur === 'a') update.bankA = 0; else update.bankB = 0;
     if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
   }
 }
@@ -463,34 +478,36 @@ function refAction(type) {
   if (!refDb || myRole !== 'ref') return;
   if (type === 'start') {
     firedForStep = -1;
+    bankZeroFiredKey = -1;
     isPicking = false;
-    refDb.update({ aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: true, paused: false, roundEnded: false, roundNum: (gs.roundNum || 0) + 1, bankA: 300, bankB: 300, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
+    // 新增 mainUsed:0，记录累计主计时已用秒
+    refDb.update({ aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: true, paused: false, roundEnded: false, roundNum: (gs.roundNum || 0) + 1, bankA: 300, bankB: 300, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 });
   } else if (type === 'pause') {
     if (gs.paused) {
+      // 恢复：stepStartTs 重置为现在，mainUsed 保持不变（已在暂停时保存好）
       refDb.update({ paused: false, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
     } else {
-      const { overflowed, curTeam } = calcTime();
-      const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - overflowed);
-      const update = { paused: true };
+      // 暂停：把当前累计已用秒存入 mainUsed，清零 stepStartTs
+      const { overflowedBank, curTeam } = calcTime();
+      const sinceResume = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
+      const newMainUsed = Math.min(60, (gs.mainUsed || 0) + sinceResume);
+      const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - overflowedBank);
+      const update = { paused: true, mainUsed: newMainUsed, stepStartTs: 0 };
       if (curTeam === 'a') update.bankA = savedBank; else update.bankB = savedBank;
       refDb.update(update);
     }
   } else if (type === 'skip') {
     if (!gs.active || gs.roundEnded || gs.ended) return;
-    const { overflowed, curTeam } = calcTime();
-    const update = {};
-    if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowed); else update.bankB = Math.max(0, gs.bankB - overflowed);
-    const ns = gs.step + 1; update.step = ns; update.stepStartTs = firebase.database.ServerValue.TIMESTAMP;
-    if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
+    const { overflowedBank, curTeam } = calcTime();
+    const update = { step: gs.step + 1, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
+    if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
+    if (update.step >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
   } else if (type === 'drainA') {
     if (!gs.active) return;
-    const newBankA = Math.max(0, (gs.bankA || 300) - 30);
-    // ── 修复5：drainA/B 直接更新银行值，不依赖本地时间操纵 stepStartTs ──
-    refDb.update({ bankA: newBankA });
+    refDb.update({ bankA: Math.max(0, (gs.bankA || 300) - 30) });
   } else if (type === 'drainB') {
     if (!gs.active) return;
-    const newBankB = Math.max(0, (gs.bankB || 300) - 30);
-    refDb.update({ bankB: newBankB });
+    refDb.update({ bankB: Math.max(0, (gs.bankB || 300) - 30) });
   } else if (type === 'swap') {
     refDb.update({ swapped: !gs.swapped });
   } else if (type === 'endAll') {
@@ -500,16 +517,20 @@ function refAction(type) {
 
 function endRound() {
   if (gs.roundEnded || !gs.active) return;
-  // ── 修复6：用 Firebase 事务防止 endRound 被多客户端重复写入 ──
+  // 用事务锁防止多客户端重复写入
   refDb.child('roundEnded').transaction(currentVal => {
-    if (currentVal === true) return; // 已经结束，放弃写入
-    return true; // 未结束，继续
+    if (currentVal === true) return; // 已结束，放弃
+    return true;
   }, (err, committed) => {
-    if (!committed) return;
-    const round = { roundNum: gs.roundNum, aPicks: [...(gs.aPicks||[])], bPicks: [...(gs.bPicks||[])], aUsed: gs.aUsed, bUsed: gs.bUsed, sundayTeamAtRound: getSundayTeam() };
-    const newAllRounds = [...(gs.allRounds||[]), round];
-    const newGlobal = [...(gs.globalPicked||[]), ...(gs.aPicks||[]).map(h=>h.name), ...(gs.bPicks||[]).map(h=>h.name)];
-    refDb.update({ active: false, allRounds: newAllRounds, globalPicked: newGlobal });
+    if (err || !committed) return;
+    // 重新读一次最新快照，避免用闭包里的旧 gs
+    refDb.once('value', snap => {
+      const d = snap.val(); if (!d) return;
+      const round = { roundNum: d.roundNum, aPicks: d.aPicks || [], bPicks: d.bPicks || [], aUsed: d.aUsed || 0, bUsed: d.bUsed || 0, sundayTeamAtRound: getSundayTeam() };
+      const newAllRounds = [...(d.allRounds || []), round];
+      const newGlobal = [...(d.globalPicked || []), ...(d.aPicks || []).map(h=>h.name), ...(d.bPicks || []).map(h=>h.name)];
+      refDb.update({ active: false, allRounds: newAllRounds, globalPicked: newGlobal });
+    });
   });
 }
 
@@ -537,9 +558,9 @@ function doPick(h) {
   if (t === 'a') { na.push(h); au += h.score; } else { nb.push(h); bu += h.score; }
   const ns = gs.step + 1;
   sel = null;
-  const { overflowed, curTeam } = calcTime();
-  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
-  if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowed); else update.bankB = Math.max(0, gs.bankB - overflowed);
+  const { overflowedBank, curTeam } = calcTime();
+  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
+  if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
   const done = () => { isPicking = false; };
   if (ns >= 10) {
@@ -729,7 +750,7 @@ async function startMatch() {
 
   refDb.once('value', snap => {
     if (!snap.val()) {
-      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [] };
+      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [], mainUsed: 0 };
       refDb.set(init).then(() => { document.getElementById('waitCode').textContent = roomId; document.getElementById('waitOv').style.display = 'flex'; listenRoom(aName, bName); });
     } else {
       listenRoom(aName, bName);
@@ -737,36 +758,39 @@ async function startMatch() {
   });
 }
 
+// 用一个标志位确保加入时的初始化只执行一次
+let hasRegistered = false;
+
 function listenRoom(aName, bName) {
-  // ── 修复9续：保存 listener 引用以便清理 ──
+  hasRegistered = false;
   roomListener = refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
 
-    // ── 修复10：角色冲突处理简化，只在第一次加入时执行一次 ──
-    if (!isCreator && myRole !== 'ref') {
+    // 加入者（非创建者）第一次收到数据时：注册角色 + 同步队名
+    if (!isCreator && !hasRegistered && myRole !== 'ref') {
+      hasRegistered = true;
       const roles = data.takenRoles || [];
-      if (!roles.includes(myRole)) {
-        // 自己的角色未被占用，正常注册
-        refDb.update({ takenRoles: [...roles, myRole], players: (data.players || 1) + 1 });
-      } else if (isCreator === false && !roles.includes(myRole === 'a' ? 'b' : 'a')) {
-        // 角色被占，切换到另一边（只执行一次）
+      const update = {};
+
+      // 如果选的角色已被占，自动切换到另一边
+      if (roles.includes(myRole)) {
         myRole = myRole === 'a' ? 'b' : 'a';
-        document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']';
+        document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴' + aName : '🔵' + bName) + ']';
         document.getElementById('myBadge').className = 'my-badge ' + myRole;
-        refDb.update({ takenRoles: [...roles, myRole], players: (data.players || 1) + 1 });
       }
-      // 注册后 isCreator 标记为 null 防止重复触发
-      isCreator = null;
-    } else if (!isCreator && myRole !== 'ref' && isCreator !== null && (data.players || 0) < 2) {
-      const update = { players: 2 };
+
+      update.takenRoles = [...roles, myRole];
+      update.players = (data.players || 1) + 1;
+
+      // 同步自己填写的队名到 Firebase
+      if (myRole === 'a' && aName !== 'A队') update.aName = aName;
       if (myRole === 'b' && bName !== 'B队') update.bName = bName;
-      else if (myRole === 'a' && aName !== 'A队') update.aName = aName;
+
       refDb.update(update);
     }
 
     document.getElementById('waitOv').style.display = 'none';
-    // 当新一轮开始时重置提交锁
     if (data.step === 0 && data.active) isPicking = false;
     syncUI();
     if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) startUiTick(); else { stopUiTick(); updTimerUI(); }
