@@ -413,6 +413,9 @@ function serverNow() { return Date.now() + serverTimeOffset; }
 // ── 修复3：用 roundNum*100+step 做 firedKey，更精确防重复触发 ──
 let firedForStep = -1;
 let lastSfxTs = 0;
+let lastPickSfxTs = 0;
+let lastPauseSfxTs = 0;
+let lastResumeSfxTs = 0;
 function firedKey() { return (gs.roundNum || 0) * 100 + gs.step; }
 
 // ── 修复4：doPick 增加提交锁，防止双击重复提交 ──
@@ -554,15 +557,15 @@ function refAction(type) {
     refDb.update({ autoPickLock: -1, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: true, paused: false, roundEnded: false, roundNum: (gs.roundNum || 0) + 1, bankA: 300, bankB: 300, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 });
   } else if (type === 'pause') {
     if (gs.paused) {
-      // 恢复：stepStartTs 重置为现在，mainUsed 保持不变（已在暂停时保存好）
-      refDb.update({ paused: false, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
+      // 广播继续音效 + 3秒倒计时后恢复
+      refDb.update({ resumeSfxTs: firebase.database.ServerValue.TIMESTAMP, resumeAt: Date.now() + 3000 });
     } else {
       // 暂停：把当前累计已用秒存入 mainUsed，清零 stepStartTs
       const { overflowedBank, curTeam } = calcTime();
       const sinceResume = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
       const newMainUsed = Math.min(60, (gs.mainUsed || 0) + sinceResume);
       const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - overflowedBank);
-      const update = { paused: true, mainUsed: newMainUsed, stepStartTs: 0 };
+      const update = { paused: true, mainUsed: newMainUsed, stepStartTs: 0, pauseSfxTs: firebase.database.ServerValue.TIMESTAMP };
       if (curTeam === 'a') update.bankA = savedBank; else update.bankB = savedBank;
       refDb.update(update);
     }
@@ -608,14 +611,21 @@ function endRound() {
   });
 }
 
-const HERO_SFX = {"鲁路修": "https://cdn.jsdelivr.net/gh/historiale1631-commits/-1@main/%E6%88%91%E6%98%AF%E9%B2%81%E8%B7%AF%E4%BF%AE%20%E8%AE%A8%E4%BC%90%E4%BD%A0%20%E5%B9%B6%E4%B8%94%E6%95%91%E8%B5%8E%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E7%9A%84%E4%BA%BA.wav"};
+const HERO_SFX = {
+  "鲁路修": "https://cdn.jsdelivr.net/gh/historiale1631-commits/-1@main/%E6%88%91%E6%98%AF%E9%B2%81%E8%B7%AF%E4%BF%AE%20%E8%AE%A8%E4%BC%90%E4%BD%A0%20%E5%B9%B6%E4%B8%94%E6%95%91%E8%B5%8E%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E7%9A%84%E4%BA%BA.wav",
+  "桐谷和人": "https://cdn.jsdelivr.net/gh/historiale1631-commits/-123@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
+  "桐谷和人UW": "https://cdn.jsdelivr.net/gh/historiale1631-commits/-123@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3"
+};
 
 function selectHero(name, type, score) {
   if (myTurn() && canPick(name, score)) {
     sel = { name, type, score };
     document.getElementById('pickBtn').disabled = false;
     renderGrid();
-
+    // 本地播放点击音效，不广播
+    const clickSfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3');
+    clickSfx.volume = 0.8;
+    clickSfx.play().catch(() => {});
   }
 }
 
@@ -639,7 +649,7 @@ function doPick(h) {
   const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
-  // 确认选取时播放音效并广播
+  // 确认选取时播放英雄专属音效并广播
   if (HERO_SFX[h.name]) {
     const sfx = new Audio(HERO_SFX[h.name]);
     sfx.volume = 0.8;
@@ -648,6 +658,13 @@ function doPick(h) {
     lastSfxTs = ts;
     refDb.update({ sfxHero: h.name, sfxTs: ts });
   }
+  // 通用确认选取音效（所有人都能听到）
+  const pickTs = Date.now();
+  lastPickSfxTs = pickTs;
+  const pickSfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3');
+  pickSfx.volume = 0.8;
+  pickSfx.play().catch(() => {});
+  refDb.update({ pickSfxTs: pickTs });
 
   const releaseLock = () => { isPicking = false; };
 
@@ -975,6 +992,43 @@ function listenRoom(aName, bName) {
 
     document.getElementById('waitOv').style.display = 'none';
     if (data.step === 0 && data.active) isPicking = false;
+    // 接收继续信号：播放继续音效并倒计时3秒后恢复游戏
+    if (data.resumeSfxTs && data.resumeSfxTs !== lastResumeSfxTs) {
+      lastResumeSfxTs = data.resumeSfxTs;
+      const resumeSfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E7%BB%A7%E7%BB%AD%E5%A3%B0%E9%9F%B3%5Brebalanced%5D.mp3');
+      resumeSfx.volume = 0.8;
+      resumeSfx.play().catch(() => {});
+      // 显示倒计时
+      const delay = Math.max(0, (data.resumeAt || Date.now()) - Date.now());
+      let countdown = Math.ceil(delay / 1000);
+      const bar = document.getElementById('statusBar');
+      const tick = setInterval(() => {
+        if (countdown > 0) {
+          if (bar) bar.textContent = `⏳ 游戏将在 ${countdown} 秒后继续...`;
+          countdown--;
+        } else {
+          clearInterval(tick);
+          // 只有裁判写入恢复，其他人等 Firebase 推送
+          if (myRole === 'ref' && refDb) {
+            refDb.update({ paused: false, stepStartTs: firebase.database.ServerValue.TIMESTAMP, resumeSfxTs: null, resumeAt: null });
+          }
+        }
+      }, 1000);
+    }
+    // 接收并播放暂停音效
+    if (data.pauseSfxTs && data.pauseSfxTs !== lastPauseSfxTs && (Date.now() - data.pauseSfxTs) < 5000) {
+      lastPauseSfxTs = data.pauseSfxTs;
+      const psfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3');
+      psfx.volume = 0.8;
+      psfx.play().catch(() => {});
+    }
+    // 接收并播放通用确认选取音效
+    if (data.pickSfxTs && data.pickSfxTs !== lastPickSfxTs && (Date.now() - data.pickSfxTs) < 5000) {
+      lastPickSfxTs = data.pickSfxTs;
+      const psfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3');
+      psfx.volume = 0.8;
+      psfx.play().catch(() => {});
+    }
     // 接收并播放英雄音效（5秒内的新事件才触发）
     if (data.sfxHero && data.sfxTs && data.sfxTs !== lastSfxTs && (Date.now() - data.sfxTs) < 5000) {
       lastSfxTs = data.sfxTs;
@@ -1010,7 +1064,9 @@ window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
   renderGrid();
   // 页面加载时预缓冲所有音频文件
-  [...BGM_LIST, ...Object.entries(HERO_SFX).map(([,url]) => ({ url }))].forEach(s => {
+  [...BGM_LIST, ...Object.entries(HERO_SFX).map(([,url]) => ({ url })), { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3' }, { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3' }, { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3' }, { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E7%BB%A7%E7%BB%AD%E5%A3%B0%E9%9F%B3%5Brebalanced%5D.mp3' },
+    { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-123@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3' },
+    { url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/-123@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3' }].forEach(s => {
     const a = new Audio();
     a.preload = 'auto';
     a.src = s.url;
