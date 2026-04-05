@@ -45,7 +45,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
 .side::-webkit-scrollbar{width:3px}
 .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.side-label{text-align:center;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.35)}
+.side-label{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.35)}
 .side-label.a{color:#fca5a5;border-left:3px solid #fca5a5}
 .side-label.b{color:#93c5fd;border-left:3px solid #93c5fd}
 .role-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(0,0,0,.5);border-radius:20px;padding:2px 8px;vertical-align:middle}
@@ -203,6 +203,24 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .jbtn.b:hover{background:rgba(50,100,220,.75)}
 .jbtn.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.4)}
 .jbtn.draw:hover{background:rgba(255,210,60,.35)}
+
+/* 表情系统 */
+.emoji-bar{display:flex;gap:4px;padding:4px 6px;justify-content:center;flex-wrap:wrap;}
+.emoji-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:2px 4px;border-radius:6px;transition:transform .1s;line-height:1;}
+.emoji-btn:hover{transform:scale(1.3);}
+.emoji-popup{position:fixed;font-size:48px;pointer-events:none;z-index:500;}
+@keyframes emojiFlyRight{
+  0%{opacity:0;transform:translateX(-40px) scale(0.5);}
+  10%{opacity:1;transform:translateX(0) scale(1);}
+  80%{opacity:1;transform:translateX(0) scale(1);}
+  100%{opacity:0;transform:translateX(0) scale(0.8);}
+}
+@keyframes emojiFlyLeft{
+  0%{opacity:0;transform:translateX(40px) scale(0.5);}
+  10%{opacity:1;transform:translateX(0) scale(1);}
+  80%{opacity:1;transform:translateX(0) scale(1);}
+  100%{opacity:0;transform:translateX(0) scale(0.8);}
+}
 </style>
 <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%93%9D%E6%9F%93%E6%83%A3%E5%8F%B3%E4%BB%8B-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%E6%96%B0.png">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3">
@@ -411,6 +429,27 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
+<!-- 裁判公告弹窗 -->
+<div class="overlay" id="announceOv" style="display:none;z-index:150">
+  <div class="modal" style="width:420px">
+    <h2>📢 裁判公告</h2>
+    <textarea id="announceText" placeholder="输入公告内容..." style="width:100%;height:80px;margin:10px 0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;padding:8px;font-size:13px;font-family:inherit;resize:none;outline:none"></textarea>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="mbtn green" onclick="sendAnnounce()">发送公告</button>
+      <button class="mbtn" onclick="document.getElementById('announceOv').style.display='none'">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 收到公告弹窗 -->
+<div class="overlay" id="announceShowOv" style="display:none;z-index:160">
+  <div class="modal" style="width:420px;border:2px solid rgba(255,210,60,.5)">
+    <h2 style="color:#fcd34d">📢 裁判公告</h2>
+    <div id="announceContent" style="font-size:15px;color:#fff;margin:16px 0;line-height:1.7;white-space:pre-wrap"></div>
+    <button class="mbtn" onclick="document.getElementById('announceShowOv').style.display='none'">知道了</button>
+  </div>
+</div>
+
 <div class="overlay" id="waitOv" style="display:none">
   <div class="wait-modal"><h3>⏳ 等待对方加入</h3><p>把对局码发给对方，对方填入后点「进入对局」</p><div class="wcode" id="waitCode"></div><div><span class="spin"></span>等待中...</div><br><button class="rbtn" onclick="sessionStorage.clear();location.reload()">取消</button></div>
 </div>
@@ -434,6 +473,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
     <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
     <button class="swap" onclick="openJudge()" id="judgeBtn">⚖ 判定胜负</button>
+    <button onclick="refAction('toggleEmoji')" id="emojiLockBtn">😄 禁用表情</button>
+    <button class="swap" onclick="openAnnounce()">📢 裁判公告</button>
     <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
   </div></div>
 </div>
@@ -469,6 +510,10 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 
 <div class="layout">
   <div class="side a-side">
+    <div id="emojiPanelA" style="display:none">
+      <button onclick="toggleEmoji('A')" id="emojiToggleA" style="width:100%;margin-bottom:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+      <div id="emojiBarA" style="display:none;flex-wrap:wrap;gap:2px;padding:4px"><button class="emoji-btn" onclick="sendEmoji('😂','a')" title="😂">😂</button><button class="emoji-btn" onclick="sendEmoji('🔥','a')" title="🔥">🔥</button><button class="emoji-btn" onclick="sendEmoji('💀','a')" title="💀">💀</button><button class="emoji-btn" onclick="sendEmoji('👍','a')" title="👍">👍</button><button class="emoji-btn" onclick="sendEmoji('😎','a')" title="😎">😎</button><button class="emoji-btn" onclick="sendEmoji('🤔','a')" title="🤔">🤔</button><button class="emoji-btn" onclick="sendEmoji('😭','a')" title="😭">😭</button><button class="emoji-btn" onclick="sendEmoji('🫡','a')" title="🫡">🫡</button><button class="emoji-btn" onclick="sendEmoji('💪','a')" title="💪">💪</button><button class="emoji-btn" onclick="sendEmoji('⚡','a')" title="⚡">⚡</button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button></div>
+    </div>
     <div class="side-label a" id="aLabel">A队</div>
     <div class="score-total a" id="aScore">已用 0 / 52 分</div>
     <div class="sec-label">— 本轮已选 —</div>
@@ -502,6 +547,10 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 
   <div class="side b-side">
+    <div id="emojiPanelB" style="display:none">
+      <button onclick="toggleEmoji('B')" id="emojiToggleB" style="width:100%;margin-bottom:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+      <div id="emojiBarB" style="display:none;flex-wrap:wrap;gap:2px;padding:4px"><button class="emoji-btn" onclick="sendEmoji('😂','b')" title="😂">😂</button><button class="emoji-btn" onclick="sendEmoji('🔥','b')" title="🔥">🔥</button><button class="emoji-btn" onclick="sendEmoji('💀','b')" title="💀">💀</button><button class="emoji-btn" onclick="sendEmoji('👍','b')" title="👍">👍</button><button class="emoji-btn" onclick="sendEmoji('😎','b')" title="😎">😎</button><button class="emoji-btn" onclick="sendEmoji('🤔','b')" title="🤔">🤔</button><button class="emoji-btn" onclick="sendEmoji('😭','b')" title="😭">😭</button><button class="emoji-btn" onclick="sendEmoji('🫡','b')" title="🫡">🫡</button><button class="emoji-btn" onclick="sendEmoji('💪','b')" title="💪">💪</button><button class="emoji-btn" onclick="sendEmoji('⚡','b')" title="⚡">⚡</button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block"></button></div>
+    </div>
     <div class="side-label b" id="bLabel">B队</div>
     <div class="score-total b" id="bScore">已用 0 / 50 分</div>
     <div class="sec-label">— 本轮已选 —</div>
@@ -587,7 +636,141 @@ function serverNow() { return Date.now() + serverTimeOffset; }
 // ── 修复3：用 roundNum*100+step 做 firedKey，更精确防重复触发 ──
 let firedForStep = -1;
 let lastSfxTs = 0;
-let currentHeroSfx = null; // 当前正在播放的英雄音效，用于中断
+let currentHeroSfx = null;
+let lastEmojiTsA = 0, lastEmojiTsB = 0;
+
+function initEmojiBar() {
+  const EMOJIS = ['😂','🔥','💀','👍','😎','🤔','😭','🫡','💪','⚡'];
+  const IMG_EMOJIS = ['014cb04c6a4eb52a30b756c901b7ff2d.jpg','055298C8B181EE0DBE370AC140C00269.gif','0634FC257042619F8CF38EFFF41A6DBB.jpg','0983693524d807cb2e995e6ef8da622b.gif','0b62c72cb050abac0aed36e46ca54f1a.gif','294B52DCCBE63F96D069B60CD4ED7A99.gif','37DD9D73DC519FCBF6007FBE83BD7A9C.gif','8B8E4B185181CDEE8D84597691622C33.gif','932B9954C68AFFE5928343AFB479AA6B.jpg','98E02F33F669FBF63AF4A99321BBFE24.gif','B82418FA8DCAC8C0A9B986711E22C2A5.jpg','DEE9B05972AECF10AAB93C8372384E03.gif','F23385E24FE0850107A9B4B24CB28F85.gif','b2439f312da6fa2aecb2b021b836a156.gif'];
+  const BASE = 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/';
+  ['A','B'].forEach(T => {
+    const bar = document.getElementById('emojiBar'+T);
+    if (!bar || bar.children.length > 0) return;
+    const team = T.toLowerCase();
+    EMOJIS.forEach(e => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.title = e;
+      btn.textContent = e;
+      btn.onclick = () => sendEmoji(e, team);
+      bar.appendChild(btn);
+    });
+    IMG_EMOJIS.forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.title = '表情';
+      btn.style.padding = '1px';
+      btn.onclick = () => sendEmoji('img:'+BASE+f, team);
+      const img = document.createElement('img');
+      img.src = BASE+f;
+      img.style.cssText = 'width:28px;height:28px;object-fit:cover;border-radius:4px;display:block';
+      btn.appendChild(img);
+      bar.appendChild(btn);
+    });
+  });
+}
+
+function toggleEmoji(team) {
+  if (myRole !== team.toLowerCase()) return; // 只能展开自己那边
+  const bar = document.getElementById('emojiBar' + team);
+  const btn = document.getElementById('emojiToggle' + team);
+  if (!bar) return;
+  const isOpen = bar.style.display === 'flex';
+  bar.style.display = isOpen ? 'none' : 'flex';
+  btn.textContent = isOpen ? '😄 表情 ▼' : '😄 表情 ▲';
+}
+
+let lastEmojiSentTime = 0;
+let currentEmojiPopupA = null;
+let currentEmojiPopupB = null;
+
+// ── 裁判表情禁用/公告 ──
+let emojiLocked = false;
+let lastAnnouncTs = 0;
+
+function openAnnounce() {
+  document.getElementById('announceOv').style.display = 'flex';
+  document.getElementById('announceText').focus();
+}
+
+function sendAnnounce() {
+  const text = document.getElementById('announceText').value.trim();
+  if (!text || !refDb) return;
+  const ts = Date.now();
+  refDb.update({ announceText: text, announceTs: ts });
+  document.getElementById('announceOv').style.display = 'none';
+  document.getElementById('announceText').value = '';
+}
+
+function sendEmoji(emoji, team) {
+  if (!refDb) return;
+  if (emojiLocked) return;
+  if (myRole !== team) return; // 只能发自己队的表情
+  const now = Date.now();
+  if (now - lastEmojiSentTime < 2000) return;
+  lastEmojiSentTime = now;
+
+  // 自己也能看到
+  showEmojiPopup(emoji, team);
+
+  const ts = now;
+  if (team === 'a') {
+    lastEmojiTsA = ts;
+    refDb.update({ emojiA: emoji, emojiTsA: ts });
+  } else {
+    lastEmojiTsB = ts;
+    refDb.update({ emojiB: emoji, emojiTsB: ts });
+  }
+
+  // 发完自动收起
+  const bar = document.getElementById('emojiBar' + team.toUpperCase());
+  const btn = document.getElementById('emojiToggle' + team.toUpperCase());
+  if (bar) bar.style.display = 'none';
+  if (btn) btn.textContent = '😄 表情 ▼';
+}
+
+function showEmojiPopup(emoji, team) {
+  // 中断上一个同队表情
+  if (team === 'a' && currentEmojiPopupA) { currentEmojiPopupA.remove(); currentEmojiPopupA = null; }
+  if (team === 'b' && currentEmojiPopupB) { currentEmojiPopupB.remove(); currentEmojiPopupB = null; }
+
+  const side = document.querySelector(team === 'a' ? '.a-side' : '.b-side');
+  if (!side) return;
+  const rect = side.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'emoji-popup';
+  el.style.animation = (team === 'a' ? 'emojiFlyRight' : 'emojiFlyLeft') + ' 5s ease-out forwards';
+
+  if (emoji.startsWith('img:')) {
+    const img = document.createElement('img');
+    img.src = emoji.slice(4);
+    img.style.cssText = 'width:175px;height:175px;object-fit:contain;border-radius:15px;display:block';
+    el.appendChild(img);
+  } else {
+    el.style.fontSize = '155px';
+    el.textContent = emoji;
+  }
+
+  // A队从右边缘向右弹出，B队从左边缘向左弹出
+  if (team === 'a') {
+    el.style.left = (rect.right + 10) + 'px';
+    el.style.right = 'auto';
+  } else {
+    el.style.right = (window.innerWidth - rect.left + 10) + 'px';
+    el.style.left = 'auto';
+  }
+  el.style.top = (rect.top + 20) + 'px';
+  document.body.appendChild(el);
+
+  if (team === 'a') currentEmojiPopupA = el;
+  else currentEmojiPopupB = el;
+
+  setTimeout(() => {
+    el.remove();
+    if (team === 'a' && currentEmojiPopupA === el) currentEmojiPopupA = null;
+    if (team === 'b' && currentEmojiPopupB === el) currentEmojiPopupB = null;
+  }, 5000);
+} // 当前正在播放的英雄音效，用于中断
 let lastPickSfxTs = 0;
 let lastPauseSfxTs = 0;
 let lastResumeSfxTs = 0;
@@ -621,6 +804,12 @@ function setRole(r) {
   document.getElementById('rB').className = r === 'b' ? 'sel-b' : '';
   document.getElementById('rR').className = r === 'ref' ? 'sel-r' : '';
   document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
+  // 立即显示/隐藏表情按钮
+  // 两边面板都显示，保持对称
+  const epA = document.getElementById('emojiPanelA');
+  const epB = document.getElementById('emojiPanelB');
+  if (epA) epA.style.display = (r === 'a' || r === 'b') ? 'block' : 'none';
+  if (epB) epB.style.display = (r === 'a' || r === 'b') ? 'block' : 'none';
 }
 
 // calcTime：基于 mainUsed（累计已用主计时秒）+ 本次 resume 以来经过的秒数
@@ -758,6 +947,9 @@ function refAction(type) {
   } else if (type === 'drainB') {
     if (!gs.active) return;
     refDb.update({ bankB: Math.max(0, (gs.bankB || 300) - 30) });
+  } else if (type === 'toggleEmoji') {
+    const locked = !emojiLocked;
+    refDb.update({ emojiLocked: locked });
   } else if (type === 'swap') {
     refDb.update({ swapped: !gs.swapped, swapSfxTs: Date.now() });
   } else if (type === 'deleteRoom') {
@@ -1328,7 +1520,39 @@ function listenRoom(aName, bName) {
     }
 
     document.getElementById('waitOv').style.display = 'none';
+    // 每次收到数据都确保表情按钮显示正确
+    const _epA = document.getElementById('emojiPanelA');
+    const _epB = document.getElementById('emojiPanelB');
+    const _show = (myRole === 'a' || myRole === 'b') ? 'block' : 'none';
+    if (_epA) _epA.style.display = _show;
+    if (_epB) _epB.style.display = _show;
+    // 进入对局立即显示对应表情栏
+    const _epA2 = document.getElementById('emojiPanelA');
+    const _epB2 = document.getElementById('emojiPanelB');
+    if (_epA2 && myRole === 'a') _epA2.style.display = 'block';
+    if (_epB2 && myRole === 'b') _epB2.style.display = 'block';
     if (data.step === 0 && data.active) isPicking = false;
+    // 裁判表情锁
+    if (typeof data.emojiLocked !== 'undefined') {
+      emojiLocked = data.emojiLocked;
+      const btn = document.getElementById('emojiLockBtn');
+      if (btn) btn.textContent = emojiLocked ? '😄 启用表情' : '😄 禁用表情';
+    }
+    // 裁判公告
+    if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
+      lastAnnouncTs = data.announceTs;
+      document.getElementById('announceContent').textContent = data.announceText || '';
+      document.getElementById('announceShowOv').style.display = 'flex';
+    }
+    // 接收表情广播
+    if (data.emojiTsA && data.emojiTsA !== lastEmojiTsA && (Date.now() - data.emojiTsA) < 5000) {
+      lastEmojiTsA = data.emojiTsA;
+      showEmojiPopup(data.emojiA, 'a');
+    }
+    if (data.emojiTsB && data.emojiTsB !== lastEmojiTsB && (Date.now() - data.emojiTsB) < 5000) {
+      lastEmojiTsB = data.emojiTsB;
+      showEmojiPopup(data.emojiB, 'b');
+    }
     // 换边音效
     if (data.swapSfxTs && data.swapSfxTs !== lastSwapSfxTs) {
       lastSwapSfxTs = data.swapSfxTs;
