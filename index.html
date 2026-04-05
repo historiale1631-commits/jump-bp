@@ -393,6 +393,20 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif">
 </head>
 <body>
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
@@ -1668,7 +1682,8 @@ window.onload = () => {
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E6%8D%A2%E8%BE%B9%E9%9F%B3%E6%95%88.mp3',
   ];
   const BGM_URLS = BGM_LIST.map(b => b.url);
-  const IMG_URLS = Object.values(HERO_IMG);
+  const EMOJI_IMG_URLS = ['https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/055298C8B181EE0DBE370AC140C00269.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0634FC257042619F8CF38EFFF41A6DBB.jpg', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0983693524d807cb2e995e6ef8da622b.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/0b62c72cb050abac0aed36e46ca54f1a.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/294B52DCCBE63F96D069B60CD4ED7A99.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/8B8E4B185181CDEE8D84597691622C33.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/932B9954C68AFFE5928343AFB479AA6B.jpg', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/98E02F33F669FBF63AF4A99321BBFE24.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/DEE9B05972AECF10AAB93C8372384E03.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/F23385E24FE0850107A9B4B24CB28F85.gif', 'https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing@main/b2439f312da6fa2aecb2b021b836a156.gif'];
+  const IMG_URLS = [...Object.values(HERO_IMG), ...EMOJI_IMG_URLS];
   const bar = document.getElementById('audioLoadBar');
 
   let sfxLoaded = 0, bgmLoaded = 0, imgLoaded = 0;
@@ -1683,19 +1698,34 @@ window.onload = () => {
       bar.textContent = '✅ 全部资源已就绪';
       bar.style.color = 'rgba(74,222,128,.7)';
     } else {
-      bar.textContent = `🔄 音效 ${sfxLoaded}/${sfxTotal} · 歌单 ${bgmLoaded}/${bgmTotal} · 图片 ${imgLoaded}/${imgTotal}`;
-      bar.style.color = 'rgba(255,255,255,.35)';
+      const parts = [];
+      if (sfxLoaded < sfxTotal) parts.push(`🔊 音效 ${sfxLoaded}/${sfxTotal}`);
+      else parts.push(`✅ 音效`);
+      if (bgmLoaded < bgmTotal) parts.push(`🎵 歌单 ${bgmLoaded}/${bgmTotal}`);
+      else parts.push(`✅ 歌单`);
+      if (imgLoaded < imgTotal) parts.push(`🖼 图片 ${imgLoaded}/${imgTotal}`);
+      else parts.push(`✅ 图片`);
+      bar.textContent = '🔄 ' + parts.join(' · ');
+      bar.style.color = 'rgba(255,255,255,.5)';
     }
   }
 
   updateBar();
 
+  // fetch 带超时防止永久卡住
+  function fetchWithTimeout(url, ms) {
+    return Promise.race([
+      fetch(url).then(r => r.blob()),
+      new Promise((_, rej) => setTimeout(() => rej('timeout'), ms))
+    ]);
+  }
+
   SFX_URLS.forEach(url => {
-    fetch(url).then(r => r.blob()).then(() => { sfxLoaded++; updateBar(); }).catch(() => { sfxLoaded++; updateBar(); });
+    fetchWithTimeout(url, 15000).then(() => { sfxLoaded++; updateBar(); }).catch(() => { sfxLoaded++; updateBar(); });
   });
 
   BGM_URLS.forEach(url => {
-    fetch(url).then(r => r.blob()).then(() => { bgmLoaded++; updateBar(); }).catch(() => { bgmLoaded++; updateBar(); });
+    fetchWithTimeout(url, 25000).then(() => { bgmLoaded++; updateBar(); }).catch(() => { bgmLoaded++; updateBar(); });
   });
 
   IMG_URLS.forEach(url => {
