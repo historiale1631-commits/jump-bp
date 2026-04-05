@@ -29,7 +29,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-badge.ref{background:rgba(167,139,250,.35);color:#e9d5ff}
 .round-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,210,60,.2);color:#fcd34d;margin-left:4px;-webkit-text-fill-color:initial}
 
-/* 独立阵营框 */
 .camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,210,60,.3);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
 .camp-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border-radius:30px;padding:3px 12px}
 .camp-icon{font-size:18px}
@@ -291,7 +290,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// 初始化 Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
   authDomain: "jumpbp-ece00.firebaseapp.com",
@@ -338,7 +336,6 @@ function getSundayTeam() { return gs.swapped ? 'a' : 'b'; }
 function getJumpTeam() { return gs.swapped ? 'b' : 'a'; }
 function getLIM() { return { [getSundayTeam()]: 50, [getJumpTeam()]: 52 }; }
 
-// ---------- 全局状态 ----------
 let roomId = '', myRole = 'a', tab = 'str', sel = null, refDb = null, isCreator = false;
 let gs = {
   aName: 'A队', bName: 'B队', aPicks: [], bPicks: [], aUsed: 0, bUsed: 0,
@@ -352,7 +349,6 @@ function serverNow() { return Date.now() + serverTimeOffset; }
 let firedForStep = -1;
 function firedKey() { return (gs.roundNum || 0) * 10 + gs.step; }
 
-// 辅助函数
 function ct() { return getOrder()[gs.step] || 'a'; }
 function rem(t) { return getLIM()[t] - ((t === 'a' ? gs.aUsed : gs.bUsed) || 0); }
 function getGlobalSet() { return new Set(gs.globalPicked || []); }
@@ -372,7 +368,6 @@ function genCode() { return Math.random().toString(36).substr(2, 6).toUpperCase(
 function copyCode(btn) { navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(() => { btn.textContent = '✓'; setTimeout(() => btn.textContent = '复制', 1500); }); }
 function setRole(r) { myRole = r; document.getElementById('rA').className = r === 'a' ? 'sel-a' : ''; document.getElementById('rB').className = r === 'b' ? 'sel-b' : ''; document.getElementById('rR').className = r === 'ref' ? 'sel-r' : ''; document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none'; }
 
-// 计时器
 function calcTime() {
   const cur = ct();
   const elapsed = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
@@ -382,7 +377,9 @@ function calcTime() {
   const bank = cur === 'a' ? gs.bankA : gs.bankB;
   const bankSec = Math.max(0, bank - overflowed);
   const draining = elapsed >= MAIN && bankSec > 0;
-  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed };
+  const totalLeft = mainSec + bankSec;
+  const isTimeout = (elapsed >= MAIN && bankSec <= 0) || totalLeft <= 0;
+  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout };
 }
 function fmtBank(s) { const m = Math.floor(Math.max(0, s) / 60), sec = Math.max(0, s) % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
 function updBankUI(team, sec, draining) {
@@ -408,10 +405,23 @@ function updTimerUI() {
   updBankUI('a', curTeam === 'a' && draining ? bankSec : gs.bankA, curTeam === 'a' && draining);
   updBankUI('b', curTeam === 'b' && draining ? bankSec : gs.bankB, curTeam === 'b' && draining);
 }
-function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(() => { if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) updTimerUI(); }, 300); }
+function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(() => { if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) checkTimeoutAndTick(); }, 300); }
 function stopUiTick() { if (uiTick) clearInterval(uiTick); uiTick = null; }
-
-// 裁判操作
+function checkTimeoutAndTick() {
+  updTimerUI();
+  if (gs.paused || gs.roundEnded || gs.ended) return;
+  const { isTimeout, curTeam } = calcTime();
+  // 超时检测：主时间≤0且备用≤0 或 总剩余≤0
+  if (isTimeout && firedForStep !== firedKey()) {
+    // 确保当前step未改变且确实没选人
+    const picks = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
+    if (picks === gs.step) {
+      firedForStep = firedKey();
+      stopUiTick();
+      autoPickFn();
+    }
+  }
+}
 function refAction(type) {
   if (!refDb || myRole !== 'ref') return;
   if (type === 'start') {
@@ -439,8 +449,17 @@ function endRound() {
 }
 function autoPickFn() {
   const avail = ALL.filter(h => canPick(h.name, h.score));
-  if (avail.length) doPick(avail[Math.floor(Math.random() * avail.length)]);
-  else { const ns = gs.step + 1; const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP }; const { curTeam } = calcTime(); if (curTeam === 'a') update.bankA = 0; else update.bankB = 0; if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update); }
+  if (avail.length) {
+    const pick = avail[Math.floor(Math.random() * avail.length)];
+    doPick(pick);
+  } else {
+    // 无可用英雄时直接跳过
+    const ns = gs.step + 1;
+    const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
+    const { curTeam } = calcTime();
+    if (curTeam === 'a') update.bankA = 0; else update.bankB = 0;
+    if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
+  }
 }
 function selectHero(name, type, score) { if (myTurn() && canPick(name, score)) { sel = { name, type, score }; document.getElementById('pickBtn').disabled = false; renderGrid(); } }
 function confirmPick() { if (sel && myTurn()) doPick(sel); }
@@ -454,7 +473,6 @@ function doPick(h) {
   if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
 }
 
-// UI同步
 function syncUI() {
   const rn = gs.roundNum || 0;
   const sundayTeam = getSundayTeam();
@@ -511,7 +529,6 @@ function showResult() {
   document.getElementById('resultOv').style.display = 'flex';
 }
 
-// 启动对局
 function startMatch() {
   if (myRole === 'ref' && document.getElementById('refCodeInput').value.trim() !== '759315') { alert('裁判码错误！'); return; }
   const inp = document.getElementById('inpRoom').value.trim().toUpperCase();
@@ -537,20 +554,17 @@ function listenRoom(aName, bName) {
   refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
-    // 关键修复：如果自己是加入方且房间内 players<2，更新 players 计数，并确保自己的队伍名称写入
     if (!isCreator && (data.players || 0) < 2) {
       const update = { players: 2 };
       if (myRole === 'b' && bName !== 'B队') update.bName = bName;
       else if (myRole === 'a' && aName !== 'A队') update.aName = aName;
       refDb.update(update);
     }
-    // 修复角色冲突：如果当前已存在的 takenRoles 包含了我的角色，则自动切换到另一个队伍（只针对玩家）
     if (!isCreator && myRole !== 'ref' && data.takenRoles && data.takenRoles.includes(myRole)) {
       const newRole = myRole === 'a' ? 'b' : 'a';
       myRole = newRole;
       document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']';
       document.getElementById('myBadge').className = 'my-badge ' + myRole;
-      // 更新 takenRoles
       const newTaken = [...(data.takenRoles || []), myRole];
       refDb.update({ takenRoles: newTaken, players: 2 });
     } else if (!isCreator && myRole !== 'ref') {
