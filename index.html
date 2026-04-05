@@ -378,8 +378,8 @@ function calcTime() {
   const bankSec = Math.max(0, bank - overflowed);
   const draining = elapsed >= MAIN && bankSec > 0;
   const totalLeft = mainSec + bankSec;
-  const isTimeout = (elapsed >= MAIN && bankSec <= 0) || totalLeft <= 0;
-  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout };
+  const isTimeout = totalLeft <= 0 || (elapsed >= MAIN && bankSec <= 0);
+  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout, totalLeft };
 }
 function fmtBank(s) { const m = Math.floor(Math.max(0, s) / 60), sec = Math.max(0, s) % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
 function updBankUI(team, sec, draining) {
@@ -407,21 +407,40 @@ function updTimerUI() {
 }
 function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(() => { if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) checkTimeoutAndTick(); }, 300); }
 function stopUiTick() { if (uiTick) clearInterval(uiTick); uiTick = null; }
+
 function checkTimeoutAndTick() {
   updTimerUI();
   if (gs.paused || gs.roundEnded || gs.ended) return;
-  const { isTimeout, curTeam } = calcTime();
-  // 超时检测：主时间≤0且备用≤0 或 总剩余≤0
+  const { isTimeout, curTeam, elapsed } = calcTime();
+  // 超时且未触发过，且当前step确实未选人
   if (isTimeout && firedForStep !== firedKey()) {
-    // 确保当前step未改变且确实没选人
-    const picks = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
-    if (picks === gs.step) {
+    const picksCount = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
+    if (picksCount === gs.step) {
       firedForStep = firedKey();
       stopUiTick();
-      autoPickFn();
+      // 执行强制随机选人
+      forceAutoPick();
     }
   }
 }
+
+function forceAutoPick() {
+  const t = ct();
+  // 获取所有可用英雄（符合分数、互斥、剩余人数）
+  const available = ALL.filter(h => canPick(h.name, h.score));
+  if (available.length > 0) {
+    const randomPick = available[Math.floor(Math.random() * available.length)];
+    doPick(randomPick);
+  } else {
+    // 无可用英雄，直接跳过此步
+    const ns = gs.step + 1;
+    const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
+    const { curTeam } = calcTime();
+    if (curTeam === 'a') update.bankA = 0; else update.bankB = 0;
+    if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
+  }
+}
+
 function refAction(type) {
   if (!refDb || myRole !== 'ref') return;
   if (type === 'start') {
@@ -446,20 +465,6 @@ function endRound() {
   const newAllRounds = [...(gs.allRounds||[]), round];
   const newGlobal = [...(gs.globalPicked||[]), ...(gs.aPicks||[]).map(h=>h.name), ...(gs.bPicks||[]).map(h=>h.name)];
   refDb.update({ roundEnded: true, active: false, allRounds: newAllRounds, globalPicked: newGlobal });
-}
-function autoPickFn() {
-  const avail = ALL.filter(h => canPick(h.name, h.score));
-  if (avail.length) {
-    const pick = avail[Math.floor(Math.random() * avail.length)];
-    doPick(pick);
-  } else {
-    // 无可用英雄时直接跳过
-    const ns = gs.step + 1;
-    const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
-    const { curTeam } = calcTime();
-    if (curTeam === 'a') update.bankA = 0; else update.bankB = 0;
-    if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
-  }
 }
 function selectHero(name, type, score) { if (myTurn() && canPick(name, score)) { sel = { name, type, score }; document.getElementById('pickBtn').disabled = false; renderGrid(); } }
 function confirmPick() { if (sel && myTurn()) doPick(sel); }
