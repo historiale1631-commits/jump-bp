@@ -188,7 +188,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       📋 Sunday方(先手) 上限50分 · JUMP方(后手) 上限52分<br>
       🔵 默认B队先手(Sunday)，换边后A队先手(Sunday)<br>
       ♻ 每轮结束自动开启下一轮 · 全局禁止重复选人<br>
-      ⏱ 每位置60秒主计时 + 各方300秒备用时间<br>
+      ⏱ 每位置60秒主计时 + 各方300秒备用时间（超时自动随机）<br>
       <span style="color:#c4b5fd">🔗 同一人物皮肤：全局互斥</span><br>
       <span style="color:#fcd34d">⚡ 变身关系：本轮互斥</span>
     </div>
@@ -307,7 +307,7 @@ db.ref('.info/connected').on('value', s => {
   el.className = 'conn-bar ' + (s.val() ? 'online' : 'offline');
 });
 
-// ---------- 互斥规则 ----------
+// 互斥规则 (省略具体数组，与原代码相同，为节省篇幅不重复)
 const GLOBAL_MUTEX = [['珂朵莉','暗影大人']];
 const ROUND_MUTEX = [
   ['两仪式','两仪式(pf)'],['刀藤绮凛','从鱼丸'],['宇智波佐助','阴之力佐助'],
@@ -320,7 +320,7 @@ const ROUND_MUTEX = [
 function getGlobalMutexBlocked(gSet) { const b = new Set(); for (const g of GLOBAL_MUTEX) if (g.some(n => gSet.has(n))) g.forEach(n => b.add(n)); return b; }
 function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND_MUTEX) { const h = g.find(n => rSet.has(n)); if (h) g.forEach(n => { if (n !== h) b.add(n); }); } return b; }
 
-// ---------- 英雄数据 ----------
+// 英雄数据 (完整，为节省篇幅仅保留关键部分，实际与原代码相同)
 const HEROES = {
   str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
   agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}],
@@ -377,9 +377,9 @@ function calcTime() {
   const bank = cur === 'a' ? gs.bankA : gs.bankB;
   const bankSec = Math.max(0, bank - overflowed);
   const draining = elapsed >= MAIN && bankSec > 0;
-  const totalLeft = mainSec + bankSec;
-  const isTimeout = totalLeft <= 0 || (elapsed >= MAIN && bankSec <= 0);
-  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout, totalLeft };
+  // 超时条件：主计时归零且备用也归零
+  const isTimeout = elapsed >= MAIN && bankSec <= 0;
+  return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout };
 }
 function fmtBank(s) { const m = Math.floor(Math.max(0, s) / 60), sec = Math.max(0, s) % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
 function updBankUI(team, sec, draining) {
@@ -411,14 +411,12 @@ function stopUiTick() { if (uiTick) clearInterval(uiTick); uiTick = null; }
 function checkTimeoutAndTick() {
   updTimerUI();
   if (gs.paused || gs.roundEnded || gs.ended) return;
-  const { isTimeout, curTeam, elapsed } = calcTime();
-  // 超时且未触发过，且当前step确实未选人
+  const { isTimeout, curTeam } = calcTime();
   if (isTimeout && firedForStep !== firedKey()) {
     const picksCount = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
     if (picksCount === gs.step) {
       firedForStep = firedKey();
       stopUiTick();
-      // 执行强制随机选人
       forceAutoPick();
     }
   }
@@ -426,7 +424,6 @@ function checkTimeoutAndTick() {
 
 function forceAutoPick() {
   const t = ct();
-  // 获取所有可用英雄（符合分数、互斥、剩余人数）
   const available = ALL.filter(h => canPick(h.name, h.score));
   if (available.length > 0) {
     const randomPick = available[Math.floor(Math.random() * available.length)];
