@@ -1009,6 +1009,12 @@ setTimeout(() => {
 window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
   renderGrid();
+  // 页面加载时预缓冲所有音频文件
+  [...BGM_LIST, ...Object.entries(HERO_SFX).map(([,url]) => ({ url }))].forEach(s => {
+    const a = new Audio();
+    a.preload = 'auto';
+    a.src = s.url;
+  });
 
   // 检测是否有上次的会话记录（刷新重连）
   const savedRole = sessionStorage.getItem('bp_role');
@@ -1156,14 +1162,15 @@ function toggleBgmPanel() {
 (function(){
   const _orig = window.startMatch;
   window.startMatch = async function() {
-    await _orig.apply(this, arguments);
+    // await 之前播放，保留浏览器用户手势上下文，否则自动播放会被拦截
     const bgm = document.getElementById('bgm');
-    if (!bgm.paused) return; // 已经在播放，不打断
-    // 没在播放：初始化并播放
-    bgmInit();
-    bgm.play().catch(()=>{});
-    bgmPlaying = true;
-    document.getElementById('bgmToggle').textContent = '⏸ 暂停';
+    if (bgm.paused) {
+      bgmInit();
+      bgm.play().catch(()=>{});
+      bgmPlaying = true;
+      document.getElementById('bgmToggle').textContent = '⏸ 暂停';
+    }
+    await _orig.apply(this, arguments);
   };
 })();
 </script>
