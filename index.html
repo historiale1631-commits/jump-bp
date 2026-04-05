@@ -422,7 +422,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <div class="conn-bar waiting" id="connBar">🔄 连接中...</div>
 
 <div class="header">
-  <h1>JUMP大赛 · BP对战系统 <span id="myBadge" class="my-badge"></span><span id="roundBadge" class="round-badge" style="display:none"></span></h1>
+  <h1>JUMP大赛 · BP系统 <span id="myBadge" class="my-badge"></span><span id="roundBadge" class="round-badge" style="display:none"></span></h1>
   <div class="code" id="codeDisplay">对局代码: ------</div>
   <div id="refBarContainer" style="display:none"><div class="ref-bar">
     <button class="green" onclick="refAction('start')">▶ 开始新一轮BP</button>
@@ -587,6 +587,7 @@ function serverNow() { return Date.now() + serverTimeOffset; }
 // ── 修复3：用 roundNum*100+step 做 firedKey，更精确防重复触发 ──
 let firedForStep = -1;
 let lastSfxTs = 0;
+let currentHeroSfx = null; // 当前正在播放的英雄音效，用于中断
 let lastPickSfxTs = 0;
 let lastPauseSfxTs = 0;
 let lastResumeSfxTs = 0;
@@ -978,11 +979,12 @@ function doPick(h) {
   const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
-  // 确认选取时播放英雄专属音效并广播
+  // 确认选取时播放英雄专属音效并广播（中断上一个）
   if (HERO_SFX[h.name]) {
-    const sfx = new Audio(HERO_SFX[h.name]);
-    sfx.volume = 0.8;
-    sfx.play().catch(() => {});
+    if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
+    currentHeroSfx = new Audio(HERO_SFX[h.name]);
+    currentHeroSfx.volume = 0.8;
+    currentHeroSfx.play().catch(() => {});
     const ts = Date.now();
     lastSfxTs = ts;
     refDb.update({ sfxHero: h.name, sfxTs: ts });
@@ -1402,9 +1404,10 @@ function listenRoom(aName, bName) {
       const sfxUrl = HERO_SFX[data.sfxHero];
       if (sfxUrl) {
         try {
-          const sfx = new Audio(sfxUrl);
-          sfx.volume = 0.8;
-          sfx.play().catch(e => console.warn('音效播放失败:', e));
+          if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
+          currentHeroSfx = new Audio(sfxUrl);
+          currentHeroSfx.volume = 0.8;
+          currentHeroSfx.play().catch(e => console.warn('音效播放失败:', e));
         } catch(e) { console.warn('音效加载失败:', e); }
       }
     }
