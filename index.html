@@ -485,7 +485,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <button class="orange" onclick="refAction('drainA')">🔴-30s A备用</button>
     <button class="orange" onclick="refAction('drainB')">🔵-30s B备用</button>
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
-    <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
     <button class="swap" onclick="openJudge()" id="judgeBtn">⚖ 判定胜负</button>
     <button onclick="refAction('toggleEmoji')" id="emojiLockBtn">😄 禁用表情</button>
     <button class="swap" onclick="openAnnounce()">📢 裁判公告</button>
@@ -1702,6 +1701,7 @@ window.onload = () => {
     if (allDone) {
       bar.textContent = '✅ 全部资源已就绪';
       bar.style.color = 'rgba(74,222,128,.7)';
+      if (typeof renderGrid === 'function') renderGrid();
     } else {
       const parts = [];
       if (sfxLoaded < sfxTotal) parts.push(`🔊 音效 ${sfxLoaded}/${sfxTotal}`);
@@ -1725,30 +1725,50 @@ window.onload = () => {
     ]);
   }
 
+  // 用 Audio 对象预加载，和播放时完全共享同一份缓存
   SFX_URLS.forEach(url => {
-    fetchWithTimeout(url, 15000).then(() => { sfxLoaded++; updateBar(); }).catch(() => { sfxLoaded++; updateBar(); });
+    const a = new Audio();
+    a.preload = 'auto';
+    a.addEventListener('canplaythrough', () => { sfxLoaded++; updateBar(); }, { once: true });
+    a.addEventListener('error', () => { sfxLoaded++; updateBar(); }, { once: true });
+    // 设置超时防止卡住
+    setTimeout(() => { if (sfxLoaded < sfxTotal) { sfxLoaded++; updateBar(); } }, 20000);
+    a.src = url;
+    a.load();
   });
 
   BGM_URLS.forEach(url => {
-    fetchWithTimeout(url, 25000).then(() => { bgmLoaded++; updateBar(); }).catch(() => { bgmLoaded++; updateBar(); });
+    const a = new Audio();
+    a.preload = 'auto';
+    a.addEventListener('canplaythrough', () => { bgmLoaded++; updateBar(); }, { once: true });
+    a.addEventListener('error', () => { bgmLoaded++; updateBar(); }, { once: true });
+    setTimeout(() => { if (bgmLoaded < bgmTotal) { bgmLoaded++; updateBar(); } }, 30000);
+    a.src = url;
+    a.load();
   });
 
-  // 用 fetch 预加载图片，写入真正的 HTTP 缓存，img 标签加载时直接命中缓存
+  // 用 Image 对象预加载，和 <img> 标签共享同一个图片缓存
   IMG_URLS.forEach(url => {
-    fetchWithTimeout(url, 20000)
-      .then(() => {
-        imgLoaded++;
-        updateBar();
-        if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
-      })
-      .catch(() => {
-        // 失败后3秒重试一次
-        setTimeout(() => {
-          fetchWithTimeout(url + '?r=' + Date.now(), 15000)
-            .then(() => { imgLoaded++; updateBar(); if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid(); })
-            .catch(() => { imgLoaded++; updateBar(); });
-        }, 3000);
-      });
+    const img = new Image();
+    img.onload = () => {
+      imgLoaded++;
+      updateBar();
+      if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
+    };
+    img.onerror = () => {
+      // 3秒后重试一次
+      setTimeout(() => {
+        const img2 = new Image();
+        img2.onload = () => {
+          imgLoaded++;
+          updateBar();
+          if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
+        };
+        img2.onerror = () => { imgLoaded++; updateBar(); };
+        img2.src = url + '?r=' + Date.now();
+      }, 3000);
+    };
+    img.src = url;
   });
 
   // 检测是否有上次的会话记录（刷新重连）
