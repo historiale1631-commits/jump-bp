@@ -436,7 +436,7 @@ function updTimerUI() {
 function startUiTick() { if (uiTick) clearInterval(uiTick); uiTick = setInterval(checkTimeoutAndTick, 300); }
 function stopUiTick() { if (uiTick) clearInterval(uiTick); uiTick = null; }
 
-// 防止重复写入 bank=0 的标记
+// 防止本客户端重复触发同一步的标记
 let bankZeroFiredKey = -1;
 
 function checkTimeoutAndTick() {
@@ -444,8 +444,7 @@ function checkTimeoutAndTick() {
   updTimerUI();
   const { isTimeout, curTeam } = calcTime();
 
-  // 备用耗尽时，无论谁的回合都要持久化 bank=0（只写一次）
-  // 这样下一步开始时 Firebase 里的 bankX 是正确的 0
+  // 备用耗尽时持久化 bank=0（任意客户端都执行，只写一次）
   if (isTimeout && bankZeroFiredKey !== firedKey()) {
     bankZeroFiredKey = firedKey();
     const bankUpdate = {};
@@ -453,12 +452,30 @@ function checkTimeoutAndTick() {
     refDb.update(bankUpdate);
   }
 
-  // 只有轮到自己时才触发自动选，防止双端竞争
-  if (isTimeout && firedForStep !== firedKey() && ct() === myRole) {
+  // 超时后任意客户端（包括裁判）都可以触发自动选
+  // 用 Firebase 事务锁保证只有一个客户端成功写入
+  if (isTimeout && firedForStep !== firedKey()) {
     firedForStep = firedKey();
     stopUiTick();
-    forceAutoPick();
+    forceAutoPickWithLock();
   }
+}
+
+// 用专用锁字段 autoPickLock 抢占，值为 firedKey()
+// 只有第一个写入者 committed=true，其余放弃
+function forceAutoPickWithLock() {
+  const lockKey = firedKey();
+  refDb.child('autoPickLock').transaction(currentVal => {
+    if (currentVal === lockKey) return; // 已被锁定，放弃（返回 undefined = abort）
+    return lockKey;                     // 抢锁
+  }, (err, committed) => {
+    if (err || !committed) {
+      // 另一个客户端已经抢到，重启 tick 继续监听下一步
+      startUiTick();
+      return;
+    }
+    forceAutoPick();
+  });
 }
 
 function forceAutoPick() {
@@ -480,6 +497,7 @@ function refAction(type) {
     firedForStep = -1;
     bankZeroFiredKey = -1;
     isPicking = false;
+    refDb.update({ autoPickLock: -1 });
     // 新增 mainUsed:0，记录累计主计时已用秒
     refDb.update({ aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: true, paused: false, roundEnded: false, roundNum: (gs.roundNum || 0) + 1, bankA: 300, bankB: 300, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 });
   } else if (type === 'pause') {
@@ -547,27 +565,36 @@ function confirmPick() {
 }
 
 function doPick(h) {
-  // ── 修复7：提交锁防止重复提交 ──
   if (isPicking) return;
   isPicking = true;
   document.getElementById('pickBtn').disabled = true;
 
+  const expectedStep = gs.step;
   const t = ct();
   const na = [...gs.aPicks], nb = [...gs.bPicks];
   let au = gs.aUsed, bu = gs.bUsed;
   if (t === 'a') { na.push(h); au += h.score; } else { nb.push(h); bu += h.score; }
-  const ns = gs.step + 1;
+  const ns = expectedStep + 1;
   sel = null;
   const { overflowedBank, curTeam } = calcTime();
   const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
-  const done = () => { isPicking = false; };
-  if (ns >= 10) {
-    refDb.update(update, () => { endRound(); done(); });
-  } else {
-    refDb.update(update, done);
-  }
+  const releaseLock = () => { isPicking = false; };
+
+  // 写入前用事务验证 step 没有被其他客户端推进
+  refDb.child('step').transaction(currentStep => {
+    if (currentStep !== expectedStep) return; // 已被推进，放弃写入
+    return currentStep; // 验证通过，不改 step（update() 里会改）
+  }, (err, committed) => {
+    if (err || !committed) { releaseLock(); startUiTick(); return; }
+    // 验证通过，执行实际写入
+    if (ns >= 10) {
+      refDb.update(update, err2 => { if (err2) { releaseLock(); return; } endRound(); releaseLock(); });
+    } else {
+      refDb.update(update, err2 => { releaseLock(); });
+    }
+  });
 }
 
 // ── 修复8：orderBar 只在首次或换边时重建，不在每次 syncUI 重建 ──
@@ -690,15 +717,21 @@ function renderGrid() {
   let list = tab === 'all' ? ALL : HEROES[tab].map(h=>({...h, type: tab}));
   if (q) list = list.filter(h => h.name.toLowerCase().includes(q));
   const gSet = getGlobalSet(); const gBlocked = getGlobalMutexBlocked(gSet); const rSet = getRoundSet(); const rBlocked = getRoundMutexBlocked(rSet);
-  document.getElementById('heroGrid').innerHTML = list.map(h => {
+  const grid = document.getElementById('heroGrid');
+  grid.innerHTML = '';
+  list.forEach(h => {
     const nm = h.name, inG = gSet.has(nm) || rSet.has(nm), isGM = !inG && gBlocked.has(nm), isRM = !inG && !isGM && rBlocked.has(nm);
     const cantScore = !inG && !isGM && !isRM && !canPick(nm, h.score) && gs.active;
     const lk = gs.active && !gs.roundEnded && !gs.ended && !mt; const sl = sel && sel.name === nm;
     let cls = 'hcard';
     if (inG) cls += ' globalused'; else if (isGM) cls += ' mutex-global'; else if (isRM) cls += ' mutex-round'; else if (cantScore) cls += ' over'; else if (lk) cls += ' locked';
     if (sl) cls += ' selected';
-    return `<div class="${cls}" onclick="selectHero('${nm}','${h.type}',${h.score})"><div class="htype">${TI[h.type]}</div><div class="hname">${nm}</div><div class="hscore ${SC[h.type]}">${h.score}分</div></div>`;
-  }).join('');
+    const div = document.createElement('div');
+    div.className = cls;
+    div.innerHTML = `<div class="htype">${TI[h.type]}</div><div class="hname">${nm}</div><div class="hscore ${SC[h.type]}">${h.score}分</div>`;
+    div.addEventListener('click', () => selectHero(h.name, h.type, h.score));
+    grid.appendChild(div);
+  });
 }
 
 function switchTab(t) {
@@ -796,6 +829,20 @@ function listenRoom(aName, bName) {
     if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) startUiTick(); else { stopUiTick(); updTimerUI(); }
   });
 }
+
+// 10小时后自动断开 Firebase 连接，释放连接数
+setTimeout(() => {
+  stopUiTick();
+  if (refDb && roomListener) { refDb.off('value', roomListener); roomListener = null; }
+  db.goOffline();
+  document.body.innerHTML = `
+    <div style="position:fixed;inset:0;background:#0a0520;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'Microsoft YaHei',sans-serif">
+      <div style="font-size:40px">⏰</div>
+      <div style="font-size:18px;font-weight:700;color:#fcd34d">会话已超过10小时</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5)">连接已自动断开，请刷新页面重新进入</div>
+      <button onclick="location.reload()" style="margin-top:8px;padding:10px 28px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">刷新页面</button>
+    </div>`;
+}, 10 * 60 * 60 * 1000);
 
 window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
