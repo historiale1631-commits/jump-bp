@@ -558,7 +558,8 @@ function refAction(type) {
   } else if (type === 'pause') {
     if (gs.paused) {
       // 广播继续音效 + 3秒倒计时后恢复
-      refDb.update({ resumeSfxTs: firebase.database.ServerValue.TIMESTAMP, resumeAt: Date.now() + 3000 });
+      const resumeTs = Date.now();
+      refDb.update({ resumeSfxTs: resumeTs, resumeAt: resumeTs + 3000 });
     } else {
       // 暂停：把当前累计已用秒存入 mainUsed，清零 stepStartTs
       const { overflowedBank, curTeam } = calcTime();
