@@ -338,7 +338,7 @@ const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({.
 const TI = {str:'💪', agi:'⚡', int:'🧠'};
 const SC = {str:'sc-str', agi:'sc-agi', int:'sc-int'};
 const ORDER_B = ['b','a','a','b','a','b','b','a','b','a'];
-const ORDER_A = ['a','b','b','a','b','a','a','b','a','a'];
+const ORDER_A = ['a','b','b','a','b','a','a','b','a','b'];
 function getOrder() { return gs.swapped ? ORDER_A : ORDER_B; }
 function getSundayTeam() { return gs.swapped ? 'a' : 'b'; }
 function getJumpTeam() { return gs.swapped ? 'b' : 'a'; }
