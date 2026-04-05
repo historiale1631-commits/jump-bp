@@ -137,8 +137,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:8px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
 
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
-#setupOv{background:rgba(0,0,0,.45)!important}
-.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center}
+#setupOv{background:rgba(0,0,0,.45)!important;overflow:hidden}
+.modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center;position:relative;z-index:1}
 .modal h2{font-size:16px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px}
 .modal .rules{font-size:11px;color:#fcd34d;background:rgba(255,210,60,.1);border:1px solid rgba(255,210,60,.25);border-radius:6px;padding:7px 10px;margin-bottom:10px;text-align:left;line-height:1.9}
@@ -281,10 +281,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E8%93%9D%E6%9F%93-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E8%B4%9E%E5%BE%B7-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E5%81%A5%E6%AC%A1%E9%83%8E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/NAO-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 </head>
 <body>
 
-<div class="overlay" id="setupOv">
+<div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
+  <div id="setupBg" style="position:absolute;inset:0;background:url('https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg') center/100% 100% no-repeat;image-rendering:high-quality;pointer-events:none;z-index:0;"></div>
   <div class="modal">
     <h2>⚔ JUMP大赛 BP系统</h2>
     <div class="sub">联网版 · 实时同步 · 多轮BP</div>
@@ -762,6 +766,8 @@ const HERO_IMG = {
   "黑崎一护pf": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "黑蓝染": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E8%93%9D%E6%9F%93-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "黑贞德": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E8%B4%9E%E5%BE%B7-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "健次郎": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E5%81%A5%E6%AC%A1%E9%83%8E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "NAO": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/NAO-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
 };
 
 function selectHero(name, type, score) {
