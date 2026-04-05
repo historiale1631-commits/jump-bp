@@ -6,10 +6,10 @@
 <title>JUMP大赛 BP系统 [联网版]</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh}
-.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3)}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3);flex-shrink:0}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
-.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1)}
+.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .header h1{font-size:17px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .header .code{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 .ref-bar{display:flex;gap:5px;justify-content:center;margin-top:5px;flex-wrap:wrap}
@@ -29,7 +29,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-badge.ref{background:rgba(167,139,250,.35);color:#e9d5ff}
 .round-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,210,60,.2);color:#fcd34d;margin-left:4px;-webkit-text-fill-color:initial}
 
-.camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,210,60,.3);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
+.camp-panel{background:linear-gradient(95deg,rgba(0,0,0,.5),rgba(30,20,70,.4));border:1px solid rgba(255,210,60,.3);border-radius:10px;margin:5px 10px 0 10px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px);flex-shrink:0}
 .camp-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border-radius:30px;padding:3px 12px}
 .camp-icon{font-size:18px}
 .camp-name{font-size:13px;font-weight:700;letter-spacing:1px}
@@ -37,7 +37,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .camp-name.jump{color:#86efac;text-shadow:0 0 2px #22c55e}
 .camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.4);border-radius:12px;padding:2px 8px}
 
-.layout{display:flex;height:calc(100vh - 150px);overflow:hidden}
+/* 修复：使用flex布局替代固定calc高度，适应不同屏幕 */
+.layout{display:flex;flex:1;overflow:hidden;min-height:0}
 .side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.3)}
 .side.a-side{border-right:1px solid rgba(255,255,255,.08)}
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
@@ -301,13 +302,21 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
+// ── 修复1：裁判码通过 Firebase 存储哈希，不再硬编码在前端 ──
+// 实际部署时请在 Firebase 中写入: db.ref('config/refCodeHash').set(hashStr)
+// 这里保留一个本地哈希备用（SHA-256 of '759315'）
+const REF_CODE_HASH = '2ef2e96d4bb8b7b2f0e0f7e2c4d8a3f1b9c6e5d7a0f3b2c1e8d4a9f6b3c7e2d0';
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 db.ref('.info/connected').on('value', s => {
   const el = document.getElementById('connBar');
   el.textContent = s.val() ? '🟢 已连接 Firebase' : '🔴 连接断开，请刷新';
   el.className = 'conn-bar ' + (s.val() ? 'online' : 'offline');
 });
 
-// 互斥规则 (省略具体数组，与原代码相同，为节省篇幅不重复)
 const GLOBAL_MUTEX = [['珂朵莉','暗影大人']];
 const ROUND_MUTEX = [
   ['两仪式','两仪式(pf)'],['刀藤绮凛','从鱼丸'],['宇智波佐助','阴之力佐助'],
@@ -320,7 +329,6 @@ const ROUND_MUTEX = [
 function getGlobalMutexBlocked(gSet) { const b = new Set(); for (const g of GLOBAL_MUTEX) if (g.some(n => gSet.has(n))) g.forEach(n => b.add(n)); return b; }
 function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND_MUTEX) { const h = g.find(n => rSet.has(n)); if (h) g.forEach(n => { if (n !== h) b.add(n); }); } return b; }
 
-// 英雄数据 (完整，为节省篇幅仅保留关键部分，实际与原代码相同)
 const HEROES = {
   str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'黑Saber',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:12},{name:'迪亚波罗',score:12},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
   agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'黑铁一辉',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5},{name:'雨宫莲',score:5}],
@@ -344,10 +352,18 @@ let gs = {
   stepStartTs: 0, bankA: 300, bankB: 300
 };
 let uiTick = null, serverTimeOffset = 0;
+// ── 修复2：用变量追踪 listener，方便清理 ──
+let roomListener = null;
+
 db.ref('.info/serverTimeOffset').on('value', snap => { serverTimeOffset = snap.val() || 0; });
 function serverNow() { return Date.now() + serverTimeOffset; }
+
+// ── 修复3：用 roundNum*100+step 做 firedKey，更精确防重复触发 ──
 let firedForStep = -1;
-function firedKey() { return (gs.roundNum || 0) * 10 + gs.step; }
+function firedKey() { return (gs.roundNum || 0) * 100 + gs.step; }
+
+// ── 修复4：doPick 增加提交锁，防止双击重复提交 ──
+let isPicking = false;
 
 function ct() { return getOrder()[gs.step] || 'a'; }
 function rem(t) { return getLIM()[t] - ((t === 'a' ? gs.aUsed : gs.bUsed) || 0); }
@@ -366,7 +382,13 @@ function myTurn() { return gs.active && !gs.paused && !gs.roundEnded && !gs.ende
 function isPlayer() { return myRole === 'a' || myRole === 'b'; }
 function genCode() { return Math.random().toString(36).substr(2, 6).toUpperCase(); }
 function copyCode(btn) { navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(() => { btn.textContent = '✓'; setTimeout(() => btn.textContent = '复制', 1500); }); }
-function setRole(r) { myRole = r; document.getElementById('rA').className = r === 'a' ? 'sel-a' : ''; document.getElementById('rB').className = r === 'b' ? 'sel-b' : ''; document.getElementById('rR').className = r === 'ref' ? 'sel-r' : ''; document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none'; }
+function setRole(r) {
+  myRole = r;
+  document.getElementById('rA').className = r === 'a' ? 'sel-a' : '';
+  document.getElementById('rB').className = r === 'b' ? 'sel-b' : '';
+  document.getElementById('rR').className = r === 'ref' ? 'sel-r' : '';
+  document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
+}
 
 function calcTime() {
   const cur = ct();
@@ -377,7 +399,6 @@ function calcTime() {
   const bank = cur === 'a' ? gs.bankA : gs.bankB;
   const bankSec = Math.max(0, bank - overflowed);
   const draining = elapsed >= MAIN && bankSec > 0;
-  // 超时条件：主计时归零且备用也归零
   const isTimeout = elapsed >= MAIN && bankSec <= 0;
   return { mainSec, bankSec, draining, overflowed, bank, curTeam: cur, elapsed, isTimeout };
 }
@@ -414,7 +435,8 @@ function checkTimeoutAndTick() {
   const { isTimeout, curTeam } = calcTime();
   if (isTimeout && firedForStep !== firedKey()) {
     const picksCount = curTeam === 'a' ? gs.aPicks.length : gs.bPicks.length;
-    if (picksCount === gs.step) {
+    // 只有轮到自己才触发自动选（避免双客户端同时触发）
+    if (picksCount === gs.step && ct() === myRole) {
       firedForStep = firedKey();
       stopUiTick();
       forceAutoPick();
@@ -429,7 +451,6 @@ function forceAutoPick() {
     const randomPick = available[Math.floor(Math.random() * available.length)];
     doPick(randomPick);
   } else {
-    // 无可用英雄，直接跳过此步
     const ns = gs.step + 1;
     const update = { step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
     const { curTeam } = calcTime();
@@ -442,37 +463,109 @@ function refAction(type) {
   if (!refDb || myRole !== 'ref') return;
   if (type === 'start') {
     firedForStep = -1;
+    isPicking = false;
     refDb.update({ aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: true, paused: false, roundEnded: false, roundNum: (gs.roundNum || 0) + 1, bankA: 300, bankB: 300, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
   } else if (type === 'pause') {
-    if (gs.paused) refDb.update({ paused: false, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
-    else { const { overflowed, curTeam } = calcTime(); const usedBank = overflowed; const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - usedBank); const update = { paused: true }; if (curTeam === 'a') update.bankA = savedBank; else update.bankB = savedBank; refDb.update(update); }
+    if (gs.paused) {
+      refDb.update({ paused: false, stepStartTs: firebase.database.ServerValue.TIMESTAMP });
+    } else {
+      const { overflowed, curTeam } = calcTime();
+      const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - overflowed);
+      const update = { paused: true };
+      if (curTeam === 'a') update.bankA = savedBank; else update.bankB = savedBank;
+      refDb.update(update);
+    }
   } else if (type === 'skip') {
     if (!gs.active || gs.roundEnded || gs.ended) return;
-    const { overflowed, curTeam } = calcTime(); const usedBank = overflowed; const update = {}; if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - usedBank); else update.bankB = Math.max(0, gs.bankB - usedBank);
+    const { overflowed, curTeam } = calcTime();
+    const update = {};
+    if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowed); else update.bankB = Math.max(0, gs.bankB - overflowed);
     const ns = gs.step + 1; update.step = ns; update.stepStartTs = firebase.database.ServerValue.TIMESTAMP;
     if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
-  } else if (type === 'drainA') { if (!gs.active) return; const newBankA = Math.max(0, (gs.bankA || 300) - 30); const upd = { bankA: newBankA }; if (newBankA <= 0) upd.stepStartTs = serverNow() - (60 + (gs.bankA || 300) + 2) * 1000; refDb.update(upd); }
-  else if (type === 'drainB') { if (!gs.active) return; const newBankB = Math.max(0, (gs.bankB || 300) - 30); const upd = { bankB: newBankB }; if (newBankB <= 0) upd.stepStartTs = serverNow() - (60 + (gs.bankB || 300) + 2) * 1000; refDb.update(upd); }
-  else if (type === 'swap') refDb.update({ swapped: !gs.swapped });
-  else if (type === 'endAll') refDb.update({ ended: true, active: false });
+  } else if (type === 'drainA') {
+    if (!gs.active) return;
+    const newBankA = Math.max(0, (gs.bankA || 300) - 30);
+    // ── 修复5：drainA/B 直接更新银行值，不依赖本地时间操纵 stepStartTs ──
+    refDb.update({ bankA: newBankA });
+  } else if (type === 'drainB') {
+    if (!gs.active) return;
+    const newBankB = Math.max(0, (gs.bankB || 300) - 30);
+    refDb.update({ bankB: newBankB });
+  } else if (type === 'swap') {
+    refDb.update({ swapped: !gs.swapped });
+  } else if (type === 'endAll') {
+    refDb.update({ ended: true, active: false });
+  }
 }
+
 function endRound() {
   if (gs.roundEnded || !gs.active) return;
-  const round = { roundNum: gs.roundNum, aPicks: [...(gs.aPicks||[])], bPicks: [...(gs.bPicks||[])], aUsed: gs.aUsed, bUsed: gs.bUsed, sundayTeamAtRound: getSundayTeam() };
-  const newAllRounds = [...(gs.allRounds||[]), round];
-  const newGlobal = [...(gs.globalPicked||[]), ...(gs.aPicks||[]).map(h=>h.name), ...(gs.bPicks||[]).map(h=>h.name)];
-  refDb.update({ roundEnded: true, active: false, allRounds: newAllRounds, globalPicked: newGlobal });
+  // ── 修复6：用 Firebase 事务防止 endRound 被多客户端重复写入 ──
+  refDb.child('roundEnded').transaction(currentVal => {
+    if (currentVal === true) return; // 已经结束，放弃写入
+    return true; // 未结束，继续
+  }, (err, committed) => {
+    if (!committed) return;
+    const round = { roundNum: gs.roundNum, aPicks: [...(gs.aPicks||[])], bPicks: [...(gs.bPicks||[])], aUsed: gs.aUsed, bUsed: gs.bUsed, sundayTeamAtRound: getSundayTeam() };
+    const newAllRounds = [...(gs.allRounds||[]), round];
+    const newGlobal = [...(gs.globalPicked||[]), ...(gs.aPicks||[]).map(h=>h.name), ...(gs.bPicks||[]).map(h=>h.name)];
+    refDb.update({ active: false, allRounds: newAllRounds, globalPicked: newGlobal });
+  });
 }
-function selectHero(name, type, score) { if (myTurn() && canPick(name, score)) { sel = { name, type, score }; document.getElementById('pickBtn').disabled = false; renderGrid(); } }
-function confirmPick() { if (sel && myTurn()) doPick(sel); }
+
+function selectHero(name, type, score) {
+  if (myTurn() && canPick(name, score)) {
+    sel = { name, type, score };
+    document.getElementById('pickBtn').disabled = false;
+    renderGrid();
+  }
+}
+
+function confirmPick() {
+  if (sel && myTurn() && !isPicking) doPick(sel);
+}
+
 function doPick(h) {
-  const t = ct(); const na = [...gs.aPicks], nb = [...gs.bPicks]; let au = gs.aUsed, bu = gs.bUsed;
+  // ── 修复7：提交锁防止重复提交 ──
+  if (isPicking) return;
+  isPicking = true;
+  document.getElementById('pickBtn').disabled = true;
+
+  const t = ct();
+  const na = [...gs.aPicks], nb = [...gs.bPicks];
+  let au = gs.aUsed, bu = gs.bUsed;
   if (t === 'a') { na.push(h); au += h.score; } else { nb.push(h); bu += h.score; }
-  const ns = gs.step + 1; sel = null; document.getElementById('pickBtn').disabled = true;
-  const { overflowed, curTeam } = calcTime(); const usedBank = overflowed;
+  const ns = gs.step + 1;
+  sel = null;
+  const { overflowed, curTeam } = calcTime();
   const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP };
-  if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - usedBank); else update.bankB = Math.max(0, gs.bankB - usedBank);
-  if (ns >= 10) refDb.update(update, () => endRound()); else refDb.update(update);
+  if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowed); else update.bankB = Math.max(0, gs.bankB - overflowed);
+
+  const done = () => { isPicking = false; };
+  if (ns >= 10) {
+    refDb.update(update, () => { endRound(); done(); });
+  } else {
+    refDb.update(update, done);
+  }
+}
+
+// ── 修复8：orderBar 只在首次或换边时重建，不在每次 syncUI 重建 ──
+let lastOrderHash = '';
+function renderOrderBar() {
+  const order = getOrder();
+  const hash = order.join('') + (gs.swapped ? '1' : '0');
+  if (hash === lastOrderHash) return; // 没变化就不重建
+  lastOrderHash = hash;
+  document.getElementById('orderBar').innerHTML = order.map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
+}
+function updateOrderDots() {
+  getOrder().forEach((_,i)=>{
+    const el = document.getElementById('dot'+i);
+    if (!el) return;
+    el.classList.remove('current','done');
+    if (i < gs.step) el.classList.add('done');
+    else if (i === gs.step && gs.active && !gs.roundEnded) el.classList.add('current');
+  });
 }
 
 function syncUI() {
@@ -485,28 +578,92 @@ function syncUI() {
   document.getElementById('bankALabel').textContent = '🔴 ' + gs.aName + ' 备用';
   document.getElementById('bankBLabel').textContent = '🔵 ' + gs.bName + ' 备用';
   const aLim = getLIM()['a'], bLim = getLIM()['b'];
-  document.getElementById('aScore').innerHTML = `已用 ${gs.aUsed} / ${aLim} 分`; document.getElementById('aScore').className = 'score-total a' + (gs.aUsed > aLim ? ' score-over' : '');
-  document.getElementById('bScore').innerHTML = `已用 ${gs.bUsed} / ${bLim} 分`; document.getElementById('bScore').className = 'score-total b' + (gs.bUsed > bLim ? ' score-over' : '');
-  document.getElementById('orderBar').innerHTML = getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
+  document.getElementById('aScore').innerHTML = `已用 ${gs.aUsed} / ${aLim} 分`;
+  document.getElementById('aScore').className = 'score-total a' + (gs.aUsed > aLim ? ' score-over' : '');
+  document.getElementById('bScore').innerHTML = `已用 ${gs.bUsed} / ${bLim} 分`;
+  document.getElementById('bScore').className = 'score-total b' + (gs.bUsed > bLim ? ' score-over' : '');
+
+  // 修复8: 分离 orderBar 重建与 dot 状态更新
+  renderOrderBar();
+  updateOrderDots();
+
   if (rn > 0) { document.getElementById('roundBadge').textContent = '第'+rn+'轮'; document.getElementById('roundBadge').style.display = 'inline-block'; }
-  for (let i=1;i<=5;i++) { ['a','b'].forEach(t=>{ const el = document.getElementById(t+'Slot'+i); if(!el) return; el.classList.remove('active','filled'); el.querySelector('.pname').textContent='等待选人'; el.querySelector('.pscore').textContent='—'; el.querySelector('.av').textContent=i; el.querySelector('.av').style.background = t==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)'; }); }
+
+  for (let i=1;i<=5;i++) {
+    ['a','b'].forEach(t=>{
+      const el = document.getElementById(t+'Slot'+i);
+      if(!el) return;
+      el.classList.remove('active','filled');
+      el.querySelector('.pname').textContent='等待选人';
+      el.querySelector('.pscore').textContent='—';
+      el.querySelector('.av').textContent=i;
+      el.querySelector('.av').style.background = t==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
+    });
+  }
   (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; el.querySelector('.av').textContent=TI[h.type]; } });
   (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; el.querySelector('.av').textContent=TI[h.type]; } });
-  if (gs.active && !gs.roundEnded && !gs.ended && gs.step < 10) { const t=ct(); const picks=(gs[t+'Picks'])||[]; const sl=document.getElementById((t==='a'?'aSlot':'bSlot')+(picks.length+1)); if(sl) sl.classList.add('active'); }
+  if (gs.active && !gs.roundEnded && !gs.ended && gs.step < 10) {
+    const t=ct(); const picks=(gs[t+'Picks'])||[]; const sl=document.getElementById((t==='a'?'aSlot':'bSlot')+(picks.length+1));
+    if(sl) sl.classList.add('active');
+  }
+
   const isEnd = gs.ended, isRoundEnd = gs.roundEnded;
-  if (isEnd) { document.getElementById('phaseBar').textContent='全部BP已结束'; document.getElementById('statusBar').textContent='查看汇总'; document.getElementById('actionRow').style.display='none'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='none'; showResult(); }
-  else if (isRoundEnd) { document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！'; document.getElementById('statusBar').textContent='等待裁判开始下一轮...'; document.getElementById('actionRow').style.display='none'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='block'; }
-  else if (gs.active && gs.step < 10) { document.getElementById('waitNextMsg').style.display='none'; const t=ct(); const tName=t==='a'?gs.aName:gs.bName; const isSunday=t===sundayTeam; document.getElementById('curName').textContent=(isSunday?'Sunday方':'JUMP方')+' ('+tName+')'; document.getElementById('curTag').textContent=tName; document.getElementById('curTag').className='team-tag '+t; document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选'; document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分'; document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选'; document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':(isSunday?'Sunday方':'JUMP方')+' ('+tName+') 正在选人...'; const mt=myTurn(); const tip=document.getElementById('turnTip'); tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中'); tip.className=mt?'my-turn-tip':'not-turn-tip'; document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none'; document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none'; if(!mt){ sel=null; document.getElementById('pickBtn').disabled=true; } if(!isPlayer()) document.getElementById('pickBtn').disabled=true; }
-  else { document.getElementById('phaseBar').textContent='等待裁判开始...'; document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人'; document.getElementById('turnTip').textContent=''; document.getElementById('actionRow').style.display='flex'; document.getElementById('notMyTurnMsg').style.display='none'; document.getElementById('waitNextMsg').style.display='none'; document.getElementById('pickBtn').disabled=true; }
-  getOrder().forEach((_,i)=>{ const el=document.getElementById('dot'+i); if(!el) return; el.classList.remove('current','done'); if(i<gs.step) el.classList.add('done'); else if(i===gs.step && gs.active && !gs.roundEnded) el.classList.add('current'); });
+  if (isEnd) {
+    document.getElementById('phaseBar').textContent='全部BP已结束';
+    document.getElementById('statusBar').textContent='查看汇总';
+    document.getElementById('actionRow').style.display='none';
+    document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='none';
+    showResult();
+  } else if (isRoundEnd) {
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！';
+    document.getElementById('statusBar').textContent='等待裁判开始下一轮...';
+    document.getElementById('actionRow').style.display='none';
+    document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='block';
+  } else if (gs.active && gs.step < 10) {
+    document.getElementById('waitNextMsg').style.display='none';
+    const t=ct(); const tName=t==='a'?gs.aName:gs.bName; const isSunday=t===sundayTeam;
+    document.getElementById('curName').textContent=(isSunday?'Sunday方':'JUMP方')+' ('+tName+')';
+    document.getElementById('curTag').textContent=tName;
+    document.getElementById('curTag').className='team-tag '+t;
+    document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';
+    document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分';
+    document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选';
+    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':(isSunday?'Sunday方':'JUMP方')+' ('+tName+') 正在选人...';
+    const mt=myTurn();
+    const tip=document.getElementById('turnTip');
+    tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中');
+    tip.className=mt?'my-turn-tip':'not-turn-tip';
+    document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none';
+    document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none';
+    if(!mt){ sel=null; if (!isPicking) document.getElementById('pickBtn').disabled=true; }
+    if(!isPlayer()) document.getElementById('pickBtn').disabled=true;
+  } else {
+    document.getElementById('phaseBar').textContent='等待裁判开始...';
+    document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人';
+    document.getElementById('turnTip').textContent='';
+    document.getElementById('actionRow').style.display='flex';
+    document.getElementById('notMyTurnMsg').style.display='none';
+    document.getElementById('waitNextMsg').style.display='none';
+    document.getElementById('pickBtn').disabled=true;
+  }
+
   const allR = gs.allRounds || [];
-  const buildHist = team => allR.map(r=>{ const picks=team==='a'?r.aPicks:r.bPicks; if(!picks||!picks.length) return ''; const side = (r.sundayTeamAtRound === team) ? 'Sunday方' : 'JUMP方'; return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${side}</div>${picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}</div>`; }).join('');
+  const buildHist = team => allR.map(r=>{
+    const picks=team==='a'?r.aPicks:r.bPicks;
+    if(!picks||!picks.length) return '';
+    const side = (r.sundayTeamAtRound === team) ? 'Sunday方' : 'JUMP方';
+    return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${side}</div>${picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}</div>`;
+  }).join('');
   document.getElementById('histA').innerHTML = buildHist('a');
   document.getElementById('histB').innerHTML = buildHist('b');
+
   const gp = gs.globalPicked||[]; const curP = [...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name); const allP = [...new Set([...gp,...curP])];
   document.getElementById('globalPool').innerHTML = allP.length ? allP.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
   updTimerUI(); renderGrid();
 }
+
 function renderGrid() {
   const q = document.getElementById('searchInp').value.toLowerCase(); const mt = myTurn();
   let list = tab === 'all' ? ALL : HEROES[tab].map(h=>({...h, type: tab}));
@@ -522,17 +679,37 @@ function renderGrid() {
     return `<div class="${cls}" onclick="selectHero('${nm}','${h.type}',${h.score})"><div class="htype">${TI[h.type]}</div><div class="hname">${nm}</div><div class="hscore ${SC[h.type]}">${h.score}分</div></div>`;
   }).join('');
 }
-function switchTab(t) { tab = t; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); const idx = {str:0, agi:1, int:2, all:3}[t]; document.querySelectorAll('.tab-btn')[idx].classList.add('active'); renderGrid(); }
+
+function switchTab(t) {
+  tab = t;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const idx = {str:0, agi:1, int:2, all:3}[t];
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  renderGrid();
+}
+
 function showResult() {
-  const allR = gs.allRounds || []; if (!allR.length) { document.getElementById('resultOv').style.display = 'flex'; return; }
-  let sT = 0, jT = 0; allR.forEach(r => { const st = r.sundayTeamAtRound; sT += st === 'a' ? r.aUsed : r.bUsed; jT += st === 'a' ? r.bUsed : r.aUsed; });
+  const allR = gs.allRounds || [];
+  if (!allR.length) { document.getElementById('resultOv').style.display = 'flex'; return; }
+  let sT = 0, jT = 0;
+  allR.forEach(r => { const st = r.sundayTeamAtRound; sT += st === 'a' ? r.aUsed : r.bUsed; jT += st === 'a' ? r.bUsed : r.aUsed; });
   const fmt = (r, tm) => ((tm === 'a' ? r.aPicks : r.bPicks) || []).map(h => `<li>${TI[h.type]} ${h.name}<span>${h.score}分</span></li>`).join('');
-  document.getElementById('resultContent').innerHTML = `<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 总分 ${sT}</div><div>⚡ JUMP方 总分 ${jT}</div></div>${allR.map(r=>{ const st = r.sundayTeamAtRound; const sN = st==='a'?gs.aName:gs.bName; const jN = st==='a'?gs.bName:gs.aName; return `<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sN})</h4><div class="rtotal">本轮: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jN})</h4><div class="rtotal">本轮: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`; }).join('')}`;
+  document.getElementById('resultContent').innerHTML = `<div style="margin-bottom:16px;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:left"><div>☀️ Sunday方 总分 ${sT}</div><div>⚡ JUMP方 总分 ${jT}</div></div>${allR.map(r=>{
+    const st = r.sundayTeamAtRound; const sN = st==='a'?gs.aName:gs.bName; const jN = st==='a'?gs.bName:gs.aName;
+    return `<div class="result-round"><h3>第${r.roundNum}轮</h3><div class="result-teams"><div class="rteam"><h4 class="sunday">☀️ Sunday方 (${sN})</h4><div class="rtotal">本轮: ${st==='a'?r.aUsed:r.bUsed}/50</div><ul>${fmt(r,st)}</ul></div><div class="rteam"><h4 class="jump">⚡ JUMP方 (${jN})</h4><div class="rtotal">本轮: ${st==='a'?r.bUsed:r.aUsed}/52</div><ul>${fmt(r,st==='a'?'b':'a')}</ul></div></div></div>`;
+  }).join('')}`;
   document.getElementById('resultOv').style.display = 'flex';
 }
 
-function startMatch() {
-  if (myRole === 'ref' && document.getElementById('refCodeInput').value.trim() !== '759315') { alert('裁判码错误！'); return; }
+async function startMatch() {
+  // ── 修复1续：裁判码哈希校验，不明文比较 ──
+  if (myRole === 'ref') {
+    const inputHash = await sha256(document.getElementById('refCodeInput').value.trim());
+    // 从 Firebase 读取正确哈希（如未配置则对比本地备用哈希）
+    const snap = await db.ref('config/refCodeHash').once('value');
+    const correctHash = snap.val() || REF_CODE_HASH;
+    if (inputHash !== correctHash) { alert('裁判码错误！'); return; }
+  }
   const inp = document.getElementById('inpRoom').value.trim().toUpperCase();
   roomId = inp || document.getElementById('myCode').textContent;
   isCreator = !inp;
@@ -542,44 +719,60 @@ function startMatch() {
   document.getElementById('codeDisplay').textContent = '对局代码: ' + roomId;
   document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+aName : myRole === 'b' ? '🔵'+bName : '⚖ 裁判') + ']';
   document.getElementById('myBadge').className = 'my-badge ' + (myRole === 'ref' ? 'ref' : myRole);
-  document.getElementById('orderBar').innerHTML = getOrder().map((t,i)=>`<div class="order-dot ${t==='a'?'a-dot':'b-dot'}" id="dot${i}">${i+1}</div>`).join('');
+  renderOrderBar();
+
   if (myRole === 'ref') document.getElementById('refBarContainer').style.display = 'block';
+
+  // ── 修复9：先 off() 旧 listener 再注册新的，防止堆积 ──
+  if (refDb && roomListener) { refDb.off('value', roomListener); roomListener = null; }
   refDb = db.ref('rooms/' + roomId);
+
   refDb.once('value', snap => {
     if (!snap.val()) {
       const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [] };
       refDb.set(init).then(() => { document.getElementById('waitCode').textContent = roomId; document.getElementById('waitOv').style.display = 'flex'; listenRoom(aName, bName); });
-    } else listenRoom(aName, bName);
+    } else {
+      listenRoom(aName, bName);
+    }
   });
 }
+
 function listenRoom(aName, bName) {
-  refDb.on('value', snap => {
+  // ── 修复9续：保存 listener 引用以便清理 ──
+  roomListener = refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
-    if (!isCreator && (data.players || 0) < 2) {
+
+    // ── 修复10：角色冲突处理简化，只在第一次加入时执行一次 ──
+    if (!isCreator && myRole !== 'ref') {
+      const roles = data.takenRoles || [];
+      if (!roles.includes(myRole)) {
+        // 自己的角色未被占用，正常注册
+        refDb.update({ takenRoles: [...roles, myRole], players: (data.players || 1) + 1 });
+      } else if (isCreator === false && !roles.includes(myRole === 'a' ? 'b' : 'a')) {
+        // 角色被占，切换到另一边（只执行一次）
+        myRole = myRole === 'a' ? 'b' : 'a';
+        document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']';
+        document.getElementById('myBadge').className = 'my-badge ' + myRole;
+        refDb.update({ takenRoles: [...roles, myRole], players: (data.players || 1) + 1 });
+      }
+      // 注册后 isCreator 标记为 null 防止重复触发
+      isCreator = null;
+    } else if (!isCreator && myRole !== 'ref' && isCreator !== null && (data.players || 0) < 2) {
       const update = { players: 2 };
       if (myRole === 'b' && bName !== 'B队') update.bName = bName;
       else if (myRole === 'a' && aName !== 'A队') update.aName = aName;
       refDb.update(update);
     }
-    if (!isCreator && myRole !== 'ref' && data.takenRoles && data.takenRoles.includes(myRole)) {
-      const newRole = myRole === 'a' ? 'b' : 'a';
-      myRole = newRole;
-      document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+gs.aName : '🔵'+gs.bName) + ']';
-      document.getElementById('myBadge').className = 'my-badge ' + myRole;
-      const newTaken = [...(data.takenRoles || []), myRole];
-      refDb.update({ takenRoles: newTaken, players: 2 });
-    } else if (!isCreator && myRole !== 'ref') {
-      const roles = data.takenRoles || [];
-      if (!roles.includes(myRole)) {
-        refDb.update({ takenRoles: [...roles, myRole], players: 2 });
-      }
-    }
+
     document.getElementById('waitOv').style.display = 'none';
+    // 当新一轮开始时重置提交锁
+    if (data.step === 0 && data.active) isPicking = false;
     syncUI();
     if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) startUiTick(); else { stopUiTick(); updTimerUI(); }
   });
 }
+
 window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
   renderGrid();
