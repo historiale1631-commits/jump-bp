@@ -1432,6 +1432,7 @@ window.onload = () => {
   // 分别预加载音效（Audio）和图片（Image），真正加载完才计数
   const SFX_URLS = [
     ...Object.values(HERO_SFX),
+    ...BGM_LIST.map(b => b.url),
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3',
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3',
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3',
@@ -1448,7 +1449,7 @@ window.onload = () => {
     loaded++;
     if (bar) {
       if (loaded >= total) {
-        bar.textContent = '✅ 资源已就绪';
+        bar.textContent = '✅ 资源已就绪（含BGM）';
         bar.style.color = 'rgba(74,222,128,.7)';
       } else {
         bar.textContent = `🔄 资源加载中 ${loaded}/${total}...`;
