@@ -7,9 +7,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3);flex-shrink:0}
+#mainBg{position:fixed;inset:0;background:url('https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%87%8C%E5%B1%82%E5%A3%81%E7%BA%B8.jpg') center/cover no-repeat;opacity:0;pointer-events:none;z-index:1;transition:opacity .5s;}
+.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.92);flex-shrink:0}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
-.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .header h1{font-size:17px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .header .code{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 .ref-bar{display:flex;gap:5px;justify-content:center;margin-top:5px;flex-wrap:wrap}
@@ -35,16 +36,16 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .camp-name{font-size:13px;font-weight:700;letter-spacing:1px}
 .camp-name.sunday{color:#fcd34d;text-shadow:0 0 2px #ffb347}
 .camp-name.jump{color:#86efac;text-shadow:0 0 2px #22c55e}
-.camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.4);border-radius:12px;padding:2px 8px}
+.camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.95);border-radius:12px;padding:2px 8px}
 
 /* 修复：使用flex布局替代固定calc高度，适应不同屏幕 */
-.layout{display:flex;flex:1;overflow:hidden;min-height:0}
-.side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.3)}
+.layout{display:flex;flex:1;overflow:hidden;min-height:0;position:relative;}
+.side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.92)}
 .side.a-side{border-right:1px solid rgba(255,255,255,.08)}
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
 .side::-webkit-scrollbar{width:3px}
 .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.side-label{text-align:center;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.4)}
+.side-label{text-align:center;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.95)}
 .side-label.a{color:#fca5a5;border-left:3px solid #fca5a5}
 .side-label.b{color:#93c5fd;border-left:3px solid #93c5fd}
 .role-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(0,0,0,.5);border-radius:20px;padding:2px 8px;vertical-align:middle}
@@ -82,9 +83,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-turn-tip{font-size:11px;color:#fcd34d;font-weight:700}
 .not-turn-tip{font-size:11px;color:rgba(255,255,255,.4)}
 .phase-bar{padding:6px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
-.status-bar{padding:7px 12px;background:rgba(0,0,0,.3);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
-.timer-wrap{display:flex;gap:10px;background:rgba(0,0,0,.4);border-radius:10px;padding:8px 12px;margin:4px 0}
-.timer-main,.timer-bank{flex:1;text-align:center;background:rgba(0,0,0,.3);border-radius:8px;padding:5px}
+.status-bar{padding:7px 12px;background:rgba(0,0,0,.92);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
+.timer-wrap{display:flex;gap:10px;background:rgba(0,0,0,.95);border-radius:10px;padding:8px 12px;margin:4px 0}
+.timer-main,.timer-bank{flex:1;text-align:center;background:rgba(0,0,0,.92);border-radius:8px;padding:5px}
 .timer-main .tlabel,.timer-bank .tlabel{font-size:9px;color:rgba(255,255,255,.5)}
 .tval{font-size:22px;font-weight:700;font-family:monospace;margin:2px 0;color:#fcd34d}
 .tval.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
@@ -136,8 +137,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:8px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
 .waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:8px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
 
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:100}
-#setupOv{background:rgba(0,0,0,.45)!important;overflow:hidden}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:100}
+#setupOv{background:rgba(0,0,0,.92)!important;overflow:hidden}
 .modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center;position:relative;z-index:1}
 .modal h2{font-size:16px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px}
@@ -155,7 +156,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .role-btns .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
 .role-btns .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
 .role-btns .sel-r{background:rgba(167,139,250,.25);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
-.referee-code{background:rgba(0,0,0,.3);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
+.referee-code{background:rgba(0,0,0,.92);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
 .referee-code label{font-size:11px;color:#fcd34d;display:block;text-align:left;margin-bottom:4px}
 .referee-code input{font-size:12px;padding:6px;margin-bottom:0}
 .wait-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:26px 30px;text-align:center;min-width:280px}
@@ -178,7 +179,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .rbtn{padding:8px 20px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px}
 .rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
 .scoreboard{display:flex;align-items:center;justify-content:center;gap:0;margin:5px 10px 0;flex-shrink:0}
-.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)}
+.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.95);border:1px solid rgba(255,255,255,.1)}
 .sb-team.a{border-radius:10px 0 0 10px;border-right:none}
 .sb-team.b{border-radius:0 10px 10px 0;border-left:none}
 .sb-name{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px}
@@ -190,7 +191,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .win-badge.win{background:rgba(74,222,128,.25);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
 .win-badge.lose{background:rgba(248,113,113,.2);color:#f87171;border:1px solid rgba(248,113,113,.3)}
 .win-badge.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.3)}
-.judge-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200}
+.judge-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;z-index:200}
 .judge-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:24px 28px;text-align:center;min-width:300px}
 .judge-modal h3{font-size:15px;font-weight:700;color:#fcd34d;margin-bottom:6px}
 .judge-modal p{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px}
@@ -284,9 +285,92 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E5%81%A5%E6%AC%A1%E9%83%8E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/NAO-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/talk.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%87%E8%8A%B1%E7%AD%92%E7%9A%84%E6%9E%81%E6%84%8F-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%A4%E4%BB%AA%E5%BC%8F-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%A4%E4%BB%AA%E5%BC%8F%EF%BC%88pf%EF%BC%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%20(2).png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BA%9A%E4%B8%9D%E5%A8%9C-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BB%8E%E9%B1%BC%E4%B8%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%85%AB%E9%87%8D%E6%A8%B1.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%86%B2%E7%94%B0%E6%80%BB%E5%8F%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%80%E8%97%A4%E7%BB%AE%E5%87%9B-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%A9%E5%A8%81%E5%B0%94%E9%98%BF%E5%85%8B%E6%9B%BC-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%BB%E6%99%B4.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%8E%9F%E9%87%8E%E5%BF%97%E8%B4%B5.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%9E%83%E5%9C%BE%E5%85%94-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%A4%9C%E6%96%97-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%A4%A7%E5%B8%88%E7%89%8C.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%AA%9E%E5%A8%9C-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%BE%A1%E5%9D%82%E7%BE%8E%E7%90%B4-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%88%91%E5%A6%BB%E5%96%84%E9%80%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%9C%80%E5%90%8E%E7%9A%84%E6%9C%88%E7%89%99%E5%A4%A9%E5%86%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A8%B1%E6%BB%A1%E9%9B%86-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%AD%BB%E7%A5%9E%E4%BB%A3%E7%90%86.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%B3%A2%E9%A3%8E%E6%B0%B4%E9%97%A8X4.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%B5%81%E8%90%A4-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%88%B1%E4%B8%BD%E4%B8%9D.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%8F%82%E6%9C%B5%E8%8E%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%99%BD%E6%B4%B2%E6%A2%93-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%A5%9E%E8%A3%82%E7%81%AB%E7%BB%87-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%BB%AF%E6%9D%91%E5%89%91%E5%BF%83-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%8A%99%E5%85%B0%E6%9C%B5%E9%9C%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%90%A8%E5%8D%9A-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%90%A8%E8%8F%B2%E7%BD%97%E6%96%AF-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%95%BE%E7%B1%B3%E8%8E%89%E4%BA%9A-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%B0%8F%E5%B1%B1%E9%BB%84%E6%B3%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%B7%AF%E9%A3%9E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%87%91%E8%89%B2%E6%9A%97%E5%BD%B1.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%9B%A8%E5%AE%AB%E8%8E%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%AD%82%E9%AD%84%E5%A6%96%E6%A2%A6.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E5%B2%A9%E5%B0%84%E6%89%8B.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E8%B6%B3%E5%B1%B1%E6%B2%BB.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E9%93%81%E4%B8%80%E8%BE%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E9%93%81%E4%B8%80%E8%BE%89Another-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E4%B8%87%E5%9C%A3%E8%8A%82%EF%BC%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E5%8E%9F%EF%BC%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E6%98%A5%E6%97%A5%EF%BC%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E4%BA%94%E6%9D%A1%E6%82%9F.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E4%BC%8A%E8%95%BE%E5%A8%9C.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%85%AB%E9%87%8D%E7%A5%9E%E5%AD%90.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%85%AC%E4%B8%BB.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%88%B6%E5%BA%A6%E5%86%85.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%8F%AF%E4%B8%BD.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%90%89%E6%99%AE%E8%8E%89%E5%B0%94.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%9F%83%E5%B0%94%E5%A5%8E%E7%89%B9.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A1%9E%E8%A5%BF%E8%8E%89%E4%BA%9A.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%8F%E5%A8%9C.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%9C%E5%88%80996.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%A9%E7%A9%BA%E9%BE%99.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A5%B3%E5%B8%9D.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%AE%AB%E6%B0%B8%E5%92%B2.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B0%8F%E5%9C%86.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B0%8F%E8%80%81%E5%B8%88.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B8%95%E7%A7%8B%E8%8E%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%85%A7%E6%85%A7.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%97%B6%E5%B4%8E%E7%8B%82%E4%B8%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%9C%AA%E8%8A%B1Mika.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%9C%BD%E6%9C%A8%E7%99%BD%E5%93%89.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%A5%AA%E7%A5%88.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%88%B1%E8%9C%9C%E8%8E%89%E9%9B%85.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%99%BDSaber.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%9A%AE%E5%8D%A1%E4%B8%98.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%A7%A6%E5%BF%83.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%8F%B2%E6%AF%94.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%93%9D%E6%9F%93%E6%83%A3%E5%8F%B3%E4%BB%8B.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%A5%BF%E5%8D%97%E9%A3%8E.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%98%BF%E6%AF%94%E7%9B%96%E5%B0%94.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%9B%8F%E9%B9%A4%E7%88%B1.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%87%8C%E5%B1%82%E5%A3%81%E7%BA%B8.jpg">
 </head>
 <body>
-
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
   <div id="setupBg" style="position:absolute;inset:0;background:url('https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg') center/100% 100% no-repeat;image-rendering:high-quality;pointer-events:none;z-index:0;"></div>
   <div class="modal">
@@ -330,6 +414,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 </div>
 
 <div class="conn-bar waiting" id="connBar">🔄 连接中...</div>
+
 <div class="header">
   <h1>JUMP大赛 · BP对战系统 <span id="myBadge" class="my-badge"></span><span id="roundBadge" class="round-badge" style="display:none"></span></h1>
   <div class="code" id="codeDisplay">对局代码: ------</div>
@@ -376,6 +461,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
+<div id="mainBg"></div>
 <div class="layout">
   <div class="side a-side">
     <div class="side-label a" id="aLabel">A队</div>
@@ -466,8 +552,8 @@ function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND
 
 const HEROES = {
   str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'迪亚波罗',score:12},{name:'逆回十六夜',score:10},{name:'黑Saber',score:10},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
-  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'暗影大人',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
-  int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Sber',score:5},{name:'吉普莉亚',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
+  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'暗影大人',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
+  int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Saber',score:5},{name:'吉普莉尔',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
 };
 const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({...h,type:'agi'})), ...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI = {str:'💪', agi:'⚡', int:'🧠'};
@@ -768,6 +854,89 @@ const HERO_IMG = {
   "黑贞德": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E9%BB%91%E8%B4%9E%E5%BE%B7-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "健次郎": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/%E5%81%A5%E6%AC%A1%E9%83%8E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "NAO": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/NAO-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "talk": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/talk.png",
+  "七夜志贵": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "万花筒的极意": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%87%E8%8A%B1%E7%AD%92%E7%9A%84%E6%9E%81%E6%84%8F-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "两仪式": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%A4%E4%BB%AA%E5%BC%8F-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "两仪式(pf)": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%B8%A4%E4%BB%AA%E5%BC%8F%EF%BC%88pf%EF%BC%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%20(2).png",
+  "亚丝娜": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BA%9A%E4%B8%9D%E5%A8%9C-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "亚瑟潘德拉贡": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "从鱼丸": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E4%BB%8E%E9%B1%BC%E4%B8%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "八重樱": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%85%AB%E9%87%8D%E6%A8%B1.png",
+  "冲田总司": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%86%B2%E7%94%B0%E6%80%BB%E5%8F%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "刀藤绮凛": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%80%E8%97%A4%E7%BB%AE%E5%87%9B-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "利威尔阿克曼": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%A9%E5%A8%81%E5%B0%94%E9%98%BF%E5%85%8B%E6%9B%BC-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "刻晴": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%88%BB%E6%99%B4.png",
+  "卫宫切嗣": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "原野志贵": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%8E%9F%E9%87%8E%E5%BF%97%E8%B4%B5.png",
+  "垃圾兔": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%9E%83%E5%9C%BE%E5%85%94-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "夜斗": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%A4%9C%E6%96%97-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "大师牌": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%A4%A7%E5%B8%88%E7%89%8C.png",
+  "媞娜": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%AA%9E%E5%A8%9C-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "御坂美琴": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E5%BE%A1%E5%9D%82%E7%BE%8E%E7%90%B4-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "我妻善逸": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%88%91%E5%A6%BB%E5%96%84%E9%80%B8-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "暗影大人": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "最后的月牙天冲": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%9C%80%E5%90%8E%E7%9A%84%E6%9C%88%E7%89%99%E5%A4%A9%E5%86%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "桐谷和人": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "桐谷和人UW": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW.png",
+  "樱满集": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%A8%B1%E6%BB%A1%E9%9B%86-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "死神代理": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%AD%BB%E7%A5%9E%E4%BB%A3%E7%90%86.png",
+  "波风水门X4": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%B3%A2%E9%A3%8E%E6%B0%B4%E9%97%A8X4.png",
+  "流萤": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E6%B5%81%E8%90%A4-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "爱丽丝": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%88%B1%E4%B8%BD%E4%B8%9D.png",
+  "特尔法加尔罗": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "珂朵莉": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%8F%82%E6%9C%B5%E8%8E%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "白洲梓": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%99%BD%E6%B4%B2%E6%A2%93-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "神裂火织": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%A5%9E%E8%A3%82%E7%81%AB%E7%BB%87-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "绯村剑心": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E7%BB%AF%E6%9D%91%E5%89%91%E5%BF%83-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "芙兰朵露": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%8A%99%E5%85%B0%E6%9C%B5%E9%9C%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "萨博": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%90%A8%E5%8D%9A-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "萨菲罗斯": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%90%A8%E8%8F%B2%E7%BD%97%E6%96%AF-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "蕾米莉亚": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%95%BE%E7%B1%B3%E8%8E%89%E4%BA%9A-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "谏山黄泉": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%B0%8F%E5%B1%B1%E9%BB%84%E6%B3%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "路飞": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E8%B7%AF%E9%A3%9E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "金色暗影": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%87%91%E8%89%B2%E6%9A%97%E5%BD%B1.png",
+  "雨宫莲": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%9B%A8%E5%AE%AB%E8%8E%B2-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "魂魄妖梦": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%AD%82%E9%AD%84%E5%A6%96%E6%A2%A6.png",
+  "黑岩射手": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E5%B2%A9%E5%B0%84%E6%89%8B.png",
+  "黑足山治": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E8%B6%B3%E5%B1%B1%E6%B2%BB.png",
+  "黑铁一辉": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E9%93%81%E4%B8%80%E8%BE%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "黑铁一辉Another": "https://cdn.jsdelivr.net/gh/historiale1631-commits/minjierenwutouxiang@main/%E9%BB%91%E9%93%81%E4%B8%80%E8%BE%89Another-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
+  "xcw（万圣节）": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E4%B8%87%E5%9C%A3%E8%8A%82%EF%BC%89.png",
+  "xcw（原）": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E5%8E%9F%EF%BC%89.png",
+  "xcw（春日）": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/xcw%EF%BC%88%E6%98%A5%E6%97%A5%EF%BC%89.png",
+  "五条悟": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E4%BA%94%E6%9D%A1%E6%82%9F.png",
+  "伊蕾娜": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E4%BC%8A%E8%95%BE%E5%A8%9C.png",
+  "八重神子": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%85%AB%E9%87%8D%E7%A5%9E%E5%AD%90.png",
+  "公主": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%85%AC%E4%B8%BB.png",
+  "志度内": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%88%B6%E5%BA%A6%E5%86%85.png",
+  "可丽": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%8F%AF%E4%B8%BD.png",
+  "吉普莉尔": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%90%89%E6%99%AE%E8%8E%89%E5%B0%94.png",
+  "埃尔奎特": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%9F%83%E5%B0%94%E5%A5%8E%E7%89%B9.png",
+  "塞西莉亚": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A1%9E%E8%A5%BF%E8%8E%89%E4%BA%9A.png",
+  "夏娜": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%8F%E5%A8%9C.png",
+  "夜刀996": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%9C%E5%88%80996.png",
+  "天空龙": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A4%A9%E7%A9%BA%E9%BE%99.png",
+  "女帝": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%A5%B3%E5%B8%9D.png",
+  "宫永咲": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%AE%AB%E6%B0%B8%E5%92%B2.png",
+  "小圆": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B0%8F%E5%9C%86.png",
+  "小老师": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B0%8F%E8%80%81%E5%B8%88.png",
+  "帕秋莉": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E5%B8%95%E7%A7%8B%E8%8E%89.png",
+  "慧慧": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%85%A7%E6%85%A7.png",
+  "时崎狂三": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%97%B6%E5%B4%8E%E7%8B%82%E4%B8%89.png",
+  "未花Mika": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%9C%AA%E8%8A%B1Mika.png",
+  "朽木白哉": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%9C%BD%E6%9C%A8%E7%99%BD%E5%93%89.png",
+  "楪祈": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E6%A5%AA%E7%A5%88.png",
+  "爱蜜莉雅": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%88%B1%E8%9C%9C%E8%8E%89%E9%9B%85-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%E6%96%B0.png",
+  "白Saber": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%99%BDSaber.png",
+  "皮卡丘": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%9A%AE%E5%8D%A1%E4%B8%98.png",
+  "秦心": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%A7%A6%E5%BF%83-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%E6%96%B0.png",
+  "秽土宇智波鼬": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.png",
+  "菲比": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%8F%B2%E6%AF%94.png",
+  "蓝染惣右介": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%93%9D%E6%9F%93%E6%83%A3%E5%8F%B3%E4%BB%8B-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%E6%96%B0.png",
+  "西南风": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%A5%BF%E5%8D%97%E9%A3%8E.png",
+  "阿比盖尔": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%98%BF%E6%AF%94%E7%9B%96%E5%B0%94.png",
+  "雏鹤爱": "https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%9B%8F%E9%B9%A4%E7%88%B1.png",
 };
 
 function selectHero(name, type, score) {
@@ -1150,6 +1319,8 @@ function listenRoom(aName, bName) {
     }
 
     document.getElementById('waitOv').style.display = 'none';
+    const mainBg = document.getElementById('mainBg');
+    if (mainBg) mainBg.style.opacity = '0.15';
     if (data.step === 0 && data.active) isPicking = false;
     // 换边音效
     if (data.swapSfxTs && data.swapSfxTs !== lastSwapSfxTs) {
@@ -1281,13 +1452,12 @@ window.onload = () => {
     }
   }
 
-  // 音效用 Audio 对象真实加载
+  // 音效用 fetch 下载到缓存，下载完成才计数
   SFX_URLS.forEach(url => {
-    const a = new Audio();
-    a.addEventListener('canplaythrough', onLoaded, { once: true });
-    a.addEventListener('error', onLoaded, { once: true }); // 出错也计数，不卡住
-    a.preload = 'auto';
-    a.src = url;
+    fetch(url)
+      .then(r => r.blob())
+      .then(() => onLoaded())
+      .catch(() => onLoaded());
   });
 
   // 图片用 Image 对象真实加载
