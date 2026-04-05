@@ -7,10 +7,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-#mainBg{position:fixed;inset:0;background:url('https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%87%8C%E5%B1%82%E5%A3%81%E7%BA%B8.jpg') center/cover no-repeat;opacity:0;pointer-events:none;z-index:1;transition:opacity .5s;}
-.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.92);flex-shrink:0}
+
+.conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.4);flex-shrink:0}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
-.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.95);border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.header{text-align:center;padding:10px 16px 6px;background:rgba(0,0,0,.35);border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .header h1{font-size:17px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#e8b4ff,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .header .code{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 .ref-bar{display:flex;gap:5px;justify-content:center;margin-top:5px;flex-wrap:wrap}
@@ -36,16 +36,16 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .camp-name{font-size:13px;font-weight:700;letter-spacing:1px}
 .camp-name.sunday{color:#fcd34d;text-shadow:0 0 2px #ffb347}
 .camp-name.jump{color:#86efac;text-shadow:0 0 2px #22c55e}
-.camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.95);border-radius:12px;padding:2px 8px}
+.camp-sub{font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;background:rgba(0,0,0,.35);border-radius:12px;padding:2px 8px}
 
 /* 修复：使用flex布局替代固定calc高度，适应不同屏幕 */
 .layout{display:flex;flex:1;overflow:hidden;min-height:0;position:relative;}
-.side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.92)}
+.side{width:178px;flex-shrink:0;display:flex;flex-direction:column;padding:7px 6px;gap:3px;overflow-y:auto;background:rgba(0,0,0,.45)}
 .side.a-side{border-right:1px solid rgba(255,255,255,.08)}
 .side.b-side{border-left:1px solid rgba(255,255,255,.08)}
 .side::-webkit-scrollbar{width:3px}
 .side::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.side-label{text-align:center;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.95)}
+.side-label{text-align:center;font-size:12px;font-weight:700;padding:6px 4px;border-radius:8px;margin-bottom:3px;background:rgba(0,0,0,.35)}
 .side-label.a{color:#fca5a5;border-left:3px solid #fca5a5}
 .side-label.b{color:#93c5fd;border-left:3px solid #93c5fd}
 .role-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(0,0,0,.5);border-radius:20px;padding:2px 8px;vertical-align:middle}
@@ -83,9 +83,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .my-turn-tip{font-size:11px;color:#fcd34d;font-weight:700}
 .not-turn-tip{font-size:11px;color:rgba(255,255,255,.4)}
 .phase-bar{padding:6px 12px;background:rgba(255,255,255,.05);border-radius:7px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
-.status-bar{padding:7px 12px;background:rgba(0,0,0,.92);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
-.timer-wrap{display:flex;gap:10px;background:rgba(0,0,0,.95);border-radius:10px;padding:8px 12px;margin:4px 0}
-.timer-main,.timer-bank{flex:1;text-align:center;background:rgba(0,0,0,.92);border-radius:8px;padding:5px}
+.status-bar{padding:7px 12px;background:rgba(0,0,0,.35);border-radius:7px;text-align:center;font-size:12px;color:rgba(255,255,255,.8)}
+.timer-wrap{display:flex;gap:10px;background:rgba(0,0,0,.35);border-radius:10px;padding:8px 12px;margin:4px 0}
+.timer-main,.timer-bank{flex:1;text-align:center;background:rgba(0,0,0,.35);border-radius:8px;padding:5px}
 .timer-main .tlabel,.timer-bank .tlabel{font-size:9px;color:rgba(255,255,255,.5)}
 .tval{font-size:22px;font-weight:700;font-family:monospace;margin:2px 0;color:#fcd34d}
 .tval.urgent{color:#f87171;animation:pulse .5s ease-in-out infinite alternate}
@@ -137,8 +137,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .not-my-turn-msg{text-align:center;font-size:12px;color:rgba(255,255,255,.4);padding:8px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid rgba(255,255,255,.07)}
 .waiting-next{text-align:center;font-size:12px;color:#4ade80;padding:8px;background:rgba(74,222,128,.08);border-radius:7px;border:1px solid rgba(74,222,128,.25)}
 
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:100}
-#setupOv{background:rgba(0,0,0,.92)!important;overflow:hidden}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100}
+#setupOv{background:rgba(0,0,0,.75)!important;overflow:hidden}
 .modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px 26px;width:360px;text-align:center;position:relative;z-index:1}
 .modal h2{font-size:16px;font-weight:700;margin-bottom:4px;background:linear-gradient(90deg,#e8b4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .modal .sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px}
@@ -156,7 +156,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .role-btns .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
 .role-btns .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
 .role-btns .sel-r{background:rgba(167,139,250,.25);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
-.referee-code{background:rgba(0,0,0,.92);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
+.referee-code{background:rgba(0,0,0,.4);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
 .referee-code label{font-size:11px;color:#fcd34d;display:block;text-align:left;margin-bottom:4px}
 .referee-code input{font-size:12px;padding:6px;margin-bottom:0}
 .wait-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:26px 30px;text-align:center;min-width:280px}
@@ -179,7 +179,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .rbtn{padding:8px 20px;background:linear-gradient(135deg,#5b21b6,#7c3aed);border:1px solid rgba(167,139,250,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px}
 .rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
 .scoreboard{display:flex;align-items:center;justify-content:center;gap:0;margin:5px 10px 0;flex-shrink:0}
-.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.95);border:1px solid rgba(255,255,255,.1)}
+.sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1)}
 .sb-team.a{border-radius:10px 0 0 10px;border-right:none}
 .sb-team.b{border-radius:0 10px 10px 0;border-left:none}
 .sb-name{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px}
@@ -191,7 +191,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .win-badge.win{background:rgba(74,222,128,.25);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
 .win-badge.lose{background:rgba(248,113,113,.2);color:#f87171;border:1px solid rgba(248,113,113,.3)}
 .win-badge.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.3)}
-.judge-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;z-index:200}
+.judge-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200}
 .judge-modal{background:linear-gradient(145deg,#1e0a4a,#2d1669);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:24px 28px;text-align:center;min-width:300px}
 .judge-modal h3{font-size:15px;font-weight:700;color:#fcd34d;margin-bottom:6px}
 .judge-modal p{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px}
@@ -204,13 +204,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .jbtn.draw{background:rgba(255,210,60,.2);color:#fcd34d;border:1px solid rgba(255,210,60,.4)}
 .jbtn.draw:hover{background:rgba(255,210,60,.35)}
 </style>
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E3%82%B2%E3%83%BC%E3%83%A0%E3%83%BB%E3%83%9F%E3%83%A5%E3%83%BC%E3%82%B8%E3%83%83%E3%82%AF%20-%20Five_L.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%B0%8F%E6%9E%97%E6%9C%AA%E9%83%81%20-%20ThreeFiveNineFour%CE%B5_L.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%BF%83%E6%83%B3%E7%83%9F%E7%81%AB.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E6%88%91%E4%BB%AC%E8%87%B3%E6%9E%81%E7%9A%84%E5%9B%9E%E5%BF%86.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E9%AB%98%E8%B7%9F%E9%9E%8B.mp3">
-<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/-/main/%E6%88%91%E6%98%AF%E9%B2%81%E8%B7%AF%E4%BF%AE%20%E8%AE%A8%E4%BC%90%E4%BD%A0%20%E5%B9%B6%E4%B8%94%E6%95%91%E8%B5%8E%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E7%9A%84%E4%BA%BA.wav">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A9.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/-12@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3">
@@ -368,7 +361,19 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E8%A5%BF%E5%8D%97%E9%A3%8E.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%98%BF%E6%AF%94%E7%9B%96%E5%B0%94.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%9B%8F%E9%B9%A4%E7%88%B1.png">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/ZLrenwutouxiang@main/%E9%87%8C%E5%B1%82%E5%A3%81%E7%BA%B8.jpg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/DracoVirgo%20-%20%E6%B8%85%E5%BB%89%E3%81%AA%E3%82%8BHeretics%20(%E6%B8%85%E5%BB%89%E7%9A%84Heretics)_L.ogg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/with%20you.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E4%B8%89%E6%97%A0Marblue%20-%20STYX%20HELIX_H.ogg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%A0%95.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.ogg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%BF%83%E4%BC%BC%E7%83%9F%E7%81%AB.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%88%91%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%9B%9E%E5%BF%86.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%B0%B8%E4%B8%96%E7%9A%84%E6%91%87%E7%AF%AE.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%BE%A4%E9%87%8E%E5%BC%98%E4%B9%8B%20(%E3%81%95%E3%82%8F%E3%81%AE%20%E3%81%B2%E3%82%8D%E3%82%86%E3%81%8D)_Aimee%20Blackschleger%20-%20Release%20My%20Soul_L.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3">
 </head>
 <body>
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
@@ -461,7 +466,6 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
-<div id="mainBg"></div>
 <div class="layout">
   <div class="side a-side">
     <div class="side-label a" id="aLabel">A队</div>
@@ -797,6 +801,8 @@ const HERO_SFX = {
   "秽土四代":     "https://cdn.jsdelivr.net/gh/historiale1631-commits/sucaiku@main/%E7%A7%BD%E5%9C%9F%E5%9B%9B%E4%BB%A3-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "秽土宇智波斑": "https://cdn.jsdelivr.net/gh/historiale1631-commits/sucaiku@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E6%96%91-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "阴之力佐助":   "https://cdn.jsdelivr.net/gh/historiale1631-commits/sucaiku@main/%E9%98%B4%E4%B9%8B%E5%8A%9B%E4%BD%90%E5%8A%A9-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
+  "亚瑟潘德拉贡": "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1.mp3",
+  "英灵卫宫": "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuyin@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3",
 };
 
 // 英雄头像图片（仅在本轮已选槽位和英雄卡片显示）
@@ -1319,8 +1325,6 @@ function listenRoom(aName, bName) {
     }
 
     document.getElementById('waitOv').style.display = 'none';
-    const mainBg = document.getElementById('mainBg');
-    if (mainBg) mainBg.style.opacity = '0.15';
     if (data.step === 0 && data.active) isPicking = false;
     // 换边音效
     if (data.swapSfxTs && data.swapSfxTs !== lastSwapSfxTs) {
@@ -1499,7 +1503,7 @@ function autoReconnect() {
   startMatch();
 }
 </script>
-<audio id="bgm" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%B0%8F%E6%9E%97%E6%9C%AA%E9%83%81%20-%20ThreeFiveNineFour%CE%B5_L.mp3" loop preload="auto"></audio>
+<audio id="bgm" preload="auto"></audio>
 
 <!-- 右下角音乐控制面板 -->
 <div id="bgmPanel" style="position:fixed;bottom:18px;right:18px;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
@@ -1530,13 +1534,17 @@ function autoReconnect() {
 <audio id="bgm" preload="auto"></audio>
 <script>
 const BGM_LIST = [
-  { name: "ゲーム・ミュージック - Five", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E3%82%B2%E3%83%BC%E3%83%A0%E3%83%BB%E3%83%9F%E3%83%A5%E3%83%BC%E3%82%B8%E3%83%83%E3%82%AF%20-%20Five_L.mp3" },
-  { name: "小林未郁 - ThreeFiveNineFourε", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%B0%8F%E6%9E%97%E6%9C%AA%E9%83%81%20-%20ThreeFiveNineFour%CE%B5_L.mp3" },
-  { name: "岛谷瞳 - 深紅", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.mp3" },
-  { name: "心想烟火", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E5%BF%83%E6%83%B3%E7%83%9F%E7%81%AB.mp3" },
-  { name: "我们至极的回忆", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E6%88%91%E4%BB%AC%E8%87%B3%E6%9E%81%E7%9A%84%E5%9B%9E%E5%BF%86.mp3" },
-  { name: "高跟鞋", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/musick@main/%E9%AB%98%E8%B7%9F%E9%9E%8B.mp3" },
-  { name: "我是鲁路修 讨伐你 并且救赎这个世界的人", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/-@main/%E6%88%91%E6%98%AF%E9%B2%81%E8%B7%AF%E4%BF%AE%20%E8%AE%A8%E4%BC%90%E4%BD%A0%20%E5%B9%B6%E4%B8%94%E6%95%91%E8%B5%8E%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E7%9A%84%E4%BA%BA.wav" },
+  { name: "DracoVirgo - 清廉なるHeretics", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/DracoVirgo%20-%20%E6%B8%85%E5%BB%89%E3%81%AA%E3%82%8BHeretics%20(%E6%B8%85%E5%BB%89%E7%9A%84Heretics)_L.ogg" },
+  { name: "with you", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/with%20you.mp3" },
+  { name: "三无Marblue - STYX HELIX", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E4%B8%89%E6%97%A0Marblue%20-%20STYX%20HELIX_H.ogg" },
+  { name: "堕", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%A0%95.mp3" },
+  { name: "岛谷瞳 - 深紅", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.ogg" },
+  { name: "心似烟火", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E5%BF%83%E4%BC%BC%E7%83%9F%E7%81%AB.mp3" },
+  { name: "我们之间的回忆", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%88%91%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%9B%9E%E5%BF%86.mp3" },
+  { name: "永世的摇篮", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%B0%B8%E4%B8%96%E7%9A%84%E6%91%87%E7%AF%AE.mp3" },
+  { name: "深澤秀行 - エミヤ (卫宫)", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg" },
+  { name: "澤野弘之 - Release My Soul", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E6%BE%A4%E9%87%8E%E5%BC%98%E4%B9%8B%20(%E3%81%95%E3%82%8F%E3%81%AE%20%E3%81%B2%E3%82%8D%E3%82%86%E3%81%8D)_Aimee%20Blackschleger%20-%20Release%20My%20Soul_L.mp3" },
+  { name: "红莲华", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3" }
 ];
 let bgmIndex = 0;
 let bgmShuffle = false;
@@ -1547,6 +1555,7 @@ function bgmInit() {
   bgm.volume = 0.4;
   bgmIndex = Math.floor(Math.random() * BGM_LIST.length);
   bgm.src = BGM_LIST[bgmIndex].url;
+  bgm.removeEventListener('ended', bgmNext);
   bgm.addEventListener('ended', bgmNext);
   renderPlaylist();
 }
@@ -1564,7 +1573,9 @@ function bgmPlay(idx) {
 }
 
 function bgmNext() {
-  const next = bgmShuffle ? Math.floor(Math.random()*BGM_LIST.length) : (bgmIndex+1)%BGM_LIST.length;
+  let next;
+  if (BGM_LIST.length <= 1) { next = 0; }
+  else { do { next = Math.floor(Math.random() * BGM_LIST.length); } while (next === bgmIndex); }
   bgmPlay(next);
 }
 
