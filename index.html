@@ -555,8 +555,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.min.js"></script>
 <script>
 firebase.initializeApp({
   apiKey: "AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
@@ -1617,24 +1617,14 @@ function listenRoom(aName, bName) {
     }
     // 接收表情广播
     if (data.emojiTsA) {
-      const _diffA = Date.now() - data.emojiTsA;
-      const _newA = data.emojiTsA !== lastEmojiTsA;
-      console.log('[表情A]', 'new:', _newA, 'diff:', _diffA + 'ms', 'emoji:', data.emojiA, 'myRole:', myRole);
-      if (_newA && _diffA < 15000) {
+      if (data.emojiTsA !== lastEmojiTsA && (Date.now() - data.emojiTsA) < 15000) {
         lastEmojiTsA = data.emojiTsA;
-        const _side = document.querySelector('.a-side');
-        console.log('[表情A] .a-side found:', !!_side);
         showEmojiPopup(data.emojiA, 'a');
       }
     }
-    if (data.emojiTsB) {
-      const _diff = Date.now() - data.emojiTsB;
-      const _new = data.emojiTsB !== lastEmojiTsB;
-      console.log('[表情B]', 'new:', _new, 'diff:', _diff + 'ms', 'emoji:', data.emojiB);
-      if (_new && _diff < 15000) {
-        lastEmojiTsB = data.emojiTsB;
-        showEmojiPopup(data.emojiB, 'b');
-      }
+    if (data.emojiTsB && data.emojiTsB !== lastEmojiTsB && (Date.now() - data.emojiTsB) < 15000) {
+      lastEmojiTsB = data.emojiTsB;
+      showEmojiPopup(data.emojiB, 'b');
     }
     // 换边音效
     if (data.swapSfxTs && data.swapSfxTs !== lastSwapSfxTs) {
