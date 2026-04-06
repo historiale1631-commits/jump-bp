@@ -226,7 +226,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 </head>
 <body>
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
-  <img id="setupBg" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:block;">
+  <img id="setupBg" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:block;">
   <div class="modal">
     <h2>⚔ JUMP大赛 BP系统</h2>
     <div class="sub">联网版 · 实时同步 · 多轮BP</div>
@@ -1431,6 +1431,8 @@ function listenRoom(aName, bName) {
     }
 
     document.getElementById('waitOv').style.display = 'none';
+    // 进入对局时强制重新渲染英雄卡片（确保用_imgCache的blob URL）
+    setTimeout(() => { if (typeof renderGrid === 'function') renderGrid(); }, 100);
     // B队/A队：如果自己没填名字，从Firebase读取已有队名填入（提示用）
     if (myRole === 'b' && gs.bName && gs.bName !== 'B队') {
       const _inp = document.getElementById('inpB');
@@ -1589,10 +1591,21 @@ window.onload = () => {
       });
     }
   }).catch(()=>{});
-  renderGrid();
+  // 不在此处调用renderGrid，等_imgCache填充完再渲染（避免用原始URL）
   // 分别预加载音效（Audio）和图片（Image），真正加载完才计数
   // 设置界面背景图也用 fetch 预加载
-  fetch('https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg').then(r=>r.blob()).catch(()=>{});
+  fetch('https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg')
+    .then(r => r.blob())
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      const bg = document.getElementById('setupBg');
+      if (bg) bg.src = blobUrl;
+    })
+    .catch(() => {
+      // 失败兜底：直接用原始URL
+      const bg = document.getElementById('setupBg');
+      if (bg) bg.src = 'https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxaingtwo@main/preview.jpg';
+    });
 
   const SFX_URLS = [
     ...Object.values(HERO_SFX),
