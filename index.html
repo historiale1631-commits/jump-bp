@@ -479,6 +479,7 @@ let firedForStep = -1;
 let lastSfxTs = 0;
 let currentHeroSfx = null;
 const _audioCache = {}; // 预加载音效缓存
+const _imgCache = {}; // 预加载图片blob URL缓存
 let lastEmojiTsA = 0, lastEmojiTsB = 0;
 
 function initEmojiBar() {
@@ -1154,8 +1155,8 @@ function syncUI() {
       el.querySelector('.av').style.background = t==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
     });
   }
-  (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
-  (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
+  (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ const _s=_imgCache[HERO_IMG[h.name]]||HERO_IMG[h.name]; av.innerHTML=`<img src="${_s}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
+  (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ const _s=_imgCache[HERO_IMG[h.name]]||HERO_IMG[h.name]; av.innerHTML=`<img src="${_s}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
   if (gs.active && !gs.roundEnded && !gs.ended && gs.step < 10) {
     const t=ct(); const picks=(gs[t+'Picks'])||[]; const sl=document.getElementById((t==='a'?'aSlot':'bSlot')+(picks.length+1));
     if(sl) sl.classList.add('active');
@@ -1247,8 +1248,9 @@ function renderGrid() {
     if (sl) cls += ' selected';
     const div = document.createElement('div');
     div.className = cls;
-    const imgHtml = HERO_IMG[nm]
-      ? `<img src="${HERO_IMG[nm]}" style="width:38px;height:38px;border-radius:6px;object-fit:cover;margin-bottom:2px;display:block"
+    const _iurl = HERO_IMG[nm] ? (_imgCache[HERO_IMG[nm]] || HERO_IMG[nm]) : null;
+    const imgHtml = _iurl
+      ? `<img src="${_iurl}" style="width:38px;height:38px;border-radius:6px;object-fit:cover;margin-bottom:2px;display:block"
               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`
         + `<div class="htype" style="display:none">${TI[h.type]}</div>`
       : `<div class="htype">${TI[h.type]}</div>`;
@@ -1676,27 +1678,20 @@ window.onload = () => {
   });
 
   // 用 Image 对象预加载，和 <img> 标签共享同一个图片缓存
+  // 图片用fetch+blob，完全本地化，进对局后不再依赖CDN
   IMG_URLS.forEach(url => {
-    const img = new Image();
-    
-    img.onload = () => {
-      imgLoaded++;
-      updateBar();
-      if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
-    };
-    img.onerror = () => {
-      setTimeout(() => {
-        const img2 = new Image();
-        img2.onload = () => {
-          imgLoaded++;
-          updateBar();
-          if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
-        };
-        img2.onerror = () => { imgLoaded++; updateBar(); };
-        img2.src = url + '?r=' + Date.now();
-      }, 3000);
-    };
-    img.src = url;
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+      .then(blob => {
+        _imgCache[url] = URL.createObjectURL(blob);
+        imgLoaded++; updateBar();
+        if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
+      })
+      .catch(() => {
+        _imgCache[url] = url; // 失败兜底用原始URL
+        imgLoaded++; updateBar();
+        if (imgLoaded === imgTotal && typeof renderGrid === 'function') renderGrid();
+      });
   });
 
   // 检测是否有上次的会话记录（刷新重连）
