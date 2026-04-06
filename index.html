@@ -156,6 +156,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .role-btns .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
 .role-btns .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
 .role-btns .sel-r{background:rgba(167,139,250,.25);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
+.role-btns .sel-v{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.5);color:#86efac;font-weight:700}
 .referee-code{background:rgba(0,0,0,.4);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
 .referee-code label{font-size:11px;color:#fcd34d;display:block;text-align:left;margin-bottom:4px}
 .referee-code input{font-size:12px;padding:6px;margin-bottom:0}
@@ -433,10 +434,23 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <button id="rA" onclick="setRole('a')" class="sel-a">🔴 A队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
       <button id="rB" onclick="setRole('b')">🔵 B队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
       <button id="rR" onclick="setRole('ref')">⚖ 裁判<br><span style="font-size:9px;opacity:.7">观战+控制</span></button>
+      <button id="rV" onclick="setRole('view')">👁 观众<br><span style="font-size:9px;opacity:.7">观战·限12人</span></button>
     </div>
     <div class="referee-code" id="refCodeDiv" style="display:none">
       <label>🔐 裁判码 <span style="color:#f87171">(必填)</span></label>
       <input type="password" id="refCodeInput" placeholder="输入裁判码" autocomplete="off"/>
+      <div style="margin-top:8px">
+        <label style="font-size:10px;color:rgba(255,255,255,.5)">🎫 生成建房授权码（发给参赛者）</label>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button onclick="genAuthCode()" style="flex:1;padding:5px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);border-radius:6px;color:#4ade80;font-size:11px;cursor:pointer;font-family:inherit">🎲 生成授权码</button>
+          <div id="authCodeDisplay" style="flex:1;padding:5px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fcd34d;font-size:13px;font-weight:700;text-align:center;letter-spacing:2px">——</div>
+          <button onclick="clearAuthCode()" style="padding:5px 8px;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.3);border-radius:6px;color:#f87171;font-size:11px;cursor:pointer;font-family:inherit">🗑</button>
+        </div>
+      </div>
+    </div>
+    <div id="authCodeDiv" style="display:none">
+      <label>🎫 建房授权码 <span style="color:#f87171">(必填)</span></label>
+      <input type="text" id="authCodeInput" placeholder="输入裁判发放的授权码" autocomplete="off" maxlength="5" style="text-transform:uppercase;letter-spacing:2px"/>
     </div>
     <div id="audioLoadBar" style="margin-top:8px;font-size:10px;color:rgba(255,255,255,.35);text-align:center">🔄 音频资源加载中...</div>
     <button class="mbtn" onclick="startMatch()">进入对局</button>
@@ -487,6 +501,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
     <button class="swap" onclick="openJudge()" id="judgeBtn">⚖ 判定胜负</button>
     <button onclick="refAction('toggleEmoji')" id="emojiLockBtn">😄 禁用表情</button>
+    <button onclick="refAction('toggleSpectate')" id="spectateLockBtn" style="background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#86efac">👁 观战 开</button>
     <button class="swap" onclick="openAnnounce()">📢 裁判公告</button>
     <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
   </div></div>
@@ -813,12 +828,92 @@ function myTurn() { return gs.active && !gs.paused && !gs.roundEnded && !gs.ende
 function isPlayer() { return myRole === 'a' || myRole === 'b'; }
 function genCode() { return Math.random().toString(36).substr(2, 6).toUpperCase(); }
 function copyCode(btn) { navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(() => { btn.textContent = '✓'; setTimeout(() => btn.textContent = '复制', 1500); }); }
+// ── 观众系统 ──
+let viewerPOV = 'a'; // 当前观众视角
+
+function toggleViewerPanel() {
+  const p = document.getElementById('viewerPanelInner');
+  if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function setViewerPOV(team) {
+  viewerPOV = team;
+  document.getElementById('povBtnA').style.background = team === 'a' ? 'rgba(220,50,50,.5)' : 'rgba(220,50,50,.15)';
+  document.getElementById('povBtnA').style.fontWeight = team === 'a' ? '700' : '400';
+  document.getElementById('povBtnB').style.background = team === 'b' ? 'rgba(50,100,220,.5)' : 'rgba(50,100,220,.15)';
+  document.getElementById('povBtnB').style.fontWeight = team === 'b' ? '700' : '400';
+  // 重新渲染，显示对应视角
+  if (typeof syncUI === 'function') syncUI();
+}
+
+function updateViewerCount() {
+  if (!refDb || myRole !== 'view') return;
+  refDb.child('viewers').once('value').then(snap => {
+    const count = snap.val() ? Object.keys(snap.val()).length : 0;
+    const el = document.getElementById('viewerCount');
+    if (el) el.textContent = `观众: ${count}/12`;
+  });
+}
+
+// ── 建房授权码系统 ──
+const AUTH_CODE_PATH = 'config/authCode';
+
+function genAuthCode() {
+  const input = document.getElementById('refCodeInput').value.trim();
+  if (!input) { alert('请先输入裁判码'); return; }
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const db = firebase.database();
+  const codes = [];
+  // 一次生成3个
+  for (let c = 0; c < 3; c++) {
+    let code = '';
+    for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    codes.push(code);
+    db.ref(AUTH_CODE_PATH + '/' + code).set({ ts: Date.now() });
+  }
+  document.getElementById('authCodeDisplay').textContent = codes.join('  ·  ');
+  // 自动清理超过12小时的旧码
+  db.ref(AUTH_CODE_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const now = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (now - (v.ts || 0) > 12 * 3600 * 1000) db.ref(AUTH_CODE_PATH + '/' + k).remove();
+    });
+  });
+}
+
+function clearAuthCode() {
+  const input = document.getElementById('refCodeInput').value.trim();
+  if (!input) { alert('请先输入裁判码'); return; }
+  // 只清除自己刚生成的那个码
+  const code = document.getElementById('authCodeDisplay').textContent.trim();
+  if (code === '——' || !code) { alert('当前没有生成授权码'); return; }
+  const db = firebase.database();
+  db.ref(AUTH_CODE_PATH + '/' + code).remove();
+  document.getElementById('authCodeDisplay').textContent = '——';
+}
+
+async function verifyAuthCode(inputCode) {
+  const db = firebase.database();
+  const snap = await db.ref(AUTH_CODE_PATH).once('value');
+  const data = snap.val();
+  if (!data || Object.keys(data).length === 0) return { ok: false, msg: '当前没有有效授权码，请联系裁判获取' };
+  const upperInput = inputCode.toUpperCase();
+  const matchKey = Object.keys(data).find(k => k.toUpperCase() === upperInput);
+  if (!matchKey) return { ok: false, msg: '授权码错误，请向裁判重新确认' };
+  // 一次性使用：验证通过后立即删除该码
+  await db.ref(AUTH_CODE_PATH + '/' + matchKey).remove();
+  return { ok: true };
+}
+
 function setRole(r) {
   myRole = r;
   document.getElementById('rA').className = r === 'a' ? 'sel-a' : '';
   document.getElementById('rB').className = r === 'b' ? 'sel-b' : '';
   document.getElementById('rR').className = r === 'ref' ? 'sel-r' : '';
+  document.getElementById('rV').className = r === 'view' ? 'sel-v' : '';
   document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
+  document.getElementById('authCodeDiv').style.display = (r === 'a' || r === 'b') ? 'block' : 'none';
   // 立即显示/隐藏表情按钮
   // 两边面板都显示，保持对称
   const epA = document.getElementById('emojiPanelA');
@@ -1440,6 +1535,24 @@ function showResult() {
 }
 
 async function startMatch() {
+  // 观众：检查是否允许观战 + 人数上限
+  if (myRole === 'view') {
+    const db = firebase.database();
+    const roomSnap = await db.ref('rooms/' + useRoom).once('value');
+    const roomData = roomSnap.val();
+    if (!roomData) { alert('对局不存在，请确认对局码'); return; }
+    if (roomData.spectateOpen === false) { alert('裁判已关闭本场观战，无法进入'); return; }
+    const viewers = roomData.viewers || {};
+    const count = Object.keys(viewers).length;
+    if (count >= 12) { alert('观众席已满（最多12人），无法加入'); return; }
+  }
+  // A/B队需要验证授权码
+  if (myRole === 'a' || myRole === 'b') {
+    const inputCode = (document.getElementById('authCodeInput')?.value || '').trim();
+    if (!inputCode) { alert('请输入裁判发放的建房授权码'); return; }
+    const result = await verifyAuthCode(inputCode);
+    if (!result.ok) { alert(result.msg); return; }
+  }
   // ── 修复1续：裁判码哈希校验，不明文比较 ──
   if (myRole === 'ref') {
     const inputHash = await sha256(document.getElementById('refCodeInput').value.trim());
@@ -1454,6 +1567,13 @@ async function startMatch() {
   const aName = document.getElementById('inpA').value.trim() || 'A队';
   const bName = document.getElementById('inpB').value.trim() || 'B队';
   // 保存会话信息，刷新后可自动恢复
+  // 观众进场记录
+  if (myRole === 'view') {
+    const viewerId = 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    sessionStorage.setItem('bp_viewerId', viewerId);
+    refDb.child('viewers/' + viewerId).set({ ts: Date.now() });
+    refDb.child('viewers/' + viewerId).onDisconnect().remove();
+  }
   sessionStorage.setItem('bp_role', myRole);
   sessionStorage.setItem('bp_roomId', roomId);
   sessionStorage.setItem('bp_isCreator', isCreator ? '1' : '0');
@@ -1535,6 +1655,13 @@ function listenRoom(aName, bName) {
     }
 
     document.getElementById('waitOv').style.display = 'none';
+    // 观众面板
+    if (myRole === 'view') {
+      const vp = document.getElementById('viewerPanel');
+      if (vp) vp.style.display = 'flex';
+      updateViewerCount();
+      setViewerPOV('a');
+    }
     // 每次收到数据都确保表情按钮显示正确
     const _epA = document.getElementById('emojiPanelA');
     const _epB = document.getElementById('emojiPanelB');
@@ -1552,6 +1679,25 @@ function listenRoom(aName, bName) {
       emojiLocked = data.emojiLocked;
       const btn = document.getElementById('emojiLockBtn');
       if (btn) btn.textContent = emojiLocked ? '😄 启用表情' : '😄 禁用表情';
+    }
+    // 观战开关
+    if (typeof data.spectateOpen !== 'undefined') {
+      _spectateOpen = data.spectateOpen;
+      const sb = document.getElementById('spectateLockBtn');
+      if (sb) {
+        sb.textContent = _spectateOpen ? '👁 观战 开' : '👁 观战 关';
+        sb.style.background = _spectateOpen ? 'rgba(34,197,94,.15)' : 'rgba(220,50,50,.15)';
+        sb.style.borderColor = _spectateOpen ? 'rgba(34,197,94,.4)' : 'rgba(220,50,50,.4)';
+        sb.style.color = _spectateOpen ? '#86efac' : '#f87171';
+      }
+      // 观战关闭时踢出当前观众
+      if (!_spectateOpen && myRole === 'view') {
+        const vid = sessionStorage.getItem('bp_viewerId');
+        if (vid && refDb) refDb.child('viewers/' + vid).remove();
+        sessionStorage.clear();
+        alert('裁判已关闭本场观战，您已被移出观众席');
+        location.reload();
+      }
     }
     // 裁判公告
     if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
@@ -1671,6 +1817,22 @@ setTimeout(() => {
 
 window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
+  // 加载当前授权码
+  firebase.database().ref('config/authCode').once('value').then(snap => {
+    const d = snap.val();
+    if (d && typeof d === 'object') {
+      const now = Date.now();
+      const db = firebase.database();
+      // 清理超过12小时的旧码
+      Object.entries(d).forEach(([k, v]) => {
+        if (now - (v.ts || 0) > 12 * 3600 * 1000) db.ref('config/authCode/' + k).remove();
+      });
+      // 显示最新的那个码
+      const valid = Object.entries(d).filter(([k,v]) => now - (v.ts||0) <= 12*3600*1000);
+      const latest = valid.sort((a,b) => (b[1].ts||0)-(a[1].ts||0))[0];
+      if (latest) document.getElementById('authCodeDisplay').textContent = latest[0];
+    }
+  }).catch(()=>{});
   renderGrid();
   // 分别预加载音效（Audio）和图片（Image），真正加载完才计数
   // 设置界面背景图也用 fetch 预加载
@@ -1804,6 +1966,19 @@ function autoReconnect() {
 <audio id="bgm" preload="auto"></audio>
 
 <!-- 右下角音乐控制面板 -->
+<!-- 观众视角切换按钮 -->
+<div id="viewerPanel" style="position:fixed;bottom:18px;left:18px;z-index:999;display:none;flex-direction:column;align-items:flex-start;gap:6px">
+  <div id="viewerPanelInner" style="display:none;background:linear-gradient(145deg,rgba(20,40,20,.95),rgba(10,50,30,.95));border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:10px;box-shadow:0 4px 24px rgba(34,197,94,.2)">
+    <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-align:center;letter-spacing:1px">👁 观众视角</div>
+    <div style="display:flex;gap:6px">
+      <button onclick="setViewerPOV('a')" id="povBtnA" style="flex:1;padding:6px;background:rgba(220,50,50,.3);border:1px solid rgba(220,50,50,.5);border-radius:6px;color:#fca5a5;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔴 A队视角</button>
+      <button onclick="setViewerPOV('b')" id="povBtnB" style="flex:1;padding:6px;background:rgba(50,100,220,.15);border:1px solid rgba(50,100,220,.3);border-radius:6px;color:#93c5fd;font-size:11px;cursor:pointer;font-family:inherit">🔵 B队视角</button>
+    </div>
+    <div id="viewerCount" style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;margin-top:6px">观众: 0/12</div>
+  </div>
+  <button onclick="toggleViewerPanel()" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#166534,#22c55e);border:1px solid rgba(34,197,94,.4);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 2px 12px rgba(34,197,94,.3)">👁</button>
+</div>
+
 <div id="bgmPanel" style="position:fixed;bottom:18px;right:18px;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
   <div id="bgmControls" style="display:none;background:rgba(15,5,40,.95);border:1px solid rgba(167,139,250,.3);border-radius:12px;padding:14px;backdrop-filter:blur(8px);width:220px">
     <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-align:center;letter-spacing:1px">🎵 背景音乐</div>
