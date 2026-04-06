@@ -882,6 +882,7 @@ function setRole(r) {
   document.getElementById('rB').className = r === 'b' ? 'sel-b' : '';
   document.getElementById('rR').className = r === 'ref' ? 'sel-r' : '';
   document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
+  document.getElementById('authCodeDiv').style.display = (r === 'a' || r === 'b') ? 'block' : 'none';
   // 立即显示/隐藏表情按钮
   // 两边面板都显示，保持对称
   const epA = document.getElementById('emojiPanelA');
@@ -1404,6 +1405,12 @@ function syncUI() {
   document.getElementById('globalPool').innerHTML = allP.length ? allP.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
   updTimerUI(); renderGrid();
   updateScoreboard();
+  // 确保表情面板状态正确（重连后也能显示）
+  const _epA = document.getElementById('emojiPanelA');
+  const _epB = document.getElementById('emojiPanelB');
+  if (_epA) _epA.style.display = (myRole === 'a' || myRole === 'b') ? 'block' : 'none';
+  if (_epB) _epB.style.display = (myRole === 'a' || myRole === 'b') ? 'block' : 'none';
+  if (document.getElementById('authCodeDiv')) document.getElementById('authCodeDiv').style.display = (myRole === 'a' || myRole === 'b') ? 'block' : 'none';
 }
 
 function renderGrid() {
