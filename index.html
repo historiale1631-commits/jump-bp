@@ -156,6 +156,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .role-btns .sel-a{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.6);color:#fca5a5;font-weight:700}
 .role-btns .sel-b{background:rgba(50,100,220,.3);border-color:rgba(50,100,220,.6);color:#93c5fd;font-weight:700}
 .role-btns .sel-r{background:rgba(167,139,250,.25);border-color:rgba(167,139,250,.6);color:#e9d5ff;font-weight:700}
+.role-btns .sel-v{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.5);color:#86efac;font-weight:700}
 .referee-code{background:rgba(0,0,0,.4);border-radius:6px;padding:8px;margin-top:5px;margin-bottom:8px}
 .referee-code label{font-size:11px;color:#fcd34d;display:block;text-align:left;margin-bottom:4px}
 .referee-code input{font-size:12px;padding:6px;margin-bottom:0}
@@ -424,8 +425,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📤 你的对局码（发给对方）：</div>
     <div class="code-box"><div class="cval" id="myCode">...</div><button onclick="copyCode(this)">复制</button></div>
-    <input id="inpA" placeholder="A队名称（默认：A队）"/>
-    <input id="inpB" placeholder="B队名称（默认：B队）"/>
+    <div id="inpADiv" style="display:none"><input id="inpA" placeholder="A队名称（默认：A队）"/></div>
+    <div id="inpBDiv" style="display:none"><input id="inpB" placeholder="B队名称（默认：B队）"/></div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;text-align:left">📥 加入对方对局（填对方的码）：</div>
     <input id="inpRoom" placeholder="留空=用自己的码  /  填入=加入对方"/>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin:7px 0 5px;text-align:left">👤 你的身份：</div>
@@ -433,10 +434,45 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <button id="rA" onclick="setRole('a')" class="sel-a">🔴 A队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
       <button id="rB" onclick="setRole('b')">🔵 B队<br><span style="font-size:9px;opacity:.7">可以选人</span></button>
       <button id="rR" onclick="setRole('ref')">⚖ 裁判<br><span style="font-size:9px;opacity:.7">观战+控制</span></button>
+      <button id="rV" onclick="setRole('view')">👁 观众<br><span style="font-size:9px;opacity:.7">观战</span></button>
     </div>
     <div class="referee-code" id="refCodeDiv" style="display:none">
       <label>🔐 裁判码 <span style="color:#f87171">(必填)</span></label>
       <input type="password" id="refCodeInput" placeholder="输入裁判码" autocomplete="off"/>
+      <div style="margin-top:8px">
+        <label style="font-size:10px;color:rgba(255,255,255,.5)">🎫 生成建房授权码（发给参赛者，1小时有效）</label>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button onclick="genAuthCode('a')" style="flex:1;padding:5px;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.4);border-radius:6px;color:#fca5a5;font-size:11px;cursor:pointer;font-family:inherit">🔴 A队码</button>
+          <button onclick="genAuthCode('b')" style="flex:1;padding:5px;background:rgba(50,100,220,.15);border:1px solid rgba(50,100,220,.4);border-radius:6px;color:#93c5fd;font-size:11px;cursor:pointer;font-family:inherit">🔵 B队码</button>
+          <button onclick="clearMyAuthCodes()" style="padding:5px 8px;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.3);border-radius:6px;color:#f87171;font-size:11px;cursor:pointer;font-family:inherit">🗑</button>
+        </div>
+        <div style="margin-top:6px;display:flex;gap:6px">
+          <div style="flex:1;padding:5px;background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.2);border-radius:6px;text-align:center">
+            <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px">A队码</div>
+            <div id="authCodeA" style="color:#fca5a5;font-size:13px;font-weight:700;letter-spacing:3px">——</div>
+          </div>
+          <div style="flex:1;padding:5px;background:rgba(50,100,220,.1);border:1px solid rgba(50,100,220,.2);border-radius:6px;text-align:center">
+            <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px">B队码</div>
+            <div id="authCodeB" style="color:#93c5fd;font-size:13px;font-weight:700;letter-spacing:3px">——</div>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label style="font-size:10px;color:rgba(255,255,255,.5)">👁 观众授权码（一次性，1小时有效）</label>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <button onclick="genViewCodes()" style="flex:1;padding:5px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);border-radius:6px;color:#86efac;font-size:11px;cursor:pointer;font-family:inherit">👁 生成观众码×5</button>
+            <button onclick="clearViewCodes()" style="padding:5px 8px;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.3);border-radius:6px;color:#f87171;font-size:11px;cursor:pointer;font-family:inherit">🗑</button>
+          </div>
+          <div id="authCodeView" style="margin-top:6px;padding:6px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:6px;color:#86efac;font-size:11px;font-weight:700;text-align:center;letter-spacing:2px;line-height:1.8;min-height:24px">——</div>
+        </div>
+      </div>
+    </div>
+    <div id="authCodeDiv" style="display:none">
+      <label>🎫 建房授权码 <span style="color:#f87171">(必填)</span></label>
+      <input type="text" id="authCodeInput" placeholder="输入裁判发放的授权码" autocomplete="off" maxlength="5" style="text-transform:uppercase;letter-spacing:3px"/>
+    </div>
+    <div id="viewCodeDiv" style="display:none">
+      <label>👁 观众授权码 <span style="color:#f87171">(必填)</span></label>
+      <input type="text" id="viewCodeInput" placeholder="输入裁判发放的观众码" autocomplete="off" maxlength="5" style="text-transform:uppercase;letter-spacing:3px"/>
     </div>
     <div id="audioLoadBar" style="margin-top:8px;font-size:10px;color:rgba(255,255,255,.35);text-align:center">🔄 音频资源加载中...</div>
     <button class="mbtn" onclick="startMatch()">进入对局</button>
@@ -485,7 +521,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <button class="orange" onclick="refAction('drainA')">🔴-30s A备用</button>
     <button class="orange" onclick="refAction('drainB')">🔵-30s B备用</button>
     <button class="danger" onclick="refAction('endAll')">■ 结束所有BP</button>
-    <button class="danger" onclick="refAction('deleteRoom')">🗑 删除对局</button>
+    
     <button class="swap" onclick="openJudge()" id="judgeBtn">⚖ 判定胜负</button>
     <button onclick="refAction('toggleEmoji')" id="emojiLockBtn">😄 禁用表情</button>
     <button class="swap" onclick="openAnnounce()">📢 裁判公告</button>
@@ -510,15 +546,31 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
+<div class="judge-overlay" id="undoOv" style="display:none">
+  <div class="judge-modal">
+    <h3>↩ 悔棋申请</h3>
+    <p id="undoLabel" style="font-size:13px;margin:10px 0;color:rgba(255,255,255,.8)"></p>
+    <p id="undoHeroLabel" style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px"></p>
+    <div style="display:flex;gap:8px">
+      <button onclick="judgeUndo(true)" style="flex:1;padding:8px;background:rgba(74,222,128,.2);border:1px solid rgba(74,222,128,.4);border-radius:8px;color:#4ade80;font-size:13px;cursor:pointer;font-family:inherit">✅ 允许悔棋</button>
+      <button onclick="judgeUndo(false)" style="flex:1;padding:8px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:8px;color:#f87171;font-size:13px;cursor:pointer;font-family:inherit">❌ 拒绝</button>
+    </div>
+  </div>
+</div>
 <div class="judge-overlay" id="judgeOv" style="display:none">
   <div class="judge-modal">
-    <h3>⚖ 判定本轮胜负</h3>
-    <p id="judgeRoundLabel">第1轮BP结束，请裁判判定胜负</p>
+    <h3>⚖ 判定胜负</h3>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:rgba(255,255,255,.5)">选择要判定的轮次：</label>
+      <div id="judgeRoundBtns" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+    </div>
+    <p id="judgeRoundLabel" style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px"></p>
     <div class="judge-btns">
       <button class="jbtn a" id="jbtnA" onclick="submitJudge('a')">🔴 A队胜</button>
       <button class="jbtn draw" onclick="submitJudge('draw')">🤝 平局</button>
       <button class="jbtn b" id="jbtnB" onclick="submitJudge('b')">🔵 B队胜</button>
     </div>
+    <button onclick="document.getElementById('judgeOv').style.display='none'" style="margin-top:10px;width:100%;padding:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">取消</button>
   </div>
 </div>
 
@@ -530,6 +582,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     </div>
     <div class="side-label a" id="aLabel">A队</div>
     <div class="score-total a" id="aScore">已用 0 / 52 分</div>
+    <button id="undoBtnA" onclick="requestUndo('a')" style="display:none;width:100%;margin:3px 0;padding:4px;background:rgba(220,150,50,.15);border:1px solid rgba(220,150,50,.4);border-radius:6px;color:#fbbf24;font-size:10px;cursor:pointer;font-family:inherit">↩ 申请悔棋</button>
     <div class="sec-label">— 本轮已选 —</div>
     <div class="pick-slot" id="aSlot1"><div class="av" style="background:rgba(220,50,50,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="aSlot2"><div class="av" style="background:rgba(220,50,50,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
@@ -567,6 +620,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     </div>
     <div class="side-label b" id="bLabel">B队</div>
     <div class="score-total b" id="bScore">已用 0 / 50 分</div>
+    <button id="undoBtnB" onclick="requestUndo('b')" style="display:none;width:100%;margin:3px 0;padding:4px;background:rgba(220,150,50,.15);border:1px solid rgba(220,150,50,.4);border-radius:6px;color:#fbbf24;font-size:10px;cursor:pointer;font-family:inherit">↩ 申请悔棋</button>
     <div class="sec-label">— 本轮已选 —</div>
     <div class="pick-slot" id="bSlot1"><div class="av" style="background:rgba(50,100,220,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
     <div class="pick-slot" id="bSlot2"><div class="av" style="background:rgba(50,100,220,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
@@ -577,8 +631,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.min.js"></script>
 <script>
 firebase.initializeApp({
   apiKey: "AIzaSyChHtW8iiP38X5x_AOZl84UoRtRd7YgZqs",
@@ -756,11 +810,12 @@ function showEmojiPopup(emoji, team) {
   el.style.animation = (team === 'a' ? 'emojiFlyRight' : 'emojiFlyLeft') + ' 5s ease-out forwards';
 
   if (emoji.startsWith('img:')) {
+    const _url = emoji.slice(4);
     const img = document.createElement('img');
-    img.src = emoji.slice(4);
+    // 优先用预缓存的 Image 对象的 src（已加载完毕）
+    img.src = (_emojiImgCache[_url] ? _emojiImgCache[_url].src : _url);
     img.style.cssText = 'width:175px;height:175px;object-fit:contain;border-radius:15px;display:block';
     img.onerror = function(){ this.style.display='none'; };
-    img.crossOrigin = 'anonymous';
     el.appendChild(img);
   } else {
     el.style.fontSize = '155px';
@@ -819,7 +874,12 @@ function setRole(r) {
   document.getElementById('rA').className = r === 'a' ? 'sel-a' : '';
   document.getElementById('rB').className = r === 'b' ? 'sel-b' : '';
   document.getElementById('rR').className = r === 'ref' ? 'sel-r' : '';
+  document.getElementById('rV').className = r === 'view' ? 'sel-v' : '';
   document.getElementById('refCodeDiv').style.display = r === 'ref' ? 'block' : 'none';
+  document.getElementById('authCodeDiv').style.display = (r === 'a' || r === 'b') ? 'block' : 'none';
+  document.getElementById('inpADiv').style.display = r === 'a' ? 'block' : 'none';
+  document.getElementById('inpBDiv').style.display = r === 'b' ? 'block' : 'none';
+  document.getElementById('viewCodeDiv').style.display = r === 'view' ? 'block' : 'none';
   // 立即显示/隐藏表情按钮
   // 两边面板都显示，保持对称
   const epA = document.getElementById('emojiPanelA');
@@ -973,6 +1033,21 @@ function refAction(type) {
     stopUiTick();
     refDb.remove().then(() => { location.reload(); });
   } else if (type === 'endAll') {
+    // 对局结束解除所有授权码的对局绑定
+    // 清理过期观众码
+  firebase.database().ref(VIEW_CODE_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const n = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (n > (v.expire || 0)) firebase.database().ref(VIEW_CODE_PATH + '/' + k).remove();
+    });
+  }).catch(() => {});
+  firebase.database().ref(AUTH_PATH).once('value').then(snap => {
+      const all = snap.val() || {};
+      Object.entries(all).forEach(([k, v]) => {
+        if (v.boundRoom) firebase.database().ref(AUTH_PATH + '/' + k).update({ boundRoom: null, boundRole: null });
+      });
+    });
     refDb.update({ ended: true, active: false });
   }
 }
@@ -997,6 +1072,7 @@ function endRound() {
 }
 
 const HERO_SFX = {
+  "七夜志贵": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwuyinxiao/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5.mp3",
   "鲁路修":       "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwuyinxiao/%E9%B2%81%E8%B7%AF%E4%BF%AE-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E9%9F%B3%E6%95%88.wav",
   "桐谷和人":     "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwuyinxiao/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "桐谷和人UW":   "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwuyinxiao/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
@@ -1061,7 +1137,6 @@ const HERO_IMG = {
   "逆回十六夜": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%80%86%E5%9B%9E%E5%8D%81%E5%85%AD%E5%A4%9C-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "里见光钻": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%87%8C%E8%A7%81%E5%85%89%E9%92%BB-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "青雉": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%9D%92%E9%9B%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
-  "七夜志贵": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwuyinxiao/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5.mp3",
   "鲁路修": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%B2%81%E8%B7%AF%E4%BF%AE-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "黄猿": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%BB%84%E7%8C%BF-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
   "黑Saber": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E9%BB%91Saber-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png",
@@ -1185,7 +1260,24 @@ function doPick(h) {
   const ns = expectedStep + 1;
   sel = null;
   const { overflowedBank, curTeam } = calcTime();
-  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
+  // 保存当前完整状态快照（悔棋用）
+  const snapshot = {
+    aPicks: JSON.parse(JSON.stringify(gs.aPicks || [])),
+    bPicks: JSON.parse(JSON.stringify(gs.bPicks || [])),
+    aUsed: gs.aUsed || 0,
+    bUsed: gs.bUsed || 0,
+    step: gs.step,
+    globalPicked: JSON.parse(JSON.stringify(gs.globalPicked || [])),
+    bankA: gs.bankA, bankB: gs.bankB,
+    mainUsed: gs.mainUsed || 0,
+    undoUsedA: gs.undoUsedA || false,
+    undoUsedB: gs.undoUsedB || false,
+  };
+  const prevSnapshots = JSON.parse(JSON.stringify(gs.stepSnapshots || []));
+  prevSnapshots.push(snapshot);
+  // 只保留最近10步快照
+  if (prevSnapshots.length > 10) prevSnapshots.shift();
+  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0, stepSnapshots: prevSnapshots };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
   // 确认选取时播放英雄专属音效并广播（中断上一个）
@@ -1220,6 +1312,62 @@ function doPick(h) {
     } else {
       refDb.update(update, err2 => { releaseLock(); });
     }
+  });
+}
+
+// ── 悔棋系统 ──
+function requestUndo(team) {
+  // 严格验证：只能申请自己队伍的悔棋
+  if (myRole !== team) { return; }
+  if (!gs.active || gs.paused || gs.roundEnded) return;
+  if (!gs.stepSnapshots || !gs.stepSnapshots.length) { alert('当前没有可悔棋的步骤'); return; }
+  const lastSnap = gs.stepSnapshots[gs.stepSnapshots.length - 1];
+  // 检查本队本轮是否已用过悔棋
+  if (team === 'a' && gs.undoUsedA) { alert('A队本轮悔棋次数已用完'); return; }
+  if (team === 'b' && gs.undoUsedB) { alert('B队本轮悔棋次数已用完'); return; }
+  // 找出最后一步是哪个队的选人
+  const lastPickTeam = gs.aPicks.length > lastSnap.aPicks.length ? 'a' : 'b';
+  if (lastPickTeam !== team) { alert('悔棋只能撤回自己队伍最后一步选人'); return; }
+  // 发送悔棋请求到Firebase
+  refDb.update({
+    undoRequest: { team, ts: Date.now(), status: 'pending' },
+    paused: true,
+    pauseSfxTs: Date.now()
+  });
+  // 禁用按钮防止重复
+  const btn = document.getElementById(team === 'a' ? 'undoBtnA' : 'undoBtnB');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 等待裁判审核...'; }
+}
+
+function judgeUndo(approved) {
+  if (myRole !== 'ref') return;
+  document.getElementById('undoOv').style.display = 'none';
+  if (!approved) {
+    // 拒绝：取消暂停，清除请求
+    refDb.update({ undoRequest: null, paused: false });
+    return;
+  }
+  // 允许：恢复上一步快照
+  const snaps = gs.stepSnapshots || [];
+  if (!snaps.length) { refDb.update({ undoRequest: null, paused: false }); return; }
+  const snap = snaps[snaps.length - 1];
+  const newSnaps = snaps.slice(0, -1);
+  const team = gs.undoRequest ? gs.undoRequest.team : null;
+  refDb.update({
+    aPicks: snap.aPicks,
+    bPicks: snap.bPicks,
+    aUsed: snap.aUsed,
+    bUsed: snap.bUsed,
+    step: snap.step,
+    bankA: snap.bankA,
+    bankB: snap.bankB,
+    mainUsed: 0, // 悔棋后重新给60秒主计时
+    stepSnapshots: newSnaps,
+    undoUsedA: team === 'a' ? true : (snap.undoUsedA || false),
+    undoUsedB: team === 'b' ? true : (snap.undoUsedB || false),
+    paused: false,
+    undoRequest: null,
+    stepStartTs: firebase.database.ServerValue.TIMESTAMP,
   });
 }
 
@@ -1274,8 +1422,8 @@ function syncUI() {
       el.querySelector('.av').style.background = t==='a'?'rgba(220,50,50,.3)':'rgba(50,100,220,.3)';
     });
   }
-  (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" crossorigin="anonymous" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
-  (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" crossorigin="anonymous" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
+  (gs.aPicks||[]).forEach((h,i)=>{ const el=document.getElementById('aSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
+  (gs.bPicks||[]).forEach((h,i)=>{ const el=document.getElementById('bSlot'+(i+1)); if(el){ el.classList.add('filled'); el.querySelector('.pname').textContent=h.name; el.querySelector('.pscore').textContent=TI[h.type]+' '+h.score+'分'; const av=el.querySelector('.av'); if(HERO_IMG[h.name]){ av.innerHTML=`<img src="${HERO_IMG[h.name]}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.parentNode.textContent='${TI[h.type]}'">`; }else{ av.textContent=TI[h.type]; } } });
   if (gs.active && !gs.roundEnded && !gs.ended && gs.step < 10) {
     const t=ct(); const picks=(gs[t+'Picks'])||[]; const sl=document.getElementById((t==='a'?'aSlot':'bSlot')+(picks.length+1));
     if(sl) sl.classList.add('active');
@@ -1342,6 +1490,63 @@ function syncUI() {
   const gp = gs.globalPicked||[]; const curP = [...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name); const allP = [...new Set([...gp,...curP])];
   document.getElementById('globalPool').innerHTML = allP.length ? allP.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
   updTimerUI(); renderGrid();
+
+  // 悔棋按钮显示逻辑
+  const _undoBtnA = document.getElementById('undoBtnA');
+  const _undoBtnB = document.getElementById('undoBtnB');
+  if (_undoBtnA) {
+    const showA = myRole === 'a' && gs.active && !gs.roundEnded && !gs.ended && gs.aPicks && gs.aPicks.length > 0 && !gs.undoUsedA && !(gs.undoRequest && gs.undoRequest.status === 'pending');
+    _undoBtnA.style.display = showA ? 'block' : 'none';
+    if (gs.undoRequest && gs.undoRequest.team === 'a' && gs.undoRequest.status === 'pending') {
+      _undoBtnA.style.display = 'block';
+      _undoBtnA.disabled = true;
+      _undoBtnA.textContent = '⏳ 等待裁判审核...';
+    } else if (showA) {
+      _undoBtnA.disabled = false;
+      _undoBtnA.textContent = '↩ 申请悔棋';
+    }
+  }
+  if (_undoBtnB) {
+    const showB = myRole === 'b' && gs.active && !gs.roundEnded && !gs.ended && gs.bPicks && gs.bPicks.length > 0 && !gs.undoUsedB && !(gs.undoRequest && gs.undoRequest.status === 'pending');
+    _undoBtnB.style.display = showB ? 'block' : 'none';
+    if (gs.undoRequest && gs.undoRequest.team === 'b' && gs.undoRequest.status === 'pending') {
+      _undoBtnB.style.display = 'block';
+      _undoBtnB.disabled = true;
+      _undoBtnB.textContent = '⏳ 等待裁判审核...';
+    } else if (showB) {
+      _undoBtnB.disabled = false;
+      _undoBtnB.textContent = '↩ 申请悔棋';
+    }
+  }
+
+  // 裁判收到悔棋请求时弹窗
+  if (myRole === 'ref' && gs.undoRequest && gs.undoRequest.status === 'pending') {
+    const undoOv = document.getElementById('undoOv');
+    if (undoOv && undoOv.style.display === 'none') {
+      const team = gs.undoRequest.team;
+      const teamName = team === 'a' ? gs.aName : gs.bName;
+      const snaps = gs.stepSnapshots || [];
+      const lastSnap = snaps.length ? snaps[snaps.length - 1] : null;
+      // 找出要悔棋的英雄
+      let heroName = '未知';
+      if (lastSnap) {
+        if (team === 'a' && gs.aPicks && gs.aPicks.length > lastSnap.aPicks.length) {
+          heroName = gs.aPicks[gs.aPicks.length - 1].name;
+        } else if (team === 'b' && gs.bPicks && gs.bPicks.length > lastSnap.bPicks.length) {
+          heroName = gs.bPicks[gs.bPicks.length - 1].name;
+        }
+      }
+      document.getElementById('undoLabel').textContent = `${teamName} 申请撤回上一步选人`;
+      document.getElementById('undoHeroLabel').textContent = `将撤回：${heroName}`;
+      undoOv.style.display = 'flex';
+    }
+  } else {
+    const undoOv = document.getElementById('undoOv');
+    if (undoOv) undoOv.style.display = 'none';
+  }
+
+  // 新一轮开始时重置悔棋状态（stepSnapshots 清空意味着新轮次）
+
   updateScoreboard();
 }
 
@@ -1394,23 +1599,42 @@ function switchTab(t) {
 // ── 判定胜负逻辑 ──
 function openJudge() {
   if (!refDb || myRole !== 'ref') return;
-  const rn = gs.roundNum || 0;
-  if (rn === 0) { alert('还没有进行过任何轮次，无法判定。'); return; }
-  // 找到最近一轮已结束的轮次
   const allR = gs.allRounds || [];
-  // 优先判定最新一轮（roundEnded 时已存入 allRounds）
-  const lastRound = allR.find(r => r.roundNum === rn) || allR[allR.length - 1];
-  if (!lastRound) { alert('当前轮次尚未结束，无法判定。'); return; }
-  const targetRn = lastRound.roundNum;
-  const existing = lastRound.winner;
-  let hint = `第${targetRn}轮`;
+  if (!allR.length) { alert('还没有完成任何轮次，无法判定。'); return; }
+  // 生成轮次选择按钮
+  const container = document.getElementById('judgeRoundBtns');
+  container.innerHTML = '';
+  allR.forEach(r => {
+    const btn = document.createElement('button');
+    const winText = r.winner ? (r.winner === 'a' ? '🔴胜' : r.winner === 'b' ? '🔵胜' : '🤝') : '未判';
+    btn.textContent = `第${r.roundNum}轮 ${winText}`;
+    btn.style.cssText = `padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;border:1px solid rgba(255,255,255,.2);background:${r.winner ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.06)'};color:${r.winner ? '#4ade80' : 'rgba(255,255,255,.7)'}`;
+    btn.onclick = () => selectJudgeRound(r.roundNum);
+    container.appendChild(btn);
+  });
+  // 默认选最后一轮
+  selectJudgeRound(allR[allR.length - 1].roundNum);
+  document.getElementById('judgeOv').style.display = 'flex';
+}
+
+function selectJudgeRound(rn) {
+  const allR = gs.allRounds || [];
+  const round = allR.find(r => r.roundNum === rn);
+  if (!round) return;
+  document.getElementById('judgeOv').dataset.targetRn = rn;
+  // 高亮当前选中轮次
+  const btns = document.getElementById('judgeRoundBtns').children;
+  Array.from(btns).forEach((b, i) => {
+    b.style.background = allR[i].roundNum === rn ? 'rgba(167,139,250,.3)' : (allR[i].winner ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.06)');
+    b.style.borderColor = allR[i].roundNum === rn ? 'rgba(167,139,250,.6)' : 'rgba(255,255,255,.2)';
+  });
+  const existing = round.winner;
+  let hint = `第${rn}轮`;
   if (existing) hint += `（已判定：${existing === 'a' ? gs.aName+'胜' : existing === 'b' ? gs.bName+'胜' : '平局'}，可重新判定）`;
+  else hint += `（未判定）`;
   document.getElementById('judgeRoundLabel').textContent = hint;
   document.getElementById('jbtnA').textContent = '🔴 ' + gs.aName + ' 胜';
   document.getElementById('jbtnB').textContent = '🔵 ' + gs.bName + ' 胜';
-  // 存入目标轮次，供 submitJudge 使用
-  document.getElementById('judgeOv').dataset.targetRn = targetRn;
-  document.getElementById('judgeOv').style.display = 'flex';
 }
 
 function submitJudge(winner) {
@@ -1452,6 +1676,18 @@ function showResult() {
 }
 
 async function startMatch() {
+  if (myRole === 'a' || myRole === 'b') {
+    const code = (document.getElementById('authCodeInput')?.value || '').trim().toUpperCase();
+    if (!code) { alert('请输入裁判发放的建房授权码'); return; }
+    const result = await verifyAuthCode(code);
+    if (!result.ok) { alert(result.msg); return; }
+  }
+  if (myRole === 'view') {
+    const code = (document.getElementById('viewCodeInput')?.value || '').trim().toUpperCase();
+    if (!code) { alert('请输入裁判发放的观众授权码'); return; }
+    const result = await verifyViewCode(code);
+    if (!result.ok) { alert(result.msg); return; }
+  }
   // ── 修复1续：裁判码哈希校验，不明文比较 ──
   if (myRole === 'ref') {
     const inputHash = await sha256(document.getElementById('refCodeInput').value.trim());
@@ -1473,7 +1709,7 @@ async function startMatch() {
   sessionStorage.setItem('bp_bName', bName);
   document.getElementById('setupOv').style.display = 'none';
   document.getElementById('codeDisplay').textContent = '对局代码: ' + roomId;
-  document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+aName : myRole === 'b' ? '🔵'+bName : '⚖ 裁判') + ']';
+  document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴'+aName : myRole === 'b' ? '🔵'+bName : myRole === 'view' ? '👁 观众' : '⚖ 裁判') + ']';
   document.getElementById('myBadge').className = 'my-badge ' + (myRole === 'ref' ? 'ref' : myRole);
   renderOrderBar();
 
@@ -1497,7 +1733,6 @@ async function startMatch() {
             const d = snap.val();
             if (d && (d.roundNum || 0) === 0) {
               refDb.remove();
-              console.log('无效对局已自动清理:', roomId);
             }
           });
         }, 30 * 60 * 1000);
@@ -1518,7 +1753,7 @@ function listenRoom(aName, bName) {
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
 
     // 加入者（非创建者）第一次收到数据时：注册角色 + 同步队名
-    if (!isCreator && !hasRegistered && myRole !== 'ref') {
+    if (!isCreator && !hasRegistered && myRole !== 'ref' && myRole !== 'view') {
       hasRegistered = true;
       const roles = data.takenRoles || [];
       const update = {};
@@ -1531,22 +1766,24 @@ function listenRoom(aName, bName) {
         document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴' + (data.aName || aName) : '🔵' + (data.bName || bName)) + ']';
         document.getElementById('myBadge').className = 'my-badge ' + myRole;
       } else {
-        // 首次加入：如果选的角色已被占，自动切换到另一边
-        if (roles.includes(myRole)) {
-          myRole = myRole === 'a' ? 'b' : 'a';
-          document.getElementById('myBadge').textContent = '[' + (myRole === 'a' ? '🔴' + aName : '🔵' + bName) + ']';
-          document.getElementById('myBadge').className = 'my-badge ' + myRole;
+        // 首次加入：不自动切换角色，保持用户选择的入口权限
+        // 只同步自己那边的队名，不覆盖对方已有的名称
+        if (!roles.includes(myRole)) {
+          // 该角色尚未被占，正常注册
+          update.takenRoles = [...roles, myRole];
+          update.players = (data.players || 1) + 1;
         }
-        update.takenRoles = [...roles, myRole];
-        update.players = (data.players || 1) + 1;
-        // 同步自己填写的队名到 Firebase
-        if (myRole === 'a' && aName !== 'A队') update.aName = aName;
-        if (myRole === 'b' && bName !== 'B队') update.bName = bName;
-        refDb.update(update);
+        // 只同步自己选择入口的队名，且不覆盖已有名称
+        if (myRole === 'a' && aName && aName.trim() && aName !== 'A队' && (!data.aName || data.aName === 'A队')) update.aName = aName.trim();
+        if (myRole === 'b' && bName && bName.trim() && bName !== 'B队' && (!data.bName || data.bName === 'B队')) update.bName = bName.trim();
+        if (Object.keys(update).length) refDb.update(update);
       }
     }
 
     document.getElementById('waitOv').style.display = 'none';
+    // 如果Firebase里已有队名，更新本地显示
+    if (data.aName) { const inp = document.getElementById('inpA'); if(inp && (!inp.value || inp.value === 'A队')) inp.value = data.aName; }
+    if (data.bName) { const inp = document.getElementById('inpB'); if(inp && (!inp.value || inp.value === 'B队')) inp.value = data.bName; }
     // 每次收到数据都确保表情按钮显示正确
     const _epA = document.getElementById('emojiPanelA');
     const _epB = document.getElementById('emojiPanelB');
@@ -1681,8 +1918,130 @@ setTimeout(() => {
     </div>`;
 }, 10 * 60 * 60 * 1000);
 
+// ── 建房授权码系统 ──
+const AUTH_PATH = 'config/authCode';
+let _myAuthCodes = { a: null, b: null }; // 本次生成的码
+
+const VIEW_CODE_PATH = 'config/viewCode';
+let _myViewCodes = [];
+
+function genViewCodes() {
+  const refInput = document.getElementById('refCodeInput').value.trim();
+  if (!refInput) { alert('请先输入裁判码'); return; }
+  const db = firebase.database();
+  const chars = '0123456789';
+  const now = Date.now();
+  const codes = [];
+  const updates = {};
+  for (let i = 0; i < 5; i++) {
+    let code = '';
+    for (let j = 0; j < 5; j++) code += chars[Math.floor(Math.random() * chars.length)];
+    codes.push(code);
+    updates[VIEW_CODE_PATH + '/' + code] = { ts: now, expire: now + 3600000 };
+  }
+  db.ref().update(updates);
+  _myViewCodes = codes;
+  document.getElementById('authCodeView').textContent = codes.join('  ');
+  // 清理过期码
+  db.ref(VIEW_CODE_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const n = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (n > (v.expire || 0)) db.ref(VIEW_CODE_PATH + '/' + k).remove();
+    });
+  });
+}
+
+function clearViewCodes() {
+  _myViewCodes = [];
+  document.getElementById('authCodeView').textContent = '——';
+}
+
+async function verifyViewCode(code) {
+  const db = firebase.database();
+  const snap = await db.ref(VIEW_CODE_PATH + '/' + code).once('value');
+  const data = snap.val();
+  if (!data) return { ok: false, msg: '观众码无效，请向裁判获取' };
+  if (Date.now() > data.expire) {
+    db.ref(VIEW_CODE_PATH + '/' + code).remove();
+    return { ok: false, msg: '观众码已过期，请向裁判重新获取' };
+  }
+  // 一次性使用，立即删除
+  await db.ref(VIEW_CODE_PATH + '/' + code).remove();
+  return { ok: true };
+}
+
+function genAuthCode(role) {
+  const refInput = document.getElementById('refCodeInput').value.trim();
+  if (!refInput) { alert('请先输入裁判码'); return; }
+  const db = firebase.database();
+  const chars = '0123456789';
+  const now = Date.now();
+  let code = '';
+  for (let j = 0; j < 5; j++) code += chars[Math.floor(Math.random() * chars.length)];
+  db.ref(AUTH_PATH + '/' + code).set({ ts: now, expire: now + 3600000, role: role });
+  if (role === 'a') {
+    if (_myAuthCodes.a) db.ref(AUTH_PATH + '/' + _myAuthCodes.a).remove();
+    _myAuthCodes.a = code;
+    document.getElementById('authCodeA').textContent = code;
+  } else {
+    if (_myAuthCodes.b) db.ref(AUTH_PATH + '/' + _myAuthCodes.b).remove();
+    _myAuthCodes.b = code;
+    document.getElementById('authCodeB').textContent = code;
+  }
+  // 清理超时旧码
+  db.ref(AUTH_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const n = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (n > (v.expire || 0)) db.ref(AUTH_PATH + '/' + k).remove();
+    });
+  });
+}
+
+function clearMyAuthCodes() {
+  // 只清除显示，码仍在数据库有效直到过期
+  _myAuthCodes = { a: null, b: null };
+  const elA = document.getElementById('authCodeA');
+  const elB = document.getElementById('authCodeB');
+  if (elA) elA.textContent = '——';
+  if (elB) elB.textContent = '——';
+}
+
+async function verifyAuthCode(code) {
+  const db = firebase.database();
+  const snap = await db.ref(AUTH_PATH + '/' + code).once('value');
+  const data = snap.val();
+  if (!data) return { ok: false, msg: '授权码无效，请向裁判获取' };
+  if (Date.now() > data.expire) {
+    db.ref(AUTH_PATH + '/' + code).remove();
+    return { ok: false, msg: '授权码已过期，请向裁判重新获取' };
+  }
+  // 检查码的队伍归属
+  if (data.role && data.role !== myRole) {
+    return { ok: false, msg: `此码为${data.role === 'a' ? 'A队' : 'B队'}专用，无法用于${myRole === 'a' ? 'A队' : 'B队'}入口` };
+  }
+  return { ok: true };
+}
+
 window.onload = () => {
   document.getElementById('myCode').textContent = genCode();
+  // 清理过期授权码
+  // 清理过期观众码
+  firebase.database().ref(VIEW_CODE_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const n = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (n > (v.expire || 0)) firebase.database().ref(VIEW_CODE_PATH + '/' + k).remove();
+    });
+  }).catch(() => {});
+  firebase.database().ref(AUTH_PATH).once('value').then(snap => {
+    const all = snap.val() || {};
+    const n = Date.now();
+    Object.entries(all).forEach(([k, v]) => {
+      if (n > (v.expire || 0)) firebase.database().ref(AUTH_PATH + '/' + k).remove();
+    });
+  }).catch(() => {});
   renderGrid();
   // 分别预加载音效（Audio）和图片（Image），真正加载完才计数
   const SFX_URLS = [
@@ -1697,6 +2056,13 @@ window.onload = () => {
   const BGM_URLS = BGM_LIST.map(b => b.url);
   const EMOJI_IMG_URLS = ['https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/014cb04c6a4eb52a30b756c901b7ff2d.jpg', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/055298C8B181EE0DBE370AC140C00269.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/0634FC257042619F8CF38EFFF41A6DBB.jpg', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/0983693524d807cb2e995e6ef8da622b.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/0b62c72cb050abac0aed36e46ca54f1a.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/294B52DCCBE63F96D069B60CD4ED7A99.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/8B8E4B185181CDEE8D84597691622C33.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/932B9954C68AFFE5928343AFB479AA6B.jpg', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/98E02F33F669FBF63AF4A99321BBFE24.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/DEE9B05972AECF10AAB93C8372384E03.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/F23385E24FE0850107A9B4B24CB28F85.gif', 'https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/biaoqing-main/b2439f312da6fa2aecb2b021b836a156.gif'];
   const IMG_URLS = [...Object.values(HERO_IMG), ...EMOJI_IMG_URLS];
+  // 表情图片单独用 Image 对象预缓存，弹出时直接用缓存
+  const _emojiImgCache = {};
+  EMOJI_IMG_URLS.forEach(url => {
+    const img = new Image();
+    img.onload = () => { _emojiImgCache[url] = img; };
+    img.src = url;
+  });
   const bar = document.getElementById('audioLoadBar');
 
   let sfxLoaded = 0, bgmLoaded = 0, imgLoaded = 0;
@@ -1795,7 +2161,6 @@ function autoReconnect() {
 <div id="bgmPanel" style="position:fixed;bottom:18px;right:18px;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
   <div id="bgmControls" style="display:none;background:rgba(15,5,40,.95);border:1px solid rgba(167,139,250,.3);border-radius:12px;padding:14px;backdrop-filter:blur(8px);width:220px">
     <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-align:center;letter-spacing:1px">🎵 背景音乐</div>
-
 
     <div style="display:flex;gap:5px;margin-bottom:8px;justify-content:center">
       <button onclick="bgmPrev()" style="flex:1;padding:5px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:6px;color:#c4b5fd;font-size:13px;cursor:pointer;font-family:inherit">⏮</button>
