@@ -546,6 +546,13 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   </div>
 </div>
 
+<div class="judge-overlay" id="aiOv" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="judge-modal" style="max-width:420px;text-align:left">
+    <h3 style="text-align:center">🤖 AI 推荐选择</h3>
+    <div id="aiContent" style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:400px;overflow-y:auto;margin:10px 0"></div>
+    <button onclick="document.getElementById('aiOv').style.display='none'" style="width:100%;margin-top:10px;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">关闭</button>
+  </div>
+</div>
 <div class="judge-overlay" id="judgeOv" style="display:none">
   <div class="judge-modal">
     <h3>⚖ 判定胜负</h3>
@@ -595,7 +602,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <div class="tab-row"><button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button><button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button><button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button><button class="tab-btn tab-all" onclick="switchTab('all')">全部</button></div>
     <div class="search-row"><input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()"/><button class="btn-clr" onclick="document.getElementById('searchInp').value='';renderGrid()">清除</button></div>
     <div class="hero-grid" id="heroGrid"></div>
-    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button></div>
+    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button><button class="act-btn" id="aiBtn" onclick="showAIRecommend()" style="display:none;background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.5);color:#c4b5fd;margin-left:6px">🤖 推荐</button></div>
     <div id="notMyTurnMsg" class="not-my-turn-msg" style="display:none">请等待对方选人...</div>
     <div id="waitNextMsg" class="waiting-next" style="display:none">✅ 本轮BP结束！等待裁判开始下一轮...</div>
     <div style="margin-top:3px"><div class="sec-label">— 全局已选（所有轮次不可重复）—</div><div id="globalPool" class="global-pool"></div></div>
@@ -661,8 +668,8 @@ function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND
 
 const HEROES = {
   str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'JOJO',score:14},{name:'沢田纲吉',score:14},{name:'健次郎',score:14},{name:'上条当麻（pf）',score:14},{name:'里见光钻',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'迪亚波罗',score:12},{name:'逆回十六夜',score:10},{name:'黑Saber',score:10},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'舔牌',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
-  agi: [{name:'冲田总司',score:20},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'暗影大人',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
-  int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Saber',score:5},{name:'吉普莉尔',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
+  agi: [{name:'冲田总司',score:18},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'暗影大人',score:10},{name:'垃圾兔',score:8},{name:'两仪式(pf)',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'路飞',score:6},{name:'利威尔阿克曼',score:6},{name:'白洲梓',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
+  int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'楪祈',score:10},{name:'夏娜',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'新伊蕾娜',score:8},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'秽土宇智波鼬',score:6},{name:'埃尔奎特',score:6},{name:'白Saber',score:5},{name:'吉普莉尔',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'夜神月',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
 };
 const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({...h,type:'agi'})), ...HEROES.int.map(h=>({...h,type:'int'}))];
 const TI = {str:'💪', agi:'⚡', int:'🧠'};
@@ -1196,6 +1203,7 @@ const HERO_IMG = {
   "xcw（春日）": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/xcw%EF%BC%88%E6%98%A5%E6%97%A5%EF%BC%89.png",
   "五条悟": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E4%BA%94%E6%9D%A1%E6%82%9F.png",
   "伊蕾娜": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E4%BC%8A%E8%95%BE%E5%A8%9C.png",
+  "新伊蕾娜": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E6%96%B0%E4%BC%8A%E8%95%BE%E5%A8%9C%E5%A4%B4%E5%83%8F.jpg",
   "八重神子": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E5%85%AB%E9%87%8D%E7%A5%9E%E5%AD%90.png",
   "公主": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E5%85%AC%E4%B8%BB.png",
   "志度内": "https://jumpshuju-1419589694.cos.ap-shanghai.myqcloud.com/renwutouxiang/%E5%88%B6%E5%BA%A6%E5%86%85.png",
@@ -1293,6 +1301,169 @@ function doPick(h) {
       refDb.update(update, err2 => { releaseLock(); });
     }
   });
+}
+
+// ── AI 推荐系统（规则引擎）──
+async function showAIRecommend() {
+  const aiOv = document.getElementById('aiOv');
+  const aiContent = document.getElementById('aiContent');
+  aiContent.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4)">⏳ 分析中...</div>';
+  aiOv.style.display = 'flex';
+
+  try {
+    // 读取历史数据
+    const histSnap = await firebase.database().ref('rooms').once('value');
+    const histData = histSnap.val() || {};
+
+    // 统计历史数据
+    const pickCount = {};       // 出场次数
+    const winWithHero = {};     // 带该英雄的胜场
+    const totalWithHero = {};   // 带该英雄的总场
+    const teamCombo = {};       // 同队组合次数
+
+    Object.values(histData).forEach(room => {
+      const rounds = room.allRounds || [];
+      if (!Array.isArray(rounds)) return;
+      rounds.forEach(r => {
+        const aPicks = (r.aPicks || []).map(p => p.name).filter(Boolean);
+        const bPicks = (r.bPicks || []).map(p => p.name).filter(Boolean);
+        const winner = r.winner;
+        [aPicks, bPicks].forEach((team, ti) => {
+          const isWin = winner && ((ti === 0 && winner === 'a') || (ti === 1 && winner === 'b'));
+          team.forEach(h => {
+            pickCount[h] = (pickCount[h] || 0) + 1;
+            if (winner) {
+              totalWithHero[h] = (totalWithHero[h] || 0) + 1;
+              if (isWin) winWithHero[h] = (winWithHero[h] || 0) + 1;
+            }
+          });
+          // 同队组合
+          for (let i = 0; i < team.length; i++) {
+            for (let j = i+1; j < team.length; j++) {
+              const key = [team[i], team[j]].sort().join('|');
+              teamCombo[key] = (teamCombo[key] || 0) + 1;
+            }
+          }
+        });
+      });
+    });
+
+    // 当前状态
+    const myTeam = myRole === 'a' ? (gs.aPicks || []) : (gs.bPicks || []);
+    const enemyTeam = myRole === 'a' ? (gs.bPicks || []) : (gs.aPicks || []);
+    const myUsed = myRole === 'a' ? (gs.aUsed || 0) : (gs.bUsed || 0);
+    const myBudget = myRole === 'a' ? 52 : 50;
+    const remaining = myBudget - myUsed;
+    const pickedNames = new Set([...(gs.globalPicked || []), ...(gs.aPicks || []).map(p=>p.name), ...(gs.bPicks || []).map(p=>p.name)]);
+
+    // 可选英雄池（未被选且分数够）
+    const available = ALL.filter(h => !pickedNames.has(h.name) && h.score <= remaining);
+
+    // 评分函数
+    function scoreHero(hero) {
+      let score = 0;
+      const name = hero.name;
+      const total = Object.values(histData).reduce((acc, r) => {
+        return acc + (Array.isArray(r.allRounds) ? r.allRounds.filter(rd => (rd.aPicks||[]).length+(rd.bPicks||[]).length > 0).length : 0);
+      }, 0) || 1;
+
+      // 出场率加分（热门英雄有价值）
+      const appearance = (pickCount[name] || 0) / total;
+      score += appearance * 30;
+
+      // 胜率加分
+      if (totalWithHero[name] >= 2) {
+        const wr = (winWithHero[name] || 0) / totalWithHero[name];
+        score += wr * 40;
+      }
+
+      // 与己方已选英雄的组合加分
+      myTeam.forEach(m => {
+        const key = [name, m.name].sort().join('|');
+        score += (teamCombo[key] || 0) * 15;
+      });
+
+      // 对抗对方英雄：对方常带的英雄克制（简单：出场率高的英雄对面也需要强力英雄）
+      enemyTeam.forEach(e => {
+        if (pickCount[e.name] > 1) score += 5;
+      });
+
+      // 性价比：高分英雄加成
+      score += hero.score * 0.5;
+
+      return score;
+    }
+
+    // 排序推荐
+    const ranked = available.map(h => ({ ...h, aiScore: scoreHero(h) }))
+      .sort((a, b) => b.aiScore - a.aiScore)
+      .slice(0, 8);
+
+    // 热门组合推荐
+    const hotCombos = Object.entries(teamCombo)
+      .filter(([k, v]) => v >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+
+    // 胜率最高英雄
+    const topWR = Object.entries(totalWithHero)
+      .filter(([n, t]) => t >= 2 && !pickedNames.has(n) && available.find(h => h.name === n))
+      .map(([n, t]) => ({ name: n, wr: Math.round((winWithHero[n]||0)/t*100) }))
+      .sort((a, b) => b.wr - a.wr)
+      .slice(0, 3);
+
+    // 生成推荐文字
+    const myPickNames = myTeam.map(p => p.name).join('、') || '（未选）';
+    const enemyPickNames = enemyTeam.map(p => p.name).join('、') || '（未选）';
+    const myPicks = myTeam.length;
+    const slotsLeft = 5 - myPicks;
+
+    let html = '';
+    html += `<div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px 10px;margin-bottom:8px">`;
+    html += `<div style="color:#fcd34d;font-weight:700;margin-bottom:4px">📊 当前状态</div>`;
+    html += `<div>我方已选（${myPicks}/5）：${myPickNames}</div>`;
+    html += `<div>对方已选：${enemyPickNames}</div>`;
+    html += `<div>剩余预算：${remaining}分 | 剩余名额：${slotsLeft}位</div>`;
+    html += `</div>`;
+
+    if (ranked.length === 0) {
+      html += '<div style="color:rgba(255,255,255,.4);text-align:center">没有可推荐的英雄（预算不足或全部已选）</div>';
+    } else {
+      html += `<div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 综合推荐（按优先级）</div>`;
+      ranked.forEach((h, i) => {
+        const wr = totalWithHero[h.name] >= 2 ? Math.round((winWithHero[h.name]||0)/totalWithHero[h.name]*100) + '%胜率' : '新英雄';
+        const appear = pickCount[h.name] ? `出场${pickCount[h.name]}次` : '首次出场';
+        const typeLabel = {str:'💪力量', agi:'⚡敏捷', int:'🧠智力'}[h.type] || h.type;
+        html += `<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07)">`;
+        html += `<span style="color:#fbbf24;font-weight:700">${i+1}. ${h.name}</span>`;
+        html += ` <span style="color:rgba(255,255,255,.4);font-size:11px">${typeLabel} ${h.score}分 · ${appear} · ${wr}</span>`;
+        html += `</div>`;
+      });
+    }
+
+    if (hotCombos.length > 0) {
+      html += `<div style="color:#60a5fa;font-weight:700;margin:10px 0 6px">🤝 历史热门组合</div>`;
+      hotCombos.forEach(([key, count]) => {
+        const [a, b] = key.split('|');
+        html += `<div style="font-size:11px;padding:3px 0">${a} + ${b} <span style="color:rgba(255,255,255,.4)">同队${count}次</span></div>`;
+      });
+    }
+
+    if (topWR.length > 0) {
+      html += `<div style="color:#f87171;font-weight:700;margin:10px 0 6px">🏆 高胜率可选英雄</div>`;
+      topWR.forEach(({ name, wr }) => {
+        html += `<div style="font-size:11px;padding:3px 0">${name} <span style="color:#4ade80">${wr}%胜率</span></div>`;
+      });
+    }
+
+    if (Object.keys(pickCount).length < 10) {
+      html += `<div style="margin-top:10px;padding:6px 8px;background:rgba(251,191,36,.1);border-radius:6px;font-size:10px;color:rgba(251,191,36,.7)">⚠️ 历史数据较少（${Object.keys(pickCount).length}个英雄有记录），推荐准确度随对局增多而提升</div>`;
+    }
+
+    aiContent.innerHTML = html;
+  } catch(e) {
+    aiContent.innerHTML = '<div style="color:#f87171;text-align:center">读取数据失败，请检查网络连接</div>';
+  }
 }
 
 // ── 修复8：orderBar 只在首次或换边时重建，不在每次 syncUI 重建 ──
