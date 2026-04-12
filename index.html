@@ -1397,7 +1397,7 @@ async function showAIRecommend() {
     const order     = getOrder();
 
     // 我在这一轮里是第几个选手位（0-4）
-    const mySteps = order.map((s,i)=>s===myRole?i:-1).filter(i=>i>==-1 && order[i]===myRole);
+    const mySteps = order.map((s,i)=>s===myRole?i:-1).filter(i=>i >= -1 && order[i]===myRole);
     const myPickIdx = myPicks.length; // 我已选了几个，下一个是第 myPickIdx 个
     // 找到我下一次出手的 step 序号
     let nextStep = curStep;
@@ -1526,7 +1526,7 @@ async function showAIRecommend() {
     const predicted = predictEnemy();
     const posW = getPositionWeight(nextStep);
     const hotCombos = Object.entries(teamCombo)
-      .filter(([,v]) => v >= 2).sort((a,b) => b[1]-a[1]).slice(0, 3);
+      .filter(([_k,v]) => v >= 2).sort((a,b) => b[1]-a[1]).slice(0, 3);
     const topWR = Object.entries(totalWith)
       .filter(([n,t]) => t >= 2 && !pickedNames.has(n) && available.find(h => h.name === n))
       .map(([n,t]) => ({ name: n, wr: Math.round((winWith[n]||0)/t*100) }))
