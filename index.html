@@ -1140,7 +1140,6 @@ const HERO_SFX = {
   "鸣人（尾兽模式）": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B8%A3%E4%BA%BA%EF%BC%88%E5%B0%BE%E5%85%BD%E6%A8%A1%E5%BC%8F%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "黑Saber": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91Saber-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "黑崎一护pf": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
   "英灵卫宫": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3",
   "楪祈":       "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
   "流萤":       "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%B5%81%E8%8E%B9.mp3",
@@ -1404,7 +1403,8 @@ async function showAIRecommend() {
       (room.allRounds || []).forEach(r => {
         const aP = (r.aPicks||[]).map(p=>p.name).filter(Boolean);
         const bP = (r.bPicks||[]).map(p=>p.name).filter(Boolean);
-        if (!aP.length && !bP.length) return;
+        // 严格过滤：双方必须各满5人才算完整场次，不完整的不计入任何统计
+        if (aP.length < 5 || bP.length < 5) return;
         const isCur   = r.roundNum === curRoundNum;
         const targets = isCur ? [cur, all] : [all];
         const hasJ    = r.winner==='a'||r.winner==='b'||r.winner==='draw';
