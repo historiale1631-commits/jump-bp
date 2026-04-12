@@ -94,6 +94,8 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .tmode{font-size:9px;color:rgba(255,255,255,.4)}
 .tmode.on{color:#fcd34d}
 @keyframes pulse{from{opacity:1}to{opacity:.6}}
+@keyframes yucePulse{from{opacity:1;transform:scale(1)}to{opacity:.7;transform:scale(1.02)}}
+@keyframes gradientMove{0%{background-position:0% center}100%{background-position:200% center}}
 
 .order-bar{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
 .order-dot{width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid transparent;transition:all .2s}
@@ -394,6 +396,17 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E4%BA%9A%E7%91%9F%E6%BD%98%E5%BE%B7%E6%8B%89%E8%B4%A1.mp3">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%B5%81%E8%8E%B9.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B1.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B2.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B4.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B5.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B6.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%9D%92%E9%9B%89.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.mp3">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/055298C8B181EE0DBE370AC140C00269.gif">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0634FC257042619F8CF38EFFF41A6DBB.jpg">
@@ -573,7 +586,21 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <div class="layout">
   <div class="side a-side">
     <div id="emojiPanelA" style="display:none">
-      <button onclick="toggleEmoji('A')" id="emojiToggleA" style="width:100%;margin-bottom:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+      <div style="display:flex;gap:3px;margin-bottom:2px">
+      <button onclick="toggleYucePanel('A')" id="yuceBtnA" style="flex:1;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.35);border-radius:6px;color:#fca5a5;font-size:10px;padding:3px;cursor:pointer;font-family:inherit">🎯 预测胜利 ▼</button>
+      <button onclick="toggleEmoji('A')" id="emojiToggleA" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+    </div>
+    <div id="yucePanelA" style="display:none;margin-bottom:4px;background:rgba(220,50,50,.08);border:1px solid rgba(220,50,50,.25);border-radius:6px;padding:4px;display:none">
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:3px;text-align:center">选择预测语音</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        <button onclick="playYuce('a',0)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测1</button>
+        <button onclick="playYuce('a',1)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测2</button>
+        <button onclick="playYuce('a',2)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测3</button>
+        <button onclick="playYuce('a',3)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测4</button>
+        <button onclick="playYuce('a',4)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测5</button>
+        <button onclick="playYuce('a',5)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);border-radius:4px;color:#fca5a5;font-size:9px;cursor:pointer;font-family:inherit">预测6</button>
+      </div>
+    </div>
       <div id="emojiBarA" style="display:none;flex-wrap:wrap;gap:2px;padding:4px"><button class="emoji-btn" onclick="sendEmoji('😂','a')" title="😂">😂</button><button class="emoji-btn" onclick="sendEmoji('🔥','a')" title="🔥">🔥</button><button class="emoji-btn" onclick="sendEmoji('💀','a')" title="💀">💀</button><button class="emoji-btn" onclick="sendEmoji('👍','a')" title="👍">👍</button><button class="emoji-btn" onclick="sendEmoji('😎','a')" title="😎">😎</button><button class="emoji-btn" onclick="sendEmoji('🤔','a')" title="🤔">🤔</button><button class="emoji-btn" onclick="sendEmoji('😭','a')" title="😭">😭</button><button class="emoji-btn" onclick="sendEmoji('🫡','a')" title="🫡">🫡</button><button class="emoji-btn" onclick="sendEmoji('💪','a')" title="💪">💪</button><button class="emoji-btn" onclick="sendEmoji('⚡','a')" title="⚡">⚡</button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/055298C8B181EE0DBE370AC140C00269.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/055298C8B181EE0DBE370AC140C00269.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0634FC257042619F8CF38EFFF41A6DBB.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0634FC257042619F8CF38EFFF41A6DBB.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0983693524d807cb2e995e6ef8da622b.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0983693524d807cb2e995e6ef8da622b.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0b62c72cb050abac0aed36e46ca54f1a.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0b62c72cb050abac0aed36e46ca54f1a.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/294B52DCCBE63F96D069B60CD4ED7A99.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/294B52DCCBE63F96D069B60CD4ED7A99.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8B8E4B185181CDEE8D84597691622C33.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8B8E4B185181CDEE8D84597691622C33.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/932B9954C68AFFE5928343AFB479AA6B.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/932B9954C68AFFE5928343AFB479AA6B.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/98E02F33F669FBF63AF4A99321BBFE24.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/98E02F33F669FBF63AF4A99321BBFE24.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/DEE9B05972AECF10AAB93C8372384E03.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/DEE9B05972AECF10AAB93C8372384E03.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/F23385E24FE0850107A9B4B24CB28F85.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/F23385E24FE0850107A9B4B24CB28F85.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/b2439f312da6fa2aecb2b021b836a156.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/b2439f312da6fa2aecb2b021b836a156.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0de2348e770b84572cf7e595d495b8d7.jpeg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0de2348e770b84572cf7e595d495b8d7.jpeg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/16E7164207AFAFD8F80FAE5105855603.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/16E7164207AFAFD8F80FAE5105855603.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1A4A56252EFE7AEEB3B4FF989D042917.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1A4A56252EFE7AEEB3B4FF989D042917.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1F8AEB7888CA277B579C582F9DCCA10A.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1F8AEB7888CA277B579C582F9DCCA10A.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/25AB08FAEFAAD3DFB7A170FC7DC01857.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/25AB08FAEFAAD3DFB7A170FC7DC01857.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/3FBE3BAABCCE0D8106DD7B1D99FDF34D.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/3FBE3BAABCCE0D8106DD7B1D99FDF34D.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/405F2E8CCE5B121CEBB18741D0681DEA.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/405F2E8CCE5B121CEBB18741D0681DEA.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/52A386D035F3B7C772339FD1A109C8D0.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/52A386D035F3B7C772339FD1A109C8D0.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/563E12A0B942B246C49E6A487595F969.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/563E12A0B942B246C49E6A487595F969.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/736AD27EC0995F171858D7A75583BD34.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/736AD27EC0995F171858D7A75583BD34.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/75DB855A153D2F66CEEFD42D092255C5.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/75DB855A153D2F66CEEFD42D092255C5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/916A45A1BEBC99D3755BC33CD928CDA4.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/916A45A1BEBC99D3755BC33CD928CDA4.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/9C36CB4287FF2FC2DCE750D3B75E7151.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/9C36CB4287FF2FC2DCE750D3B75E7151.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B7F2566DAE7A567B265C89B99ACB05A3.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B7F2566DAE7A567B265C89B99ACB05A3.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/BDDA2F35F2A6E70C84F52B7B4AC5BB0F.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/BDDA2F35F2A6E70C84F52B7B4AC5BB0F.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CB24805769596DE104F15D8B5C47D3A7.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CB24805769596DE104F15D8B5C47D3A7.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CBB57B3B496C5DF979A8D28745B004CD.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CBB57B3B496C5DF979A8D28745B004CD.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/E97EBE69DF5DB5233541826FD7EB1C57.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/E97EBE69DF5DB5233541826FD7EB1C57.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EF67B211247921C8EB32C91B558CA525.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EF67B211247921C8EB32C91B558CA525.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EFE3D7502DB2B76D286C2971F3157A3F.gif','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EFE3D7502DB2B76D286C2971F3157A3F.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/%E6%B1%A4%E5%A7%86%E8%A1%A8%E6%83%85.jpeg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/%E6%B1%A4%E5%A7%86%E8%A1%A8%E6%83%85.jpeg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8dda4ac8bcc80a34fa8fe70cc560cc13_720.png','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8dda4ac8bcc80a34fa8fe70cc560cc13_720.png" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8ce8f7c22019c553804ebc788c9ad891.jpg','a')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8ce8f7c22019c553804ebc788c9ad891.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button></div>
     </div>
     <div class="side-label a" id="aLabel">A队</div>
@@ -590,6 +617,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   <div class="center">
     <div class="info-bar"><span class="iname" id="curName">-</span><span class="team-tag a" id="curTag">-</span><span id="curRound" style="font-size:11px;color:rgba(255,255,255,.4)"></span><span id="curLimit" style="font-size:11px;color:rgba(255,255,255,.4)"></span><span id="turnTip"></span></div>
     <div class="order-bar" id="orderBar"></div>
+    <div id="yuceContainer"></div>
     <div class="phase-bar" id="phaseBar">等待裁判开始...</div>
     <div class="status-bar" id="statusBar">裁判按「开始新一轮BP」后才能选人</div>
 
@@ -610,7 +638,21 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 
   <div class="side b-side">
     <div id="emojiPanelB" style="display:none">
-      <button onclick="toggleEmoji('B')" id="emojiToggleB" style="width:100%;margin-bottom:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+      <div style="display:flex;gap:3px;margin-bottom:2px">
+      <button onclick="toggleYucePanel('B')" id="yuceBtnB" style="flex:1;background:rgba(50,100,220,.15);border:1px solid rgba(50,100,220,.35);border-radius:6px;color:#93c5fd;font-size:10px;padding:3px;cursor:pointer;font-family:inherit">🎯 预测胜利 ▼</button>
+      <button onclick="toggleEmoji('B')" id="emojiToggleB" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.5);font-size:10px;padding:3px;cursor:pointer;font-family:inherit">😄 表情 ▼</button>
+    </div>
+    <div id="yucePanelB" style="display:none;margin-bottom:4px;background:rgba(50,100,220,.08);border:1px solid rgba(50,100,220,.25);border-radius:6px;padding:4px">
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:3px;text-align:center">选择预测语音</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        <button onclick="playYuce('b',0)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测1</button>
+        <button onclick="playYuce('b',1)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测2</button>
+        <button onclick="playYuce('b',2)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测3</button>
+        <button onclick="playYuce('b',3)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测4</button>
+        <button onclick="playYuce('b',4)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测5</button>
+        <button onclick="playYuce('b',5)" style="flex:1;min-width:40px;padding:3px 2px;background:rgba(50,100,220,.2);border:1px solid rgba(50,100,220,.4);border-radius:4px;color:#93c5fd;font-size:9px;cursor:pointer;font-family:inherit">预测6</button>
+      </div>
+    </div>
       <div id="emojiBarB" style="display:none;flex-wrap:wrap;gap:2px;padding:4px"><button class="emoji-btn" onclick="sendEmoji('😂','b')" title="😂">😂</button><button class="emoji-btn" onclick="sendEmoji('🔥','b')" title="🔥">🔥</button><button class="emoji-btn" onclick="sendEmoji('💀','b')" title="💀">💀</button><button class="emoji-btn" onclick="sendEmoji('👍','b')" title="👍">👍</button><button class="emoji-btn" onclick="sendEmoji('😎','b')" title="😎">😎</button><button class="emoji-btn" onclick="sendEmoji('🤔','b')" title="🤔">🤔</button><button class="emoji-btn" onclick="sendEmoji('😭','b')" title="😭">😭</button><button class="emoji-btn" onclick="sendEmoji('🫡','b')" title="🫡">🫡</button><button class="emoji-btn" onclick="sendEmoji('💪','b')" title="💪">💪</button><button class="emoji-btn" onclick="sendEmoji('⚡','b')" title="⚡">⚡</button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/014cb04c6a4eb52a30b756c901b7ff2d.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/055298C8B181EE0DBE370AC140C00269.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/055298C8B181EE0DBE370AC140C00269.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0634FC257042619F8CF38EFFF41A6DBB.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0634FC257042619F8CF38EFFF41A6DBB.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0983693524d807cb2e995e6ef8da622b.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0983693524d807cb2e995e6ef8da622b.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0b62c72cb050abac0aed36e46ca54f1a.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0b62c72cb050abac0aed36e46ca54f1a.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/294B52DCCBE63F96D069B60CD4ED7A99.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/294B52DCCBE63F96D069B60CD4ED7A99.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/37DD9D73DC519FCBF6007FBE83BD7A9C.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8B8E4B185181CDEE8D84597691622C33.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8B8E4B185181CDEE8D84597691622C33.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/932B9954C68AFFE5928343AFB479AA6B.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/932B9954C68AFFE5928343AFB479AA6B.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/98E02F33F669FBF63AF4A99321BBFE24.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/98E02F33F669FBF63AF4A99321BBFE24.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B82418FA8DCAC8C0A9B986711E22C2A5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/DEE9B05972AECF10AAB93C8372384E03.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/DEE9B05972AECF10AAB93C8372384E03.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/F23385E24FE0850107A9B4B24CB28F85.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/F23385E24FE0850107A9B4B24CB28F85.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/b2439f312da6fa2aecb2b021b836a156.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/b2439f312da6fa2aecb2b021b836a156.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0de2348e770b84572cf7e595d495b8d7.jpeg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/0de2348e770b84572cf7e595d495b8d7.jpeg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/16E7164207AFAFD8F80FAE5105855603.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/16E7164207AFAFD8F80FAE5105855603.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1A4A56252EFE7AEEB3B4FF989D042917.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1A4A56252EFE7AEEB3B4FF989D042917.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1F8AEB7888CA277B579C582F9DCCA10A.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/1F8AEB7888CA277B579C582F9DCCA10A.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/25AB08FAEFAAD3DFB7A170FC7DC01857.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/25AB08FAEFAAD3DFB7A170FC7DC01857.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/3FBE3BAABCCE0D8106DD7B1D99FDF34D.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/3FBE3BAABCCE0D8106DD7B1D99FDF34D.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/405F2E8CCE5B121CEBB18741D0681DEA.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/405F2E8CCE5B121CEBB18741D0681DEA.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/52A386D035F3B7C772339FD1A109C8D0.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/52A386D035F3B7C772339FD1A109C8D0.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/563E12A0B942B246C49E6A487595F969.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/563E12A0B942B246C49E6A487595F969.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/736AD27EC0995F171858D7A75583BD34.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/736AD27EC0995F171858D7A75583BD34.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/75DB855A153D2F66CEEFD42D092255C5.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/75DB855A153D2F66CEEFD42D092255C5.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/916A45A1BEBC99D3755BC33CD928CDA4.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/916A45A1BEBC99D3755BC33CD928CDA4.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/9C36CB4287FF2FC2DCE750D3B75E7151.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/9C36CB4287FF2FC2DCE750D3B75E7151.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B7F2566DAE7A567B265C89B99ACB05A3.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/B7F2566DAE7A567B265C89B99ACB05A3.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/BDDA2F35F2A6E70C84F52B7B4AC5BB0F.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/BDDA2F35F2A6E70C84F52B7B4AC5BB0F.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CB24805769596DE104F15D8B5C47D3A7.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CB24805769596DE104F15D8B5C47D3A7.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CBB57B3B496C5DF979A8D28745B004CD.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/CBB57B3B496C5DF979A8D28745B004CD.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/E97EBE69DF5DB5233541826FD7EB1C57.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/E97EBE69DF5DB5233541826FD7EB1C57.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EF67B211247921C8EB32C91B558CA525.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EF67B211247921C8EB32C91B558CA525.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EFE3D7502DB2B76D286C2971F3157A3F.gif','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/EFE3D7502DB2B76D286C2971F3157A3F.gif" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/%E6%B1%A4%E5%A7%86%E8%A1%A8%E6%83%85.jpeg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/%E6%B1%A4%E5%A7%86%E8%A1%A8%E6%83%85.jpeg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8dda4ac8bcc80a34fa8fe70cc560cc13_720.png','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8dda4ac8bcc80a34fa8fe70cc560cc13_720.png" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button><button class="emoji-btn" onclick="sendEmoji('img:https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8ce8f7c22019c553804ebc788c9ad891.jpg','b')" title="表情" style="padding:1px"><img src="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/8ce8f7c22019c553804ebc788c9ad891.jpg" style="width:28px;height:28px;object-fit:cover;border-radius:4px;display:block" onerror="this.style.display='none';this.parentNode.textContent='❓'"></button></div>
     </div>
     <div class="side-label b" id="bLabel">B队</div>
@@ -1098,7 +1140,14 @@ const HERO_SFX = {
   "鸣人（尾兽模式）": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B8%A3%E4%BA%BA%EF%BC%88%E5%B0%BE%E5%85%BD%E6%A8%A1%E5%BC%8F%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "黑Saber": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91Saber-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "黑崎一护pf": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
   "英灵卫宫": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E8%8B%B1%E7%81%B5%E5%8D%AB%E5%AE%AB.mp3",
+  "楪祈":       "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
+  "流萤":       "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%B5%81%E8%8E%B9.mp3",
+  "青雉":       "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%9D%92%E9%9B%89.mp3",
+  "特尔法加尔罗": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97.mp3",
+  "卫宫切嗣":   "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3.mp3",
+  "秽土宇智波鼬": "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.mp3",
 };
 
 // 英雄头像图片（仅在本轮已选槽位和英雄卡片显示）
@@ -1311,471 +1360,592 @@ function doPick(h) {
 
 // ── AI 推荐系统（规则引擎）──
 // ── 测试码验证 ──
+// ── 测试码验证（本轮BP内持久生效，按角色存储）──
+// 用 roundNum + myRole 作为 key，同一轮同一角色验证一次即可
+const _testPassed = {};
+// ── 测试码验证 ──
+
 function checkTestCode() {
+  const key = (gs.roundNum || 0) + '_' + myRole;
+  if (_testPassed[key]) { showAIRecommend(); return; }
   const code = prompt('请输入测试码：');
-  if (code === null) return; // 取消
-  if (code.trim() === '852') {
-    showAIRecommend();
-  } else {
-    alert('测试码错误');
-  }
+  if (code === null) return;
+  if (code.trim() === '852') { _testPassed[key] = true; showAIRecommend(); }
+  else alert('测试码错误');
 }
 
 async function showAIRecommend() {
   const aiOv = document.getElementById('aiOv');
   const aiContent = document.getElementById('aiContent');
-  aiContent.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:20px">⏳ 正在分析数据...</div>';
+  aiContent.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 正在分析...</div>';
   aiOv.style.display = 'flex';
 
   try {
-    const histSnap = await firebase.database().ref('rooms').once('value');
-    const histData = histSnap.val() || {};
+    const snap = await firebase.database().ref('rooms').once('value');
+    const histData = snap.val() || {};
+    const curRoundNum = gs.roundNum || 0;
 
-    // ── 统计历史数据 ──
-    const pickCount   = {};
-    const winCount    = {};
-    const judgedCount = {};
-    const teamCombo   = {};
-    const stepPick    = {};
-    const stepJudged  = {};
-    const stepWin     = {};
-    const enemyCombo  = {}; // 对方选了X后我方选什么赢了 => 针对性应对
-    const myVsEnemy   = {}; // key: myHero|enemyHero => {pick,win,judged} 应对数据
-
-    let totalRounds = 0, judgedRounds = 0;
+    // ════════════════════════════════════════════
+    // 数据统计层：分当前轮 / 全局两套
+    // ════════════════════════════════════════════
+    function makeStats() {
+      return {
+        pickCount:{}, winCount:{}, judgedCount:{},
+        teamCombo:{}, winCombo:{}, // winCombo：只统计胜利阵容的组合
+        stepPick:{}, stepJudged:{}, stepWin:{},
+        vsMatrix:{},  // myHero|||eHero => {pick,win,judged}
+        heroAppearComp:{}, // 英雄出现在多少种不同阵容组合里（灵活度）
+        rounds:0, judgedRounds:0
+      };
+    }
+    const cur = makeStats(), all = makeStats();
 
     Object.values(histData).forEach(room => {
-      const rounds = room.allRounds || [];
-      if (!Array.isArray(rounds)) return;
-      rounds.forEach(r => {
-        const aPicks = (r.aPicks || []).map(p => p.name).filter(Boolean);
-        const bPicks = (r.bPicks || []).map(p => p.name).filter(Boolean);
-        if (!aPicks.length && !bPicks.length) return;
-        totalRounds++;
+      (room.allRounds || []).forEach(r => {
+        const aP = (r.aPicks||[]).map(p=>p.name).filter(Boolean);
+        const bP = (r.bPicks||[]).map(p=>p.name).filter(Boolean);
+        if (!aP.length && !bP.length) return;
+        const isCur   = r.roundNum === curRoundNum;
+        const targets = isCur ? [cur, all] : [all];
+        const hasJ    = r.winner==='a'||r.winner==='b'||r.winner==='draw';
+        const swp     = r.swapped||false;
+        const ord     = swp ? ['a','b','b','a','b','a','a','b','a','b']
+                            : ['b','a','a','b','a','b','b','a','b','a'];
 
-        const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
-        if (hasJudge) judgedRounds++;
+        targets.forEach(st => { st.rounds++; if(hasJ) st.judgedRounds++; });
 
-        const swp = r.swapped || false;
-        const ord = swp
-          ? ['a','b','b','a','b','a','a','b','a','b']
-          : ['b','a','a','b','a','b','b','a','b','a'];
-
-        let ai = 0, bi = 0;
-        for (let step = 0; step < 10; step++) {
-          const side  = ord[step];
-          const picks = side === 'a' ? aPicks : bPicks;
-          const idx   = side === 'a' ? ai++ : bi++;
-          const name  = picks[idx];
+        // step统计
+        let ai=0, bi=0;
+        for (let step=0; step<10; step++) {
+          const side=ord[step], picks=side==='a'?aP:bP;
+          const name=picks[side==='a'?ai++:bi++];
           if (!name) continue;
-          if (!stepPick[step]) stepPick[step] = {};
-          stepPick[step][name] = (stepPick[step][name] || 0) + 1;
-          if (hasJudge) {
-            const isWin = (side === 'a' && r.winner === 'a') || (side === 'b' && r.winner === 'b');
-            if (!stepJudged[step]) stepJudged[step] = {};
-            if (!stepWin[step])    stepWin[step]    = {};
-            stepJudged[step][name] = (stepJudged[step][name] || 0) + 1;
-            if (isWin) stepWin[step][name] = (stepWin[step][name] || 0) + 1;
-          }
+          targets.forEach(st => {
+            if (!st.stepPick[step]) st.stepPick[step]={};
+            st.stepPick[step][name]=(st.stepPick[step][name]||0)+1;
+            if (hasJ) {
+              const isW=(side==='a'&&r.winner==='a')||(side==='b'&&r.winner==='b');
+              if (!st.stepJudged[step]) st.stepJudged[step]={};
+              if (!st.stepWin[step])    st.stepWin[step]={};
+              st.stepJudged[step][name]=(st.stepJudged[step][name]||0)+1;
+              if(isW) st.stepWin[step][name]=(st.stepWin[step][name]||0)+1;
+            }
+          });
         }
 
-        [aPicks, bPicks].forEach((team, ti) => {
-          const enemy = ti === 0 ? bPicks : aPicks;
-          const isWin = r.winner === (ti === 0 ? 'a' : 'b');
+        // 阵容统计
+        [aP, bP].forEach((team,ti) => {
+          const enemy=ti===0?bP:aP;
+          const isW=r.winner===(ti===0?'a':'b');
+          // 灵活度：记录每个英雄出现的阵容签名
+          const compSig = team.slice().sort().join('|');
           team.forEach(h => {
-            pickCount[h] = (pickCount[h] || 0) + 1;
-            if (hasJudge) {
-              judgedCount[h] = (judgedCount[h] || 0) + 1;
-              if (isWin) winCount[h] = (winCount[h] || 0) + 1;
-            }
-            // 应对数据：我方带 h 时，对方有哪些英雄 => 统计 h 对抗 enemyHero 时的胜负
-            enemy.forEach(e => {
-              const key = h + '|||' + e;
-              if (!myVsEnemy[key]) myVsEnemy[key] = { pick: 0, win: 0, judged: 0 };
-              myVsEnemy[key].pick++;
-              if (hasJudge) {
-                myVsEnemy[key].judged++;
-                if (isWin) myVsEnemy[key].win++;
-              }
+            targets.forEach(st => {
+              st.pickCount[h]=(st.pickCount[h]||0)+1;
+              if(hasJ){ st.judgedCount[h]=(st.judgedCount[h]||0)+1; if(isW) st.winCount[h]=(st.winCount[h]||0)+1; }
+              // vsMatrix
+              enemy.forEach(e => {
+                const k=h+'|||'+e;
+                targets.forEach(st2 => {
+                  if (!st2.vsMatrix[k]) st2.vsMatrix[k]={pick:0,win:0,judged:0};
+                  st2.vsMatrix[k].pick++;
+                  if(hasJ){ st2.vsMatrix[k].judged++; if(isW) st2.vsMatrix[k].win++; }
+                });
+              });
+              // 灵活度（出现在多少种不同阵容）
+              if (!st.heroAppearComp[h]) st.heroAppearComp[h]=new Set();
+              st.heroAppearComp[h].add(compSig);
             });
+            // 同队组合（全部）+ 胜利阵容组合（仅有批注且胜利）
+            for(let i=0;i<team.length;i++)
+              for(let j=i+1;j<team.length;j++){
+                const k=[team[i],team[j]].sort().join('|');
+                targets.forEach(st=>{
+                  st.teamCombo[k]=(st.teamCombo[k]||0)+1;
+                  // winCombo：仅有效批注且该队胜利才计入
+                  if(hasJ && isW) st.winCombo[k]=(st.winCombo[k]||0)+1;
+                });
+              }
           });
-          for (let i = 0; i < team.length; i++)
-            for (let j = i+1; j < team.length; j++) {
-              const key = [team[i], team[j]].sort().join('|');
-              teamCombo[key] = (teamCombo[key] || 0) + 1;
-            }
         });
       });
     });
 
-    // ── 当前局面 ──
-    const isA       = myRole === 'a';
-    const myPicks   = (isA ? gs.aPicks : gs.bPicks) || [];
-    const ePicks    = (isA ? gs.bPicks : gs.aPicks) || [];
-    const lim       = getLIM();
-    const myBudget  = lim[myRole] || 52;
-    const eRole     = isA ? 'b' : 'a';
-    const eBudget   = lim[eRole] || 50;
-    const myUsed    = isA ? (gs.aUsed||0) : (gs.bUsed||0);
-    const eUsed     = isA ? (gs.bUsed||0) : (gs.aUsed||0);
-    const remaining = myBudget - myUsed;
-    const eLeft     = eBudget  - eUsed;
-    const slotsLeft = 5 - myPicks.length;
-    const eSlots    = 5 - ePicks.length;
-    const curStep   = gs.step || 0;
-    const order     = getOrder();
+    // ════════════════════════════════════════════
+    // 局面变量
+    // ════════════════════════════════════════════
+    const isA      = myRole==='a';
+    const myPicks  = (isA?gs.aPicks:gs.bPicks)||[];
+    const ePicks   = (isA?gs.bPicks:gs.aPicks)||[];
+    const lim      = getLIM();
+    const myBudget = lim[myRole]||52;
+    const eRole    = isA?'b':'a';
+    const eBudget  = lim[eRole]||50;
+    const myUsed   = isA?(gs.aUsed||0):(gs.bUsed||0);
+    const eUsed    = isA?(gs.bUsed||0):(gs.aUsed||0);
+    const remaining= myBudget-myUsed, eLeft=eBudget-eUsed;
+    const slotsLeft= 5-myPicks.length, eSlots=5-ePicks.length;
+    const curStep  = gs.step||0, order=getOrder();
+    const MIN_SC   = 5;
+    const tot      = all.rounds||1;
 
-    let nextStep = curStep;
-    for (let s = curStep; s < 10; s++) {
-      if (order[s] === myRole) { nextStep = s; break; }
-    }
+    let nextStep=curStep;
+    for(let s=curStep;s<10;s++){ if(order[s]===myRole){nextStep=s;break;} }
+    let eNextStep=curStep;
+    for(let s=curStep;s<10;s++){ if(order[s]===eRole){eNextStep=s;break;} }
 
-    const stepDesc = [
-      '第1选（开局）','第2选','第3选','第4选',
-      '第5选（中期）','第6选','第7选','第8选',
-      '第9选','第10选（收尾）'
-    ];
-
-    const pickedNames = new Set([
+    const pickedNames=new Set([
       ...(gs.globalPicked||[]),
       ...(gs.aPicks||[]).map(p=>p.name),
       ...(gs.bPicks||[]).map(p=>p.name)
     ]);
-    const available = ALL.filter(h => !pickedNames.has(h.name) && h.score <= remaining);
 
-    // ── 预算形势分析 ──
-    const myAvgBudget = slotsLeft > 0 ? remaining / slotsLeft : 0;
-    const eAvgBudget  = eSlots   > 0 ? eLeft    / eSlots    : 0;
-    const isEarlyGame = nextStep <= 3;
-    const isMidGame   = nextStep >= 4 && nextStep <= 6;
-    const isLateGame  = nextStep >= 7;
-    const eMaxScore   = ePicks.length ? Math.max(...ePicks.map(p=>p.score)) : 0;
-    const shouldFeint = isEarlyGame && myAvgBudget < 12 && eAvgBudget > 14 && slotsLeft >= 4;
-    const shouldMatch = eMaxScore >= 14 && myPicks.length < ePicks.length;
-    const canDominate = myAvgBudget > eAvgBudget + 3 && remaining >= 12;
+    // 合法可选英雄（选后余量够填满剩余名额）
+    const available=ALL.filter(h=>{
+      if(pickedNames.has(h.name)) return false;
+      if(h.score>remaining) return false;
+      const afterSlots=slotsLeft-1;
+      if(afterSlots>0 && (remaining-h.score)<afterSlots*MIN_SC) return false;
+      return true;
+    });
 
-    function getStrategyHint() {
-      if (shouldFeint)  return { text: '🎭 赛马试探 — 先出中低分引对面亮高分，保留高分后手', color: '#fbbf24' };
-      if (shouldMatch)  return { text: '⚔️ 跟牌压制 — 对面已出高分，建议选同级或更高分人物对压', color: '#f87171' };
-      if (canDominate)  return { text: '👑 高分压制 — 我方均摊预算更充裕，优先选高分核心人物', color: '#4ade80' };
-      if (isLateGame)   return { text: '🔧 补位阶段 — 根据阵容短板和剩余预算精准补位', color: '#a78bfa' };
-      if (isMidGame)    return { text: '🤝 配合阶段 — 选与己方阵容历史配合率高的人物', color: '#60a5fa' };
-      return                   { text: '🏗️ 开局布局 — 优先胜率高、价值高的核心人物', color: '#4ade80' };
+    // ════════════════════════════════════════════
+    // 核心指标计算
+    // ════════════════════════════════════════════
+
+    // 1. 胜率（有效批注）
+    function getWR(name, st) {
+      const j=st.judgedCount[name]||0, w=st.winCount[name]||0;
+      return j>=2 ? w/j : null;
     }
-    const strategy = getStrategyHint();
-
-    // ── 针对对方已选英雄的应对推荐 ──
-    // 对于对方每个已选英雄，找我方哪些英雄与其对局时胜率最高
-    function getCounterPicks() {
-      if (!ePicks.length) return [];
-      const counterScore = {};
-
-      ePicks.forEach(ep => {
-        // 遍历所有 myHero|||ep.name 的历史数据
-        Object.entries(myVsEnemy).forEach(([key, data]) => {
-          const [myH, eH] = key.split('|||');
-          if (eH !== ep.name) return;
-          if (pickedNames.has(myH)) return;
-          const hero = ALL.find(h => h.name === myH);
-          if (!hero || hero.score > remaining) return;
-
-          if (!counterScore[myH]) counterScore[myH] = { vsScore: 0, vsCount: 0 };
-
-          // 有批注数据的用胜率，否则用出现频率
-          if (data.judged >= 2) {
-            const wr = data.win / data.judged;
-            counterScore[myH].vsScore += wr * 50;
-            counterScore[myH].vsCount++;
-          } else if (data.pick >= 1) {
-            counterScore[myH].vsScore += 10; // 无批注但有同框记录
-            counterScore[myH].vsCount++;
-          }
-        });
-      });
-
-      return Object.entries(counterScore)
-        .filter(([_, v]) => v.vsCount > 0)
-        .sort((a, b) => b[1].vsScore - a[1].vsScore)
-        .slice(0, 5)
-        .map(([name, data]) => {
-          const hero = ALL.find(h => h.name === name);
-          // 汇总这个英雄对抗对方所有英雄的胜率
-          let totalJudged = 0, totalWin = 0, totalPick = 0;
-          ePicks.forEach(ep => {
-            const key = name + '|||' + ep.name;
-            if (myVsEnemy[key]) {
-              totalJudged += myVsEnemy[key].judged;
-              totalWin    += myVsEnemy[key].win;
-              totalPick   += myVsEnemy[key].pick;
-            }
-          });
-          const wr = totalJudged >= 2 ? Math.round(totalWin/totalJudged*100) : null;
-          return { name, hero, totalPick, totalJudged, wr };
-        })
-        .filter(x => x.hero);
+    function getBestWR(name) {
+      const wc=getWR(name,cur), wa=getWR(name,all);
+      if(wc!==null) return {wr:wc, src:'本轮', judged:cur.judgedCount[name]};
+      if(wa!==null) return {wr:wa, src:'历史', judged:all.judgedCount[name]};
+      return null;
     }
 
-    // ── 综合评分 ──
-    function scoreHero(hero, step) {
-      const name = hero.name;
-      let sc = 0;
+    // 2. 本位置频率和胜率
+    function getStepData(name, step) {
+      // 频率：严格只显示本轮（cur）数据，不跨轮兜底
+      const freqC=(cur.stepPick[step]||{})[name]||0;
+      const freq  = freqC>0 ? {val:freqC, src:'本轮'} : null;
+      // 本位胜率：本轮优先，本轮不足才用全局（胜率跨轮参考仍有意义）
+      const sjC=(cur.stepJudged[step]||{})[name]||0, swC=(cur.stepWin[step]||{})[name]||0;
+      const sjA=(all.stepJudged[step]||{})[name]||0, swA=(all.stepWin[step]||{})[name]||0;
+      const stepWR = sjC>=2 ? {wr:swC/sjC,src:'本轮',j:sjC} : sjA>=2 ? {wr:swA/sjA,src:'历史',j:sjA} : null;
+      return {freq, stepWR};
+    }
 
-      // 1. 出场热度
-      sc += (pickCount[name]||0) / (totalRounds||1) * 10;
-
-      // 2. 有效批注整体胜率
-      if ((judgedCount[name]||0) >= 2) {
-        sc += (winCount[name]||0) / judgedCount[name] * 55;
-      }
-
-      // 3. 该BP位历史 + 位置胜率
-      if ((stepPick[step]||{})[name]) {
-        sc += stepPick[step][name] / (totalRounds||1) * 25;
-        if ((stepJudged[step]||{})[name] >= 2) {
-          sc += (stepWin[step]||{})[name] / stepJudged[step][name] * 30;
-        }
-      }
-
-      // 4. 阵容配合
-      myPicks.forEach(m => {
-        const key = [name, m.name].sort().join('|');
-        sc += (teamCombo[key]||0) * 8;
+    // 3. 克制得分（vsMatrix）
+    function getCounterScore(myH, eHeroNames) {
+      let total=0, cnt=0;
+      eHeroNames.forEach(eH => {
+        const kC=myH+'|||'+eH, kA=myH+'|||'+eH;
+        const d=cur.vsMatrix[kC]||all.vsMatrix[kA];
+        if(!d) return;
+        if(d.judged>=2){ total+=d.win/d.judged; cnt++; }
+        else if(d.pick>=1){ total+=0.45; cnt++; } // 无批注按历史基准
       });
+      return cnt>0 ? total/cnt : null;
+    }
 
-      // 5. 针对对方阵容的应对加分（核心新增）
-      let counterBonus = 0;
-      ePicks.forEach(ep => {
-        const key = name + '|||' + ep.name;
-        if (myVsEnemy[key]) {
-          const d = myVsEnemy[key];
-          if (d.judged >= 2) {
-            counterBonus += (d.win/d.judged) * 20;
-          } else {
-            counterBonus += 3;
-          }
-        }
+    // 4. 阵容协同得分（综合同队出现次数 + 胜利阵容搭配次数）
+    function getSynergyScore(name) {
+      let sc=0;
+      myPicks.forEach(m=>{
+        const k=[name,m.name].sort().join('|');
+
+        // 同队出现次数（本轮优先）
+        const comboC = cur.teamCombo[k]||0;
+        const comboA = all.teamCombo[k]||0;
+        sc += comboC>0 ? comboC*8 : comboA*4;
+
+        // 胜利阵容搭配次数（额外加权，本轮优先）
+        // 含义：这两个英雄同队且最终赢了的次数越多，搭配价值越高
+        const winC = cur.winCombo[k]||0;
+        const winA = all.winCombo[k]||0;
+        sc += winC>0 ? winC*15 : winA*8;
       });
-      sc += counterBonus;
+      return sc;
+    }
 
-      // 6. 分数策略权重
-      const scoreRatio = hero.score / (remaining||1);
-      if (shouldFeint) {
-        const idealScore = 8;
-        sc += Math.max(0, 20 - Math.abs(hero.score - idealScore) * 4);
-        const reserveAfter = remaining - hero.score;
-        if (reserveAfter >= 20 && slotsLeft >= 2) sc += 15;
-      } else if (shouldMatch || canDominate) {
-        sc += scoreRatio * 50;
-        sc += (hero.score / 20) * 25;
-      } else if (isLateGame) {
-        // 收尾：选完后余量不要过多浪费
-        const afterRem = remaining - hero.score;
-        const afterSlots = slotsLeft - 1;
-        if (afterSlots > 0) {
-          const avgAfter = afterRem / afterSlots;
-          // 奖励均摊在5-18分之间的选择（正常分段）
-          if (avgAfter >= 5 && avgAfter <= 18) sc += 20;
-          else sc -= Math.abs(avgAfter - 10) * 0.5;
-        }
-        sc += scoreRatio * 35;
+    // 5. 灵活度（出现在多少种不同阵容组合）
+    function getFlexScore(name) {
+      const comps=all.heroAppearComp[name];
+      return comps ? comps.size : 0;
+    }
+
+    // 6. 推断阵容胜利条件（基于分数结构）
+    function inferWinCon(picks) {
+      if(!picks.length) return null;
+      const avg=picks.reduce((a,p)=>a+p.score,0)/picks.length;
+      const max=Math.max(...picks.map(p=>p.score));
+      if(max>=16) return '高分核心压制';
+      if(avg>=12)  return '全面强压';
+      if(avg>=9)   return '均衡阵容';
+      return '灵活骚扰';
+    }
+
+    // 7. 威胁评估（对方已选英雄的威胁度）
+    function getThreat(ep) {
+      let threat=0;
+      const wr=getWR(ep.name, all);
+      if(wr!==null) threat+=wr*60;
+      const freq=(all.pickCount[ep.name]||0)/tot;
+      threat+=freq*30;
+      const sd=getStepData(ep.name, curStep);
+      if(sd.stepWR) threat+=sd.stepWR.wr*25;
+      return threat;
+    }
+
+    // ════════════════════════════════════════════
+    // 综合评分（多维加权）
+    // ════════════════════════════════════════════
+    const isEarly=nextStep<=3, isMid=nextStep>=4&&nextStep<=6, isLate=nextStep>=7;
+    const myAvg=slotsLeft>0?remaining/slotsLeft:0;
+    const eAvg =eSlots>0?eLeft/eSlots:0;
+    const eMaxSc=ePicks.length?Math.max(...ePicks.map(p=>p.score)):0;
+    const shouldFeint=isEarly&&myAvg<12&&eAvg>14&&slotsLeft>=4;
+    const shouldMatch=eMaxSc>=14&&myPicks.length<ePicks.length;
+    const canDominate=myAvg>eAvg+3&&remaining>=12;
+
+    function scoreHero(hero) {
+      const name=hero.name;
+      let sc=0;
+      const sd=getStepData(name,nextStep);
+      const totRounds = all.rounds || 1;
+
+      // ═══════════════════════════════════════════════════════
+      // 满分基准约 237 分（出场为骨架，胜率为加分项）
+      //   ① 本位出场（本轮，绝对次数封顶）  上限 65  ← 第一，数据最完整
+      //   ② 总出场次数（全局出场率）         上限 40  ← 第二，热度参考
+      //   ③ 有效批注胜率                     上限 35  ← 第三，有则加分
+      //   ④ 本位胜率                         上限 20  ← 第四，批注少时影响小
+      //   ⑤ 克制对方                         上限 25
+      //   ⑥ 阵容协同                         上限 20
+      //   ⑦ 灵活度                           上限 12/6/2
+      //   ⑧ 预算策略                         上限 ~20
+      // ═══════════════════════════════════════════════════════
+
+      // ① 本位出场（本轮同轮历史，绝对次数×15封顶65，不跨轮兜底）
+      const stepFreqCur = (cur.stepPick[nextStep]||{})[name]||0;
+      sc += Math.min(stepFreqCur * 15, 65);
+
+      // ② 总出场次数（全局，出场率×40，上限40）
+      const totalPickRate = (all.pickCount[name]||0) / totRounds;
+      sc += Math.min(totalPickRate * 40, 40);
+
+      // ③ 有效批注胜率（上限35，有批注才加分，没有不影响排名）
+      const wrData=getBestWR(name);
+      if(wrData) sc+=wrData.wr*35*(wrData.src==='本轮'?1:0.65);
+
+      // ④ 本位胜率（上限20，批注少时影响小）
+      if(sd.stepWR) sc+=sd.stepWR.wr*20*(sd.stepWR.src==='本轮'?1:0.6);
+
+      // ⑤ 克制对方阵容（上限25）
+      const ctr=getCounterScore(name, ePicks.map(p=>p.name));
+      if(ctr!==null) sc+=ctr*25;
+
+      // ⑥ 阵容协同（上限20）
+      const syn=getSynergyScore(name);
+      sc+=Math.min(syn*6, 20);
+
+      // ⑦ 灵活度（开局12/中期6/收尾2）
+      const flex=getFlexScore(name);
+      sc+=Math.min(flex*2, isEarly?12:isMid?6:2);
+
+      // ⑧ 预算策略（上限约20）
+      const ratio=hero.score/(remaining||1);
+      const afterRem=remaining-hero.score, afterSlots=slotsLeft-1;
+      const afterAvg=afterSlots>0?afterRem/afterSlots:0;
+      if(shouldFeint) {
+        sc+=Math.max(0,15-Math.abs(hero.score-8)*3);
+        if(afterRem>=20&&slotsLeft>=2) sc+=8;
+      } else if(shouldMatch||canDominate) {
+        sc+=ratio*20+(hero.score/20)*10;
+      } else if(isLate) {
+        if(afterSlots>0&&afterAvg>=MIN_SC&&afterAvg<=18) sc+=15;
+        sc+=ratio*12;
       } else {
-        sc += scoreRatio * 40;
-        sc += (hero.score / 20) * 20;
-        // 奖励选后均摊合理区间
-        const afterRem = remaining - hero.score;
-        const afterAvg = slotsLeft > 1 ? afterRem / (slotsLeft-1) : 0;
-        if (afterAvg >= 5 && afterAvg <= 18) sc += 10;
+        sc+=ratio*12+(hero.score/20)*8;
+        if(afterSlots>0&&afterAvg>=MIN_SC&&afterAvg<=18) sc+=8;
       }
 
       return sc;
     }
 
-    const ranked = available
-      .map(h => ({ ...h, aiScore: scoreHero(h, nextStep) }))
-      .sort((a, b) => b.aiScore - a.aiScore)
-      .slice(0, 8);
+    const ranked=available.map(h=>({...h,sc:scoreHero(h)}))
+      .sort((a,b)=>b.sc-a.sc).slice(0,8);
 
-    const counterPicks = getCounterPicks();
-
-    // ── 预测对方下一选择 ──
+    // 对方预测
     function predictEnemy() {
-      const cScore = {};
-      let eNextStep = curStep;
-      for (let s = curStep; s < 10; s++) {
-        if (order[s] === eRole) { eNextStep = s; break; }
-      }
-      if (stepPick[eNextStep]) {
-        Object.entries(stepPick[eNextStep]).forEach(([name, cnt]) => {
-          if (pickedNames.has(name)) return;
-          const hero = ALL.find(h => h.name === name);
-          if (!hero || hero.score > eLeft) return;
-          cScore[name] = (cScore[name]||0) + cnt * 2;
-          if ((stepJudged[eNextStep]||{})[name] >= 2) {
-            cScore[name] += (stepWin[eNextStep]||{})[name] / stepJudged[eNextStep][name] * 20;
-          }
-        });
-      }
-      ePicks.forEach(ep => {
-        Object.keys(teamCombo).forEach(key => {
-          const [a, b] = key.split('|');
-          const partner = a === ep.name ? b : b === ep.name ? a : null;
-          if (!partner || pickedNames.has(partner)) return;
-          const hero = ALL.find(h => h.name === partner);
-          if (!hero || hero.score > eLeft) return;
-          cScore[partner] = (cScore[partner]||0) + teamCombo[key] * 3;
-        });
+      const cScore={};
+      [cur,all].forEach((st,si)=>{
+        const w=si===0?2:1;
+        if(st.stepPick[eNextStep])
+          Object.entries(st.stepPick[eNextStep]).forEach(([name,cnt])=>{
+            if(pickedNames.has(name)) return;
+            const hero=ALL.find(h=>h.name===name);
+            if(!hero||hero.score>eLeft) return;
+            cScore[name]=(cScore[name]||0)+cnt*2*w;
+            if((st.stepJudged[eNextStep]||{})[name]>=2)
+              cScore[name]+=(st.stepWin[eNextStep]||{})[name]/st.stepJudged[eNextStep][name]*18*w;
+          });
+        ePicks.forEach(ep=>Object.keys(st.teamCombo).forEach(k=>{
+          const[a,b]=k.split('|');
+          const partner=a===ep.name?b:b===ep.name?a:null;
+          if(!partner||pickedNames.has(partner)) return;
+          const hero=ALL.find(h=>h.name===partner);
+          if(!hero||hero.score>eLeft) return;
+          cScore[partner]=(cScore[partner]||0)+st.teamCombo[k]*3*w;
+        }));
       });
-      return Object.entries(cScore)
-        .sort((a, b) => b[1]-a[1]).slice(0, 5)
-        .map(([name]) => ({ name, hero: ALL.find(h => h.name === name) }))
-        .filter(x => x.hero);
+      return Object.entries(cScore).sort((a,b)=>b[1]-a[1]).slice(0,4)
+        .map(([name])=>({name,hero:ALL.find(h=>h.name===name)})).filter(x=>x.hero);
     }
 
-    const predicted  = predictEnemy();
-    const hotCombos  = Object.entries(teamCombo)
-      .filter(([_k, v]) => v >= 2).sort((a,b) => b[1]-a[1]).slice(0, 3);
-    const topWR      = Object.entries(judgedCount)
-      .filter(([n, t]) => t >= 2 && !pickedNames.has(n) && available.find(h => h.name === n))
-      .map(([n, t]) => ({ name: n, wr: Math.round((winCount[n]||0)/t*100) }))
-      .sort((a,b) => b.wr-a.wr).slice(0, 3);
+    // 应对推荐
+    function getCounters() {
+      if(!ePicks.length) return [];
+      const sc={};
+      ePicks.forEach(ep=>{
+        [cur,all].forEach((st,si)=>{
+          const w=si===0?2:1;
+          Object.entries(st.vsMatrix).forEach(([k,d])=>{
+            const[myH,eH]=k.split('|||');
+            if(eH!==ep.name||pickedNames.has(myH)) return;
+            const hero=ALL.find(h=>h.name===myH);
+            if(!hero||hero.score>remaining) return;
+            if(slotsLeft>1&&(remaining-hero.score)<(slotsLeft-1)*MIN_SC) return;
+            if(!sc[myH]) sc[myH]=0;
+            if(d.judged>=2) sc[myH]+=d.win/d.judged*50*w;
+            else sc[myH]+=6*w;
+          });
+        });
+      });
+      return Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,4)
+        .map(([name])=>{
+          const hero=ALL.find(h=>h.name===name);
+          let j=0,w=0,p=0;
+          ePicks.forEach(ep=>{
+            const d=cur.vsMatrix[name+'|||'+ep.name]||all.vsMatrix[name+'|||'+ep.name];
+            if(d){j+=d.judged;w+=d.win;p+=d.pick;}
+          });
+          return {name,hero,wr:j>=2?Math.round(w/j*100):null,judged:j,pick:p};
+        }).filter(x=>x.hero);
+    }
 
-    const TL = { str:'💪力量', agi:'⚡敏捷', int:'🧠智力' };
-    const myPickNames = myPicks.map(p=>p.name).join('、') || '（未选）';
-    const ePickNames  = ePicks.map(p=>p.name).join('、')  || '（未选）';
-    const teamLabel   = `${isA?'JUMP方':'Sunday方'}（上限${myBudget}分）`;
+    const predicted=predictEnemy(), counters=getCounters();
+    const myWinCon=inferWinCon(myPicks), eWinCon=inferWinCon(ePicks);
 
-    let out = '';
+    // 策略判断
+    function getStrategy(){
+      if(shouldFeint) return {text:'🎭 赛马试探',desc:'先出中低分，引对面亮牌后发制人',color:'#fbbf24'};
+      if(shouldMatch)  return {text:'⚔️ 跟牌压制',desc:'对方已出高分，需要同级或更高分压制',color:'#f87171'};
+      if(canDominate)  return {text:'👑 高分压制',desc:'预算均摊优势明显，直接拿核心高分',color:'#4ade80'};
+      if(isLate)       return {text:'🔧 精准补位',desc:'按剩余预算填满阵容短板',color:'#a78bfa'};
+      if(isMid)        return {text:'🤝 强化协同',desc:'补充与已选英雄配合最强的牌',color:'#60a5fa'};
+      return             {text:'🏗️ 奠基开局',desc:'优先高胜率+高灵活度的核心英雄',color:'#4ade80'};
+    }
+    const strat=getStrategy();
 
-    // ── 当前局面 ──
-    out += `<div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-      <div style="color:#fcd34d;font-weight:700;margin-bottom:5px">📊 当前局面</div>
-      <div style="margin-bottom:2px">身份：<span style="color:#fbbf24;font-weight:700">${teamLabel}</span> &nbsp;·&nbsp; ${stepDesc[nextStep]||'等待中'}</div>
-      <div style="margin-bottom:5px;padding:4px 8px;background:rgba(255,255,255,.06);border-radius:5px;border-left:3px solid ${strategy.color}">
-        <span style="color:${strategy.color};font-size:11px;font-weight:700">${strategy.text}</span>
+    const TL={str:'💪',agi:'⚡',int:'🧠'};
+    const stepNames=['第1选','第2选','第3选','第4选','第5选','第6选','第7选','第8选','第9选','第10选'];
+    const teamLabel=isA?'JUMP方':'Sunday方';
+
+    // ════════════════════════════════════════════
+    // 渲染
+    // ════════════════════════════════════════════
+    let out='';
+
+    // ── 区块：局势总览 ──
+    out+=`<div style="background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="color:#fcd34d;font-weight:700;font-size:12px">📊 局势总览</span>
+        <span style="font-size:10px;color:rgba(255,255,255,.35)">${teamLabel} · ${stepNames[nextStep]}(${all.judgedRounds}场批注)</span>
       </div>
-      <div style="margin-bottom:3px">我方：<span style="color:#fca5a5">${myPickNames}</span></div>
-      <div style="margin-bottom:5px">对方：<span style="color:#93c5fd">${ePickNames}</span></div>
-      <div style="display:flex;gap:10px;font-size:11px">
-        <span>我方剩余 <b style="color:#4ade80">${remaining}分</b>/${slotsLeft}位 均摊<b style="color:#fbbf24">${myAvgBudget.toFixed(1)}分</b></span>
-        <span style="color:rgba(255,255,255,.3)">|</span>
-        <span>对方剩余 <b style="color:#93c5fd">${eLeft}分</b>/${eSlots}位 均摊<b style="color:#f87171">${eAvgBudget.toFixed(1)}分</b></span>
+      <div style="padding:5px 8px;background:rgba(255,255,255,.06);border-radius:6px;border-left:3px solid ${strat.color};margin-bottom:8px">
+        <span style="color:${strat.color};font-weight:700;font-size:11px">${strat.text}</span>
+        <span style="color:rgba(255,255,255,.5);font-size:10px;margin-left:6px">${strat.desc}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px">
+        <div style="background:rgba(252,165,165,.07);border-radius:6px;padding:5px 8px">
+          <div style="color:#fca5a5;font-weight:700;margin-bottom:2px">我方 ${myBudget}分上限</div>
+          <div>剩余 <b style="color:#4ade80">${remaining}分</b>/${slotsLeft}位 均摊<b style="color:#fbbf24">${myAvg.toFixed(1)}</b></div>
+          ${myWinCon?`<div style="color:rgba(255,255,255,.45);margin-top:2px">倾向：${myWinCon}</div>`:''}
+        </div>
+        <div style="background:rgba(147,197,253,.07);border-radius:6px;padding:5px 8px">
+          <div style="color:#93c5fd;font-weight:700;margin-bottom:2px">对方 ${eBudget}分上限</div>
+          <div>剩余 <b style="color:#93c5fd">${eLeft}分</b>/${eSlots}位 均摊<b style="color:#f87171">${eAvg.toFixed(1)}</b></div>
+          ${eWinCon?`<div style="color:rgba(255,255,255,.45);margin-top:2px">倾向：${eWinCon}</div>`:''}
+        </div>
       </div>
     </div>`;
 
-    // ── 赛马后手储备 ──
-    if (shouldFeint) {
-      const highCards = available.filter(h => h.score >= 12).sort((a,b)=>b.score-a.score).slice(0, 4);
-      if (highCards.length) {
-        out += `<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-          <div style="color:#fbbf24;font-weight:700;margin-bottom:4px">🎭 赛马后手储备（建议留存）</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:5px">先出低分引对面亮高分，以下高分牌留作后手</div>`;
-        highCards.forEach(h => {
-          out += `<span style="display:inline-block;margin:2px;padding:2px 8px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:4px;font-size:11px;color:#fbbf24">${h.name} ${h.score}分</span>`;
-        });
-        out += `</div>`;
-      }
-    }
-
-    // ── 针对对方阵容的应对推荐 ──
-    if (ePicks.length > 0 && counterPicks.length > 0) {
-      out += `<div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-        <div style="color:#f87171;font-weight:700;margin-bottom:4px">🛡️ 针对对方阵容的应对选择</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:6px">基于历史对局中与对方已选英雄同框的应对数据</div>`;
-      counterPicks.forEach((p, i) => {
-        const wrText = p.wr !== null ? `对位胜率${p.wr}%` : `同框${p.totalPick}次`;
-        const jText  = p.totalJudged >= 2 ? `${p.totalJudged}场批注` : '无批注';
-        out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <span style="color:#f87171;font-weight:700;min-width:16px">${i+1}.</span>
-          <span style="font-weight:700">${p.name}</span>
-          <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type]||''} ${p.hero.score}分 · ${wrText} · ${jText}</span>
+    // ── 区块：对方威胁分析 ──
+    if(ePicks.length>0){
+      const threats=ePicks.map(ep=>({ep,t:getThreat(ep)})).sort((a,b)=>b.t-a.t);
+      out+=`<div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+        <div style="color:#f87171;font-weight:700;font-size:12px;margin-bottom:6px">⚠️ 对方威胁分析</div>`;
+      threats.forEach(({ep,t})=>{
+        const wr=getWR(ep.name,all);
+        const level=t>45?{lbl:'高威胁',c:'#f87171'}:t>25?{lbl:'中威胁',c:'#fbbf24'}:{lbl:'低威胁',c:'#4ade80'};
+        const wrStr=wr!==null?`胜率${Math.round(wr*100)}%`:'无批注';
+        out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:11px;color:${level.c};font-weight:700;min-width:48px">${level.lbl}</span>
+          <span style="font-weight:700">${ep.name}</span>
+          <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[ep.type]||''} ${ep.score}分 · ${wrStr} · 出场${all.pickCount[ep.name]||0}次</span>
         </div>`;
       });
-      out += `</div>`;
+      out+=`</div>`;
     }
 
-    // ── 预测对方 ──
-    if (ePicks.length > 0 || curStep > 0) {
-      out += `<div style="background:rgba(147,197,253,.07);border:1px solid rgba(147,197,253,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-        <div style="color:#93c5fd;font-weight:700;margin-bottom:6px">🔮 预测对方下一选择</div>`;
-      if (!predicted.length) {
-        out += `<div style="color:rgba(255,255,255,.4);font-size:11px">历史数据不足，暂无预测</div>`;
-      } else {
-        predicted.forEach((p, i) => {
-          const jc  = judgedCount[p.name]||0;
-          const wr  = jc >= 2 ? Math.round((winCount[p.name]||0)/jc*100)+'%胜率' : '无批注数据';
-          const ap  = pickCount[p.name] ? `出场${pickCount[p.name]}次` : '首次';
-          out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-            <span style="color:#93c5fd;font-weight:700;min-width:16px">${i+1}.</span>
-            <span style="font-weight:700">${p.name}</span>
-            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type]||''} ${p.hero.score}分 · ${ap} · ${wr}</span>
-          </div>`;
-        });
-      }
-      out += `</div>`;
-    }
-
-    // ── 综合推荐 ──
-    out += `<div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-      <div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 综合推荐选择</div>`;
-    if (!ranked.length) {
-      out += `<div style="color:rgba(255,255,255,.4)">没有可推荐的英雄（预算不足或已全部选完）</div>`;
-    } else {
-      ranked.forEach((h, i) => {
-        const jc      = judgedCount[h.name]||0;
-        const wrText  = jc >= 2 ? Math.round((winCount[h.name]||0)/jc*100)+'%胜率' : '无批注数据';
-        const ap      = pickCount[h.name] ? `出场${pickCount[h.name]}次` : '首次';
-        const spFreq  = (stepPick[nextStep]||{})[h.name] ? `本位${stepPick[nextStep][h.name]}次` : '';
-        const medal   = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
-        // 修复：afterRem 正确计算
-        const afterRem   = remaining - h.score;
-        const afterSlots = slotsLeft - 1;
-        const afterAvgStr = afterSlots > 0 ? (afterRem / afterSlots).toFixed(1) : '—';
-        out += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="min-width:20px;text-align:center">${medal}</span>
-            <span style="font-weight:700;color:#fbbf24">${h.name}</span>
-            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[h.type]||''} ${h.score}分 · ${ap}${spFreq?' · '+spFreq:''} · ${wrText}</span>
+    // ── 区块：应对推荐 ──
+    if(ePicks.length>0&&counters.length>0){
+      out+=`<div style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.25);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+        <div style="color:#c4b5fd;font-weight:700;font-size:12px;margin-bottom:2px">🛡️ 应对推荐</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px">与对方已选英雄历史对局胜率最高</div>`;
+      counters.forEach((c,i)=>{
+        const wrStr=c.wr!==null?`对位胜率 <b style="color:#4ade80">${c.wr}%</b>（${c.judged}场）`:`同框${c.pick}次，暂无批注`;
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+        const afterRem=remaining-c.hero.score, afterSl=slotsLeft-1;
+        out+=`<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="display:flex;align-items:center;gap:5px">
+            <span style="min-width:20px">${medal}</span>
+            <span style="font-weight:700">${c.name}</span>
+            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[c.hero.type]||''} ${c.hero.score}分</span>
           </div>
-          <div style="font-size:9px;color:rgba(255,255,255,.28);padding-left:26px">选后剩余 ${afterRem}分 / ${afterSlots}位（均摊${afterAvgStr}分）</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);padding-left:25px">${wrStr} · 选后余${afterRem}分/${afterSl}位</div>
+        </div>`;
+      });
+      out+=`</div>`;
+    }
+
+    // ── 区块：综合推荐 ──
+    out+=`<div style="background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+      <div style="color:#4ade80;font-weight:700;font-size:12px;margin-bottom:2px">🎯 综合推荐</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px">胜率 · 本位频率 · 克制 · 协同 · 预算策略 综合评分</div>`;
+    if(!ranked.length){
+      out+=`<div style="color:rgba(255,255,255,.4);text-align:center;padding:8px">预算已无法支撑任何合法选择</div>`;
+    } else {
+      ranked.forEach((h,i)=>{
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+        const wrD=getBestWR(h.name);
+        const sd=getStepData(h.name,nextStep);
+        const ctr=getCounterScore(h.name,ePicks.map(p=>p.name));
+        const flex=getFlexScore(h.name);
+        const afterRem=remaining-h.score, afterSl=slotsLeft-1;
+        const afterAvgStr=afterSl>0?(afterRem/afterSl).toFixed(1):'—';
+
+        // 标签
+        const tags=[];
+        if(wrD&&wrD.wr>=0.6) tags.push(`<span style="background:rgba(74,222,128,.2);color:#4ade80;border-radius:3px;padding:0 4px;font-size:9px">高胜率${Math.round(wrD.wr*100)}%</span>`);
+        if(sd.freq&&sd.freq.val>=3) tags.push(`<span style="background:rgba(167,139,250,.2);color:#c4b5fd;border-radius:3px;padding:0 4px;font-size:9px">本位热门${sd.freq.val}次</span>`);
+        if(ctr!==null&&ctr>=0.6) tags.push(`<span style="background:rgba(248,113,113,.2);color:#fca5a5;border-radius:3px;padding:0 4px;font-size:9px">强克制${Math.round(ctr*100)}%</span>`);
+        if(flex>=5&&isEarly) tags.push(`<span style="background:rgba(251,191,36,.15);color:#fbbf24;border-radius:3px;padding:0 4px;font-size:9px">高灵活</span>`);
+
+
+        const dataLine=[
+          wrD?`胜率${Math.round(wrD.wr*100)}%(${wrD.src})`:'无批注数据',
+          sd.freq?`本位${sd.freq.val}次`:'',
+          `出场${all.pickCount[h.name]||0}次`
+        ].filter(Boolean).join(' · ');
+
+        out+=`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+            <span style="min-width:20px;text-align:center">${medal}</span>
+            <span style="font-weight:700;color:#fbbf24;font-size:12px">${h.name}</span>
+            <span style="color:rgba(255,255,255,.4);font-size:10px">${TL[h.type]||''} ${h.score}分</span>
+            <div style="margin-left:auto;display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end">${tags.join('')}</div>
+          </div>
+          <div style="font-size:9px;color:rgba(255,255,255,.35);padding-left:25px">${dataLine} · 选后余${afterRem}分/${afterSl}位(均摊${afterAvgStr})</div>
         </div>`;
       });
     }
-    out += `</div>`;
+    out+=`</div>`;
 
-    // ── 热门组合 ──
-    if (hotCombos.length > 0) {
-      out += `<div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-        <div style="color:#fbbf24;font-weight:700;margin-bottom:6px">🤝 历史热门组合</div>`;
-      hotCombos.forEach(([key, cnt]) => {
-        const [a, b] = key.split('|');
-        const gone = pickedNames.has(a)||pickedNames.has(b);
-        out += `<div style="font-size:11px;padding:3px 0;color:${gone?'rgba(255,255,255,.3)':'#fbbf24'}">
-          ${a} + ${b} <span style="color:rgba(255,255,255,.4)">同队${cnt}次</span>${gone?' <span style="font-size:10px;color:rgba(248,113,113,.6)">(已选)</span>':''}
+    // ── 区块：预测对方 ──
+    if(predicted.length>0){
+      out+=`<div style="background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.18);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+        <div style="color:#93c5fd;font-weight:700;font-size:12px;margin-bottom:6px">🔮 预测对方下一选</div>`;
+      predicted.forEach((p,i)=>{
+        const wr=getWR(p.name,all);
+        const wrStr=wr!==null?`胜率${Math.round(wr*100)}%`:'暂无批注';
+        const freq=all.pickCount[p.name]||0;
+        out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="color:#93c5fd;min-width:16px;font-weight:700">${i+1}.</span>
+          <span style="font-weight:700">${p.name}</span>
+          <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type]||''} ${p.hero.score}分 · 出场${freq}次 · ${wrStr}</span>
         </div>`;
       });
-      out += `</div>`;
+      out+=`</div>`;
     }
 
-    // ── 高批注胜率 ──
-    if (topWR.length > 0) {
-      out += `<div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-        <div style="color:#f87171;font-weight:700;margin-bottom:6px">🏆 高胜率可选（有效批注）</div>`;
-      topWR.forEach(({ name, wr }) => {
-        const jc = judgedCount[name]||0;
-        out += `<div style="font-size:11px;padding:3px 0">${name} <span style="color:#4ade80;font-weight:700">${wr}%</span> 胜率 <span style="color:rgba(255,255,255,.35)">（${jc}场批注）</span></div>`;
+    // ── 赛马后手储备 ──
+    if(shouldFeint){
+      const highCards=available.filter(h=>h.score>=12).sort((a,b)=>b.score-a.score).slice(0,4);
+      if(highCards.length){
+        out+=`<div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:8px 12px">
+          <div style="color:#fbbf24;font-weight:700;font-size:12px;margin-bottom:4px">🎭 后手高分储备</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:5px">建议留存，先出低分引对面亮牌</div>
+          <div>`;
+        highCards.forEach(h=>{
+          out+=`<span style="display:inline-block;margin:2px;padding:2px 8px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:4px;font-size:11px;color:#fbbf24">${h.name} ${h.score}分</span>`;
+        });
+        out+=`</div></div>`;
+      }
+    }
+
+    // ── 区块：历史胜利阵容参考 ──
+    // 找出历史上胜率最高的英雄组合（winCombo次数最多 + 与当前可用英雄有交集）
+    const winComboEntries = Object.entries(all.winCombo)
+      .sort((a,b)=>b[1]-a[1])
+      .filter(([k]) => {
+        const [a,b] = k.split('|');
+        // 至少有一个还可以选
+        return !pickedNames.has(a) || !pickedNames.has(b);
+      })
+      .slice(0, 5);
+
+    if(winComboEntries.length > 0){
+      out+=`<div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+        <div style="color:#fbbf24;font-weight:700;font-size:12px;margin-bottom:2px">🏆 历史胜利阵容搭配</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px">有效批注中胜利队伍出现最多的组合（亮色=仍可选）</div>`;
+      winComboEntries.forEach(([k, cnt]) => {
+        const [a,b] = k.split('|');
+        const aGone = pickedNames.has(a), bGone = pickedNames.has(b);
+        const aColor = aGone ? 'rgba(255,255,255,.25)' : '#fbbf24';
+        const bColor = bGone ? 'rgba(255,255,255,.25)' : '#fbbf24';
+        const aHero = ALL.find(h=>h.name===a), bHero = ALL.find(h=>h.name===b);
+        const aInfo = aHero ? ` ${aHero.score}分` : '';
+        const bInfo = bHero ? ` ${bHero.score}分` : '';
+        // 查这个组合在本轮的情况
+        const curCnt = cur.winCombo[k]||0;
+        const srcTag = curCnt>0
+          ? `<span style="font-size:9px;color:#4ade80;margin-left:4px">本轮${curCnt}次</span>`
+          : `<span style="font-size:9px;color:rgba(255,255,255,.3);margin-left:4px">历史${cnt}次</span>`;
+        out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="color:#fbbf24">🏆</span>
+          <span style="color:${aColor};font-weight:700">${a}</span><span style="color:rgba(255,255,255,.3);font-size:10px">${aInfo}</span>
+          <span style="color:rgba(255,255,255,.3)">+</span>
+          <span style="color:${bColor};font-weight:700">${b}</span><span style="color:rgba(255,255,255,.3);font-size:10px">${bInfo}</span>
+          ${srcTag}
+          ${(aGone||bGone)?`<span style="font-size:9px;color:rgba(248,113,113,.6);margin-left:auto">${aGone?a:''}${(aGone&&bGone)?'+':''}${bGone?b:''}已选</span>`:''}
+        </div>`;
       });
-      out += `</div>`;
+      out+=`</div>`;
     }
 
-    if (judgedRounds < 3) {
-      out += `<div style="padding:6px 8px;background:rgba(251,191,36,.1);border-radius:6px;font-size:10px;color:rgba(251,191,36,.7)">
-        ⚠️ 仅${judgedRounds}场有效批注，胜率参考有限，随对局增多准确度大幅提升
+    if(all.judgedRounds<3){
+      out+=`<div style="margin-top:8px;padding:6px 8px;background:rgba(251,191,36,.1);border-radius:6px;font-size:10px;color:rgba(251,191,36,.7)">
+        ⚠️ 仅${all.judgedRounds}场有效批注，随对局增多推荐准确度将大幅提升
       </div>`;
     }
 
-    document.getElementById('aiContent').innerHTML = out;
+    document.getElementById('aiContent').innerHTML=out;
   } catch(e) {
-    document.getElementById('aiContent').innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">读取失败，请检查网络连接</div>';
+    document.getElementById('aiContent').innerHTML='<div style="color:#f87171;text-align:center;padding:20px">读取失败，请检查网络连接</div>';
     console.error(e);
   }
 }
@@ -1814,6 +1984,12 @@ function syncUI() {
   document.getElementById('bScore').innerHTML = `已用 ${gs.bUsed} / ${bLim} 分`;
   document.getElementById('bScore').className = 'score-total b' + (gs.bUsed > bLim ? ' score-over' : '');
 
+  // 轮次变化时清除预测文字（用轮次号追踪，不用picks数量判断）
+  if (gs.roundNum !== (window._yuceShownRound||0) && gs.active) {
+    window._yuceShownRound = gs.roundNum;
+    const c = document.getElementById('yuceContainer');
+    if (c) c.innerHTML = '';
+  }
   // 修复8: 分离 orderBar 重建与 dot 状态更新
   renderOrderBar();
   updateOrderDots();
@@ -2111,6 +2287,26 @@ let hasRegistered = false;
 
 function listenRoom(aName, bName) {
   hasRegistered = false;
+  // 独立监听预测胜利广播（_yuce节点与主游戏数据完全隔离，不参与任何统计）
+  refDb.child('_yuce').on('value', snap => {
+    const d = snap.val();
+    if (!d || !d.ts) return;
+    if (d.ts === (window._lastYuceTs||0)) return;
+    if (Date.now() - d.ts > 8000) return;
+    window._lastYuceTs = d.ts;
+    // 非发送者：播放音效 + 显示文字；发送者：本地已处理，只同步文字
+    if (myRole !== d.team) {
+      const url = YUCE_LIST[d.idx];
+      if (url) {
+        if (currentYuceSfx) { currentYuceSfx.pause(); currentYuceSfx.currentTime = 0; }
+        currentYuceSfx = new Audio(url);
+        currentYuceSfx.volume = sfxVolume;
+        currentYuceSfx.play().catch(()=>{});
+      }
+      showYuceBar(d.team, d.idx);
+    }
+  });
+
   roomListener = refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
     gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
@@ -2262,6 +2458,7 @@ function listenRoom(aName, bName) {
         } catch(e) { console.warn('音效加载失败:', e); }
       }
     }
+    // yuce预测广播已由独立监听器处理，此处无需处理
     syncUI();
     if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10) startUiTick(); else { stopUiTick(); updTimerUI(); }
   });
@@ -2563,6 +2760,133 @@ function autoReconnect() {
 // 全局音效音量（0~1），默认80%
 let sfxVolume = 0.8;
 
+
+// ── 预测胜利语音 ──
+const YUCE_LIST = ["https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B1.mp3", "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B2.mp3", "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B3.mp3", "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B4.mp3", "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B5.mp3", "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B6.mp3"];
+
+function toggleYucePanel(team) {
+  if (myRole !== team.toLowerCase() && myRole !== 'ref') return;
+  const panel = document.getElementById('yucePanel' + team);
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  const btn = document.getElementById('yuceBtn' + team);
+  if (btn) btn.textContent = isOpen ? '🎯 预测胜利 ▼' : '🎯 预测胜利 ▲';
+}
+
+// 全局预测语音引用（可互相顶掉，但不影响选人语音）
+let currentYuceSfx = null;
+// 各队冷却时间记录
+const _yuceCooldown = {};
+const YUCE_CD = 10000; // 10秒冷却
+
+function playYuce(team, idx) {
+  if (myRole !== team && myRole !== 'ref') return;
+
+  // 冷却检查
+  const now = Date.now();
+  if (_yuceCooldown[team] && now - _yuceCooldown[team] < YUCE_CD) {
+    const left = Math.ceil((YUCE_CD - (now - _yuceCooldown[team])) / 1000);
+    const T = team.toUpperCase();
+    const btn = document.getElementById('yuceBtn' + T);
+    if (btn) { btn.textContent = `🎯 冷却中 ${left}s`; }
+    return;
+  }
+  _yuceCooldown[team] = now;
+
+  // 顶掉上一个预测语音（不影响选人语音 currentHeroSfx）
+  if (currentYuceSfx) { currentYuceSfx.pause(); currentYuceSfx.currentTime = 0; }
+  currentYuceSfx = new Audio(YUCE_LIST[idx]);
+  currentYuceSfx.volume = sfxVolume;
+  currentYuceSfx.play().catch(() => {});
+
+  // 折叠面板
+  const T = team.toUpperCase();
+  const panel = document.getElementById('yucePanel' + T);
+  if (panel) panel.style.display = 'none';
+  const btn = document.getElementById('yuceBtn' + T);
+  if (btn) btn.textContent = '🎯 预测胜利 ▼';
+
+  // 启动冷却倒计时显示
+  startYuceCooldown(team, T);
+
+  // 广播
+  if (refDb) { refDb.child('_yuce').set({ team, idx, ts: now }); }
+  showYuceBar(team, idx);
+}
+
+function startYuceCooldown(team, T) {
+  const btn = document.getElementById('yuceBtn' + T);
+  if (!btn) return;
+  btn.disabled = true;
+  let left = YUCE_CD / 1000;
+  btn.textContent = `🎯 冷却 ${left}s`;
+  const timer = setInterval(() => {
+    left--;
+    if (left <= 0) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = '🎯 预测胜利 ▼';
+    } else {
+      btn.textContent = `🎯 冷却 ${left}s`;
+    }
+  }, 1000);
+}
+
+const YUCE_TEXTS = [
+  '「生而无畏，战至终章！哪里来的妖邪，够胆跟我碰一碰」',
+  '「千变万化，归于一心。一昧趋吉避凶，心又何处安放？」',
+  '「好好教导你什么是尊师重道」',
+  '「来吧？选一条向死之外的路」',
+  '「嘎嘎滴蜡虾 安迪~」',
+  '「败军之将，敢入吾阵？」',
+];
+
+function showYuceBar(team, idx) {
+  const container = document.getElementById('yuceContainer');
+  if (!container) return;
+  const isA = team === 'a';
+  const name = isA ? (gs.aName||'A队') : (gs.bName||'B队');
+  const quote = YUCE_TEXTS[idx] || '';
+
+  // 同一队连续发：替换掉该队已有的条目
+  const existing = container.querySelector(`[data-team="${team}"]`);
+  if (existing) container.removeChild(existing);
+
+  const el = document.createElement('div');
+  el.dataset.team = team;
+
+  const gradient = isA
+    ? 'linear-gradient(90deg,#ff6b6b,#ffd93d,#ff6b6b)'
+    : 'linear-gradient(90deg,#a855f7,#22d3ee,#a855f7)'; // 紫青渐变
+
+  el.style.cssText = [
+    'text-align:center',
+    'font-size:17px',
+    'font-weight:700',
+    'letter-spacing:0.5px',
+    'padding:6px 12px',
+    'border-radius:7px',
+    'margin-bottom:3px',
+    'animation:yucePulse 1.5s ease-in-out infinite alternate',
+    isA ? 'background:rgba(220,50,50,.12)' : 'background:rgba(168,85,247,.1)',
+    isA ? 'border:1px solid rgba(220,50,50,.3)' : 'border:1px solid rgba(34,211,238,.35)',
+  ].join(';');
+
+  const span = document.createElement('span');
+  span.style.cssText = `background:${gradient};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% auto;animation:gradientMove 3s linear infinite`;
+  span.textContent = `🎯 ${name}：预测了本轮胜利！${quote}`;
+  el.appendChild(span);
+
+  // 最新插到最上面，最多保留2条
+  container.insertBefore(el, container.firstChild);
+  while (container.children.length > 2) {
+    container.removeChild(container.lastChild);
+  }
+  window._yuceShownRound = gs.roundNum || 0;
+}
+
+// 接收对方的预测胜利广播已在 Firebase 监听里处理
 const BGM_LIST = [
   { name: "DracoVirgo - 清廉なるHeretics", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/DracoVirgo%20-%20%E6%B8%85%E5%BB%89%E3%81%AA%E3%82%8BHeretics%20(%E6%B8%85%E5%BB%89%E7%9A%84Heretics)_L.ogg" },
   { name: "with you", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/with%20you.mp3" },
