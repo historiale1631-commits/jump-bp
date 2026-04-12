@@ -548,7 +548,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 
 <div class="judge-overlay" id="aiOv" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="judge-modal" style="max-width:420px;text-align:left">
-    <h3 style="text-align:center">🤖 AI 推荐选择</h3>
+    <h3 style="text-align:center">🔬 测试分析系统</h3>
     <div id="aiContent" style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:400px;overflow-y:auto;margin:10px 0"></div>
     <button onclick="document.getElementById('aiOv').style.display='none'" style="width:100%;margin-top:10px;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">关闭</button>
   </div>
@@ -602,7 +602,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <div class="tab-row"><button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button><button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button><button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button><button class="tab-btn tab-all" onclick="switchTab('all')">全部</button></div>
     <div class="search-row"><input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()"/><button class="btn-clr" onclick="document.getElementById('searchInp').value='';renderGrid()">清除</button></div>
     <div class="hero-grid" id="heroGrid"></div>
-    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button><button class="act-btn" id="aiBtn" onclick="showAIRecommend()" style="background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;flex:1">🤖 AI推荐</button></div>
+    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button><button class="act-btn" id="aiBtn" onclick="checkTestCode()" style="background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;flex:1">🔬 测试</button></div>
     <div id="notMyTurnMsg" class="not-my-turn-msg" style="display:none">请等待对方选人...</div>
     <div id="waitNextMsg" class="waiting-next" style="display:none">✅ 本轮BP结束！等待裁判开始下一轮...</div>
     <div style="margin-top:3px"><div class="sec-label">— 全局已选（所有轮次不可重复）—</div><div id="globalPool" class="global-pool"></div></div>
@@ -1310,6 +1310,17 @@ function doPick(h) {
 }
 
 // ── AI 推荐系统（规则引擎）──
+// ── 测试码验证 ──
+function checkTestCode() {
+  const code = prompt('请输入测试码：');
+  if (code === null) return; // 取消
+  if (code.trim() === '852') {
+    showAIRecommend();
+  } else {
+    alert('测试码错误');
+  }
+}
+
 async function showAIRecommend() {
   const aiOv = document.getElementById('aiOv');
   const aiContent = document.getElementById('aiContent');
@@ -1328,7 +1339,8 @@ async function showAIRecommend() {
     const stepPick    = {};
     const stepJudged  = {};
     const stepWin     = {};
-    const enemyCombo  = {};
+    const enemyCombo  = {}; // 对方选了X后我方选什么赢了 => 针对性应对
+    const myVsEnemy   = {}; // key: myHero|enemyHero => {pick,win,judged} 应对数据
 
     let totalRounds = 0, judgedRounds = 0;
 
@@ -1344,8 +1356,8 @@ async function showAIRecommend() {
         const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
         if (hasJudge) judgedRounds++;
 
-        const swp   = r.swapped || false;
-        const ord   = swp
+        const swp = r.swapped || false;
+        const ord = swp
           ? ['a','b','b','a','b','a','a','b','a','b']
           : ['b','a','a','b','a','b','b','a','b','a'];
 
@@ -1376,8 +1388,16 @@ async function showAIRecommend() {
               judgedCount[h] = (judgedCount[h] || 0) + 1;
               if (isWin) winCount[h] = (winCount[h] || 0) + 1;
             }
-            if (!enemyCombo[h]) enemyCombo[h] = {};
-            enemy.forEach(e => { enemyCombo[h][e] = (enemyCombo[h][e] || 0) + 1; });
+            // 应对数据：我方带 h 时，对方有哪些英雄 => 统计 h 对抗 enemyHero 时的胜负
+            enemy.forEach(e => {
+              const key = h + '|||' + e;
+              if (!myVsEnemy[key]) myVsEnemy[key] = { pick: 0, win: 0, judged: 0 };
+              myVsEnemy[key].pick++;
+              if (hasJudge) {
+                myVsEnemy[key].judged++;
+                if (isWin) myVsEnemy[key].win++;
+              }
+            });
           });
           for (let i = 0; i < team.length; i++)
             for (let j = i+1; j < team.length; j++) {
@@ -1424,45 +1444,78 @@ async function showAIRecommend() {
     const available = ALL.filter(h => !pickedNames.has(h.name) && h.score <= remaining);
 
     // ── 预算形势分析 ──
-    // 我方均摊：remaining / slotsLeft
-    // 对方均摊：eLeft / eSlots
     const myAvgBudget = slotsLeft > 0 ? remaining / slotsLeft : 0;
-    const eAvgBudget  = eSlots  > 0 ? eLeft    / eSlots   : 0;
-
-    // 赛马压制判断：对方剩余均摊比我方高，说明对方有高分可用
-    const ePressure   = eAvgBudget - myAvgBudget; // 正数=对方均摊更高，负数=我方均摊更高
+    const eAvgBudget  = eSlots   > 0 ? eLeft    / eSlots    : 0;
     const isEarlyGame = nextStep <= 3;
     const isMidGame   = nextStep >= 4 && nextStep <= 6;
     const isLateGame  = nextStep >= 7;
-
-    // 判断当前我方应采用什么策略
-    // 赛马策略适用条件：早期、我方均摊低、对方还有大量高分空间
-    const shouldFeint = isEarlyGame && myAvgBudget < 12 && eAvgBudget > 14 && slotsLeft >= 4;
-    // 跟牌策略：对方已出了高分，我方需要匹配
     const eMaxScore   = ePicks.length ? Math.max(...ePicks.map(p=>p.score)) : 0;
+    const shouldFeint = isEarlyGame && myAvgBudget < 12 && eAvgBudget > 14 && slotsLeft >= 4;
     const shouldMatch = eMaxScore >= 14 && myPicks.length < ePicks.length;
-    // 压制策略：我方均摊高于对方，可以用高分压制
     const canDominate = myAvgBudget > eAvgBudget + 3 && remaining >= 12;
 
-    // ── 策略提示文字 ──
     function getStrategyHint() {
-      if (shouldFeint) {
-        return { text: '🎭 赛马试探 — 建议先出中低分引对面出高分，保留高分后手', color: '#fbbf24' };
-      } else if (shouldMatch) {
-        return { text: '⚔️ 跟牌压制 — 对面已出高分，建议选同级或更高分人物对压', color: '#f87171' };
-      } else if (canDominate) {
-        return { text: '👑 高分压制 — 我方均摊预算更充裕，优先选高分核心人物', color: '#4ade80' };
-      } else if (isLateGame) {
-        return { text: '🔧 补位阶段 — 根据阵容短板和剩余预算精准补位', color: '#a78bfa' };
-      } else if (isMidGame) {
-        return { text: '🤝 配合阶段 — 选与己方阵容历史配合率高的人物', color: '#60a5fa' };
-      } else {
-        return { text: '🏗️ 开局布局 — 优先胜率高、价值高的核心人物', color: '#4ade80' };
-      }
+      if (shouldFeint)  return { text: '🎭 赛马试探 — 先出中低分引对面亮高分，保留高分后手', color: '#fbbf24' };
+      if (shouldMatch)  return { text: '⚔️ 跟牌压制 — 对面已出高分，建议选同级或更高分人物对压', color: '#f87171' };
+      if (canDominate)  return { text: '👑 高分压制 — 我方均摊预算更充裕，优先选高分核心人物', color: '#4ade80' };
+      if (isLateGame)   return { text: '🔧 补位阶段 — 根据阵容短板和剩余预算精准补位', color: '#a78bfa' };
+      if (isMidGame)    return { text: '🤝 配合阶段 — 选与己方阵容历史配合率高的人物', color: '#60a5fa' };
+      return                   { text: '🏗️ 开局布局 — 优先胜率高、价值高的核心人物', color: '#4ade80' };
     }
     const strategy = getStrategyHint();
 
-    // ── 综合评分（策略感知版） ──
+    // ── 针对对方已选英雄的应对推荐 ──
+    // 对于对方每个已选英雄，找我方哪些英雄与其对局时胜率最高
+    function getCounterPicks() {
+      if (!ePicks.length) return [];
+      const counterScore = {};
+
+      ePicks.forEach(ep => {
+        // 遍历所有 myHero|||ep.name 的历史数据
+        Object.entries(myVsEnemy).forEach(([key, data]) => {
+          const [myH, eH] = key.split('|||');
+          if (eH !== ep.name) return;
+          if (pickedNames.has(myH)) return;
+          const hero = ALL.find(h => h.name === myH);
+          if (!hero || hero.score > remaining) return;
+
+          if (!counterScore[myH]) counterScore[myH] = { vsScore: 0, vsCount: 0 };
+
+          // 有批注数据的用胜率，否则用出现频率
+          if (data.judged >= 2) {
+            const wr = data.win / data.judged;
+            counterScore[myH].vsScore += wr * 50;
+            counterScore[myH].vsCount++;
+          } else if (data.pick >= 1) {
+            counterScore[myH].vsScore += 10; // 无批注但有同框记录
+            counterScore[myH].vsCount++;
+          }
+        });
+      });
+
+      return Object.entries(counterScore)
+        .filter(([_, v]) => v.vsCount > 0)
+        .sort((a, b) => b[1].vsScore - a[1].vsScore)
+        .slice(0, 5)
+        .map(([name, data]) => {
+          const hero = ALL.find(h => h.name === name);
+          // 汇总这个英雄对抗对方所有英雄的胜率
+          let totalJudged = 0, totalWin = 0, totalPick = 0;
+          ePicks.forEach(ep => {
+            const key = name + '|||' + ep.name;
+            if (myVsEnemy[key]) {
+              totalJudged += myVsEnemy[key].judged;
+              totalWin    += myVsEnemy[key].win;
+              totalPick   += myVsEnemy[key].pick;
+            }
+          });
+          const wr = totalJudged >= 2 ? Math.round(totalWin/totalJudged*100) : null;
+          return { name, hero, totalPick, totalJudged, wr };
+        })
+        .filter(x => x.hero);
+    }
+
+    // ── 综合评分 ──
     function scoreHero(hero, step) {
       const name = hero.name;
       let sc = 0;
@@ -1470,17 +1523,16 @@ async function showAIRecommend() {
       // 1. 出场热度
       sc += (pickCount[name]||0) / (totalRounds||1) * 10;
 
-      // 2. 有效批注胜率
+      // 2. 有效批注整体胜率
       if ((judgedCount[name]||0) >= 2) {
-        const wr = (winCount[name]||0) / judgedCount[name];
-        sc += wr * 55;
+        sc += (winCount[name]||0) / judgedCount[name] * 55;
       }
 
-      // 3. 该BP位的历史选取 + 位置胜率
+      // 3. 该BP位历史 + 位置胜率
       if ((stepPick[step]||{})[name]) {
         sc += stepPick[step][name] / (totalRounds||1) * 25;
         if ((stepJudged[step]||{})[name] >= 2) {
-          sc += ((stepWin[step]||{})[name]||0) / stepJudged[step][name] * 30;
+          sc += (stepWin[step]||{})[name] / stepJudged[step][name] * 30;
         }
       }
 
@@ -1490,39 +1542,49 @@ async function showAIRecommend() {
         sc += (teamCombo[key]||0) * 8;
       });
 
-      // 5. 对方克制
-      ePicks.forEach(e => {
-        if ((enemyCombo[name]||{})[e.name]) sc += enemyCombo[name][e.name] * 4;
+      // 5. 针对对方阵容的应对加分（核心新增）
+      let counterBonus = 0;
+      ePicks.forEach(ep => {
+        const key = name + '|||' + ep.name;
+        if (myVsEnemy[key]) {
+          const d = myVsEnemy[key];
+          if (d.judged >= 2) {
+            counterBonus += (d.win/d.judged) * 20;
+          } else {
+            counterBonus += 3;
+          }
+        }
       });
+      sc += counterBonus;
 
-      // 6. 分数策略权重（核心：根据当前策略调整分数加成）
-      const scoreRatio = hero.score / (remaining||1); // 分数占剩余预算的比例
-
+      // 6. 分数策略权重
+      const scoreRatio = hero.score / (remaining||1);
       if (shouldFeint) {
-        // 赛马策略：推荐中分段（6-10分），避免过早暴露高分
         const idealScore = 8;
-        const dist = Math.abs(hero.score - idealScore);
-        sc += Math.max(0, 20 - dist * 4);
-        // 额外奖励：选后留有足够预算部署高分后手
+        sc += Math.max(0, 20 - Math.abs(hero.score - idealScore) * 4);
         const reserveAfter = remaining - hero.score;
-        if (reserveAfter >= 20 && slotsLeft >= 2) sc += 15; // 留够后手空间
+        if (reserveAfter >= 20 && slotsLeft >= 2) sc += 15;
       } else if (shouldMatch || canDominate) {
-        // 跟牌/压制策略：高分英雄加权
         sc += scoreRatio * 50;
         sc += (hero.score / 20) * 25;
       } else if (isLateGame) {
-        // 收尾：分数要刚好填满预算，避免浪费
-        const waste = remaining - hero.score * slotsLeft; // 剩余会浪费多少
-        sc += Math.max(0, 20 - Math.abs(waste) * 0.5);
+        // 收尾：选完后余量不要过多浪费
+        const afterRem = remaining - hero.score;
+        const afterSlots = slotsLeft - 1;
+        if (afterSlots > 0) {
+          const avgAfter = afterRem / afterSlots;
+          // 奖励均摊在5-18分之间的选择（正常分段）
+          if (avgAfter >= 5 && avgAfter <= 18) sc += 20;
+          else sc -= Math.abs(avgAfter - 10) * 0.5;
+        }
         sc += scoreRatio * 35;
       } else {
-        // 常规：高分优先但考虑后续余量
         sc += scoreRatio * 40;
         sc += (hero.score / 20) * 20;
-        // 奖励选完后余量合理的选择（不要太极端）
-        const afterRemain = remaining - hero.score;
-        const afterAvg    = slotsLeft > 1 ? afterRemain / (slotsLeft-1) : 0;
-        if (afterAvg >= 6 && afterAvg <= 18) sc += 10; // 余量合理区间奖励
+        // 奖励选后均摊合理区间
+        const afterRem = remaining - hero.score;
+        const afterAvg = slotsLeft > 1 ? afterRem / (slotsLeft-1) : 0;
+        if (afterAvg >= 5 && afterAvg <= 18) sc += 10;
       }
 
       return sc;
@@ -1533,22 +1595,23 @@ async function showAIRecommend() {
       .sort((a, b) => b.aiScore - a.aiScore)
       .slice(0, 8);
 
-    // ── 对方预测 ──
+    const counterPicks = getCounterPicks();
+
+    // ── 预测对方下一选择 ──
     function predictEnemy() {
       const cScore = {};
       let eNextStep = curStep;
       for (let s = curStep; s < 10; s++) {
         if (order[s] === eRole) { eNextStep = s; break; }
       }
-
-      if ((stepPick[eNextStep])) {
+      if (stepPick[eNextStep]) {
         Object.entries(stepPick[eNextStep]).forEach(([name, cnt]) => {
           if (pickedNames.has(name)) return;
           const hero = ALL.find(h => h.name === name);
           if (!hero || hero.score > eLeft) return;
           cScore[name] = (cScore[name]||0) + cnt * 2;
           if ((stepJudged[eNextStep]||{})[name] >= 2) {
-            cScore[name] += ((stepWin[eNextStep]||{})[name]||0) / stepJudged[eNextStep][name] * 20;
+            cScore[name] += (stepWin[eNextStep]||{})[name] / stepJudged[eNextStep][name] * 20;
           }
         });
       }
@@ -1562,17 +1625,16 @@ async function showAIRecommend() {
           cScore[partner] = (cScore[partner]||0) + teamCombo[key] * 3;
         });
       });
-
       return Object.entries(cScore)
         .sort((a, b) => b[1]-a[1]).slice(0, 5)
         .map(([name]) => ({ name, hero: ALL.find(h => h.name === name) }))
         .filter(x => x.hero);
     }
 
-    const predicted = predictEnemy();
-    const hotCombos = Object.entries(teamCombo)
+    const predicted  = predictEnemy();
+    const hotCombos  = Object.entries(teamCombo)
       .filter(([_k, v]) => v >= 2).sort((a,b) => b[1]-a[1]).slice(0, 3);
-    const topWR = Object.entries(judgedCount)
+    const topWR      = Object.entries(judgedCount)
       .filter(([n, t]) => t >= 2 && !pickedNames.has(n) && available.find(h => h.name === n))
       .map(([n, t]) => ({ name: n, wr: Math.round((winCount[n]||0)/t*100) }))
       .sort((a,b) => b.wr-a.wr).slice(0, 3);
@@ -1591,24 +1653,22 @@ async function showAIRecommend() {
       <div style="margin-bottom:5px;padding:4px 8px;background:rgba(255,255,255,.06);border-radius:5px;border-left:3px solid ${strategy.color}">
         <span style="color:${strategy.color};font-size:11px;font-weight:700">${strategy.text}</span>
       </div>
-      <div style="display:flex;gap:12px;margin-bottom:3px">
-        <div>我方：<span style="color:#fca5a5">${myPickNames}</span></div>
-      </div>
-      <div style="margin-bottom:4px">对方：<span style="color:#93c5fd">${ePickNames}</span></div>
+      <div style="margin-bottom:3px">我方：<span style="color:#fca5a5">${myPickNames}</span></div>
+      <div style="margin-bottom:5px">对方：<span style="color:#93c5fd">${ePickNames}</span></div>
       <div style="display:flex;gap:10px;font-size:11px">
-        <span>我方剩余 <b style="color:#4ade80">${remaining}分</b> / <b style="color:#4ade80">${slotsLeft}位</b>（均摊<b style="color:#fbbf24">${myAvgBudget.toFixed(1)}分</b>）</span>
-        <span style="color:rgba(255,255,255,.4)">|</span>
-        <span>对方剩余 <b style="color:#93c5fd">${eLeft}分</b> / <b style="color:#93c5fd">${eSlots}位</b>（均摊<b style="color:#f87171">${eAvgBudget.toFixed(1)}分</b>）</span>
+        <span>我方剩余 <b style="color:#4ade80">${remaining}分</b>/${slotsLeft}位 均摊<b style="color:#fbbf24">${myAvgBudget.toFixed(1)}分</b></span>
+        <span style="color:rgba(255,255,255,.3)">|</span>
+        <span>对方剩余 <b style="color:#93c5fd">${eLeft}分</b>/${eSlots}位 均摊<b style="color:#f87171">${eAvgBudget.toFixed(1)}分</b></span>
       </div>
     </div>`;
 
-    // ── 赛马提示：如果触发赛马策略，额外显示后手高分资源 ──
+    // ── 赛马后手储备 ──
     if (shouldFeint) {
-      const highCards = available.filter(h => h.score >= 12).sort((a,b)=>b.score-a.score).slice(0,3);
+      const highCards = available.filter(h => h.score >= 12).sort((a,b)=>b.score-a.score).slice(0, 4);
       if (highCards.length) {
         out += `<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">
           <div style="color:#fbbf24;font-weight:700;margin-bottom:4px">🎭 赛马后手储备（建议留存）</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:5px">先出低分引对面高分，以下高分牌留作后手</div>`;
+          <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:5px">先出低分引对面亮高分，以下高分牌留作后手</div>`;
         highCards.forEach(h => {
           out += `<span style="display:inline-block;margin:2px;padding:2px 8px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:4px;font-size:11px;color:#fbbf24">${h.name} ${h.score}分</span>`;
         });
@@ -1616,7 +1676,24 @@ async function showAIRecommend() {
       }
     }
 
-    // ── 对方预测 ──
+    // ── 针对对方阵容的应对推荐 ──
+    if (ePicks.length > 0 && counterPicks.length > 0) {
+      out += `<div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+        <div style="color:#f87171;font-weight:700;margin-bottom:4px">🛡️ 针对对方阵容的应对选择</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:6px">基于历史对局中与对方已选英雄同框的应对数据</div>`;
+      counterPicks.forEach((p, i) => {
+        const wrText = p.wr !== null ? `对位胜率${p.wr}%` : `同框${p.totalPick}次`;
+        const jText  = p.totalJudged >= 2 ? `${p.totalJudged}场批注` : '无批注';
+        out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="color:#f87171;font-weight:700;min-width:16px">${i+1}.</span>
+          <span style="font-weight:700">${p.name}</span>
+          <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type]||''} ${p.hero.score}分 · ${wrText} · ${jText}</span>
+        </div>`;
+      });
+      out += `</div>`;
+    }
+
+    // ── 预测对方 ──
     if (ePicks.length > 0 || curStep > 0) {
       out += `<div style="background:rgba(147,197,253,.07);border:1px solid rgba(147,197,253,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
         <div style="color:#93c5fd;font-weight:700;margin-bottom:6px">🔮 预测对方下一选择</div>`;
@@ -1624,9 +1701,9 @@ async function showAIRecommend() {
         out += `<div style="color:rgba(255,255,255,.4);font-size:11px">历史数据不足，暂无预测</div>`;
       } else {
         predicted.forEach((p, i) => {
-          const jc   = judgedCount[p.name]||0;
-          const wr   = jc >= 2 ? Math.round((winCount[p.name]||0)/jc*100)+'%胜率' : '无批注数据';
-          const ap   = pickCount[p.name] ? `出场${pickCount[p.name]}次` : '首次';
+          const jc  = judgedCount[p.name]||0;
+          const wr  = jc >= 2 ? Math.round((winCount[p.name]||0)/jc*100)+'%胜率' : '无批注数据';
+          const ap  = pickCount[p.name] ? `出场${pickCount[p.name]}次` : '首次';
           out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
             <span style="color:#93c5fd;font-weight:700;min-width:16px">${i+1}.</span>
             <span style="font-weight:700">${p.name}</span>
@@ -1637,9 +1714,9 @@ async function showAIRecommend() {
       out += `</div>`;
     }
 
-    // ── 我方推荐 ──
+    // ── 综合推荐 ──
     out += `<div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-      <div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 推荐选择</div>`;
+      <div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 综合推荐选择</div>`;
     if (!ranked.length) {
       out += `<div style="color:rgba(255,255,255,.4)">没有可推荐的英雄（预算不足或已全部选完）</div>`;
     } else {
@@ -1649,16 +1726,17 @@ async function showAIRecommend() {
         const ap      = pickCount[h.name] ? `出场${pickCount[h.name]}次` : '首次';
         const spFreq  = (stepPick[nextStep]||{})[h.name] ? `本位${stepPick[nextStep][h.name]}次` : '';
         const medal   = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
-        // 计算选了这个英雄后的余量是否合理
-        const afterRem = remaining - h.score;
-        const afterAvg = slotsLeft > 1 ? (afterRem/(slotsLeft-1)).toFixed(1) : '—';
+        // 修复：afterRem 正确计算
+        const afterRem   = remaining - h.score;
+        const afterSlots = slotsLeft - 1;
+        const afterAvgStr = afterSlots > 0 ? (afterRem / afterSlots).toFixed(1) : '—';
         out += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
           <div style="display:flex;align-items:center;gap:6px">
             <span style="min-width:20px;text-align:center">${medal}</span>
             <span style="font-weight:700;color:#fbbf24">${h.name}</span>
             <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[h.type]||''} ${h.score}分 · ${ap}${spFreq?' · '+spFreq:''} · ${wrText}</span>
           </div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);padding-left:26px">选后剩余 ${afterRem}分 / ${slotsLeft-1}位（均摊${afterAvg}分）</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.28);padding-left:26px">选后剩余 ${afterRem}分 / ${afterSlots}位（均摊${afterAvgStr}分）</div>
         </div>`;
       });
     }
@@ -1691,7 +1769,7 @@ async function showAIRecommend() {
 
     if (judgedRounds < 3) {
       out += `<div style="padding:6px 8px;background:rgba(251,191,36,.1);border-radius:6px;font-size:10px;color:rgba(251,191,36,.7)">
-        ⚠️ 仅${judgedRounds}场有效批注，胜率参考价值有限，随对局增多准确度提升
+        ⚠️ 仅${judgedRounds}场有效批注，胜率参考有限，随对局增多准确度大幅提升
       </div>`;
     }
 
