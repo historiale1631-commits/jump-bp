@@ -1321,15 +1321,14 @@ async function showAIRecommend() {
     const histData = histSnap.val() || {};
 
     // ── 统计历史数据 ──
-    const pickCount  = {};  // 出场次数（所有轮）
-    // 胜率只统计有裁判批注的轮次（winner 明确为 'a'/'b'/'draw'）
-    const winCount   = {};  // 胜场次数（仅已批注）
-    const judgedCount = {}; // 参与已批注轮次的次数
-    const teamCombo  = {};  // 同队历史组合
-    const stepPick   = {};  // {step: {name: count}} 该BP位选了谁
-    const stepJudged = {};  // {step: {name: judgedCount}}
-    const stepWin    = {};  // {step: {name: winCount}}
-    const enemyCombo = {};  // 对方阵容组合预测
+    const pickCount   = {};
+    const winCount    = {};
+    const judgedCount = {};
+    const teamCombo   = {};
+    const stepPick    = {};
+    const stepJudged  = {};
+    const stepWin     = {};
+    const enemyCombo  = {};
 
     let totalRounds = 0, judgedRounds = 0;
 
@@ -1342,28 +1341,23 @@ async function showAIRecommend() {
         if (!aPicks.length && !bPicks.length) return;
         totalRounds++;
 
-        // 是否有有效批注（裁判已判定）
         const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
         if (hasJudge) judgedRounds++;
 
         const swp   = r.swapped || false;
-        const order = swp
+        const ord   = swp
           ? ['a','b','b','a','b','a','a','b','a','b']
           : ['b','a','a','b','a','b','b','a','b','a'];
 
-        // 按step重建选人顺序
         let ai = 0, bi = 0;
         for (let step = 0; step < 10; step++) {
-          const side  = order[step];
+          const side  = ord[step];
           const picks = side === 'a' ? aPicks : bPicks;
           const idx   = side === 'a' ? ai++ : bi++;
           const name  = picks[idx];
           if (!name) continue;
-
-          // step统计
           if (!stepPick[step]) stepPick[step] = {};
           stepPick[step][name] = (stepPick[step][name] || 0) + 1;
-
           if (hasJudge) {
             const isWin = (side === 'a' && r.winner === 'a') || (side === 'b' && r.winner === 'b');
             if (!stepJudged[step]) stepJudged[step] = {};
@@ -1373,30 +1367,20 @@ async function showAIRecommend() {
           }
         }
 
-        // 总体统计
         [aPicks, bPicks].forEach((team, ti) => {
-          const enemy  = ti === 0 ? bPicks : aPicks;
-          const isWin  = r.winner === (ti === 0 ? 'a' : 'b');
-
+          const enemy = ti === 0 ? bPicks : aPicks;
+          const isWin = r.winner === (ti === 0 ? 'a' : 'b');
           team.forEach(h => {
             pickCount[h] = (pickCount[h] || 0) + 1;
-
-            // 胜率只计入有批注的轮次
             if (hasJudge) {
               judgedCount[h] = (judgedCount[h] || 0) + 1;
               if (isWin) winCount[h] = (winCount[h] || 0) + 1;
             }
-
-            // 对方阵容组合（用于预测）
             if (!enemyCombo[h]) enemyCombo[h] = {};
-            enemy.forEach(e => {
-              enemyCombo[h][e] = (enemyCombo[h][e] || 0) + 1;
-            });
+            enemy.forEach(e => { enemyCombo[h][e] = (enemyCombo[h][e] || 0) + 1; });
           });
-
-          // 同队组合
           for (let i = 0; i < team.length; i++)
-            for (let j = i + 1; j < team.length; j++) {
+            for (let j = i+1; j < team.length; j++) {
               const key = [team[i], team[j]].sort().join('|');
               teamCombo[key] = (teamCombo[key] || 0) + 1;
             }
@@ -1405,90 +1389,141 @@ async function showAIRecommend() {
     });
 
     // ── 当前局面 ──
-    const isA      = myRole === 'a';
-    const myPicks  = (isA ? gs.aPicks : gs.bPicks) || [];
-    const ePicks   = (isA ? gs.bPicks : gs.aPicks) || [];
-    const lim      = getLIM();
-    const myBudget = lim[myRole] || 52;
-    const myUsed   = isA ? (gs.aUsed || 0) : (gs.bUsed || 0);
+    const isA       = myRole === 'a';
+    const myPicks   = (isA ? gs.aPicks : gs.bPicks) || [];
+    const ePicks    = (isA ? gs.bPicks : gs.aPicks) || [];
+    const lim       = getLIM();
+    const myBudget  = lim[myRole] || 52;
+    const eRole     = isA ? 'b' : 'a';
+    const eBudget   = lim[eRole] || 50;
+    const myUsed    = isA ? (gs.aUsed||0) : (gs.bUsed||0);
+    const eUsed     = isA ? (gs.bUsed||0) : (gs.aUsed||0);
     const remaining = myBudget - myUsed;
+    const eLeft     = eBudget  - eUsed;
     const slotsLeft = 5 - myPicks.length;
+    const eSlots    = 5 - ePicks.length;
     const curStep   = gs.step || 0;
     const order     = getOrder();
 
-    // 找我下一个出手的step
     let nextStep = curStep;
     for (let s = curStep; s < 10; s++) {
       if (order[s] === myRole) { nextStep = s; break; }
     }
 
     const stepDesc = [
-      '第1选（开局奠基）','第2选','第3选','第4选',
-      '第5选（半程核心）','第6选','第7选','第8选',
-      '第9选','第10选（收尾补强）'
+      '第1选（开局）','第2选','第3选','第4选',
+      '第5选（中期）','第6选','第7选','第8选',
+      '第9选','第10选（收尾）'
     ];
 
-    // BP位置阶段权重
-    function getPosWeight(step) {
-      if (step <= 2) return { wr: 0.55, combo: 0.7,  val: 0.4,  desc: '开局 — 优先高胜率核心' };
-      if (step <= 6) return { wr: 0.50, combo: 1.1,  val: 0.5,  desc: '中期 — 配合与克制并重' };
-      return              { wr: 0.40, combo: 0.85, val: 0.85, desc: '收尾 — 补位与性价比优先' };
-    }
-
     const pickedNames = new Set([
-      ...(gs.globalPicked || []),
-      ...(gs.aPicks || []).map(p => p.name),
-      ...(gs.bPicks || []).map(p => p.name)
+      ...(gs.globalPicked||[]),
+      ...(gs.aPicks||[]).map(p=>p.name),
+      ...(gs.bPicks||[]).map(p=>p.name)
     ]);
     const available = ALL.filter(h => !pickedNames.has(h.name) && h.score <= remaining);
 
-    // ── 推荐评分（核心优化：分数权重 + 仅有效批注胜率） ──
+    // ── 预算形势分析 ──
+    // 我方均摊：remaining / slotsLeft
+    // 对方均摊：eLeft / eSlots
+    const myAvgBudget = slotsLeft > 0 ? remaining / slotsLeft : 0;
+    const eAvgBudget  = eSlots  > 0 ? eLeft    / eSlots   : 0;
+
+    // 赛马压制判断：对方剩余均摊比我方高，说明对方有高分可用
+    const ePressure   = eAvgBudget - myAvgBudget; // 正数=对方均摊更高，负数=我方均摊更高
+    const isEarlyGame = nextStep <= 3;
+    const isMidGame   = nextStep >= 4 && nextStep <= 6;
+    const isLateGame  = nextStep >= 7;
+
+    // 判断当前我方应采用什么策略
+    // 赛马策略适用条件：早期、我方均摊低、对方还有大量高分空间
+    const shouldFeint = isEarlyGame && myAvgBudget < 12 && eAvgBudget > 14 && slotsLeft >= 4;
+    // 跟牌策略：对方已出了高分，我方需要匹配
+    const eMaxScore   = ePicks.length ? Math.max(...ePicks.map(p=>p.score)) : 0;
+    const shouldMatch = eMaxScore >= 14 && myPicks.length < ePicks.length;
+    // 压制策略：我方均摊高于对方，可以用高分压制
+    const canDominate = myAvgBudget > eAvgBudget + 3 && remaining >= 12;
+
+    // ── 策略提示文字 ──
+    function getStrategyHint() {
+      if (shouldFeint) {
+        return { text: '🎭 赛马试探 — 建议先出中低分引对面出高分，保留高分后手', color: '#fbbf24' };
+      } else if (shouldMatch) {
+        return { text: '⚔️ 跟牌压制 — 对面已出高分，建议选同级或更高分人物对压', color: '#f87171' };
+      } else if (canDominate) {
+        return { text: '👑 高分压制 — 我方均摊预算更充裕，优先选高分核心人物', color: '#4ade80' };
+      } else if (isLateGame) {
+        return { text: '🔧 补位阶段 — 根据阵容短板和剩余预算精准补位', color: '#a78bfa' };
+      } else if (isMidGame) {
+        return { text: '🤝 配合阶段 — 选与己方阵容历史配合率高的人物', color: '#60a5fa' };
+      } else {
+        return { text: '🏗️ 开局布局 — 优先胜率高、价值高的核心人物', color: '#4ade80' };
+      }
+    }
+    const strategy = getStrategyHint();
+
+    // ── 综合评分（策略感知版） ──
     function scoreHero(hero, step) {
-      const w    = getPosWeight(step);
       const name = hero.name;
       let sc = 0;
 
-      // 1. 出场热度（轻权）
-      sc += (pickCount[name] || 0) / (totalRounds || 1) * 15;
+      // 1. 出场热度
+      sc += (pickCount[name]||0) / (totalRounds||1) * 10;
 
-      // 2. 有效批注胜率（核心权重）— 只有 judgedCount >= 2 才计入
-      if ((judgedCount[name] || 0) >= 2) {
-        const wr = (winCount[name] || 0) / judgedCount[name];
-        sc += wr * 60 * w.wr;
+      // 2. 有效批注胜率
+      if ((judgedCount[name]||0) >= 2) {
+        const wr = (winCount[name]||0) / judgedCount[name];
+        sc += wr * 55;
       }
 
-      // 3. 该BP位的历史选取率 + 该BP位的有效批注胜率
-      if (stepPick[step] && stepPick[step][name]) {
-        sc += (stepPick[step][name] / (totalRounds || 1)) * 30;
-        if ((stepJudged[step] || {})[name] >= 2) {
-          const sWR = (stepWin[step][name] || 0) / stepJudged[step][name];
-          sc += sWR * 35 * w.wr;
+      // 3. 该BP位的历史选取 + 位置胜率
+      if ((stepPick[step]||{})[name]) {
+        sc += stepPick[step][name] / (totalRounds||1) * 25;
+        if ((stepJudged[step]||{})[name] >= 2) {
+          sc += ((stepWin[step]||{})[name]||0) / stepJudged[step][name] * 30;
         }
       }
 
-      // 4. 与己方已选英雄的历史组合契合度
+      // 4. 阵容配合
       myPicks.forEach(m => {
         const key = [name, m.name].sort().join('|');
-        sc += (teamCombo[key] || 0) * 10 * w.combo;
+        sc += (teamCombo[key]||0) * 8;
       });
 
-      // 5. 针对对方已选阵容的克制倾向
+      // 5. 对方克制
       ePicks.forEach(e => {
-        if ((enemyCombo[name] || {})[e.name]) {
-          sc += enemyCombo[name][e.name] * 5;
-        }
+        if ((enemyCombo[name]||{})[e.name]) sc += enemyCombo[name][e.name] * 4;
       });
 
-      // 6. 分数性价比（关键修复：高分英雄在预算充足时获得更大加成）
-      //    公式：(英雄分数 / 剩余预算) * 权重
-      //    剩余预算越多、英雄分数越高 → 越应该优先选高分英雄
-      const scoreRatio = hero.score / (remaining || 1);
-      // 分数利用率奖励：选 score 占剩余预算比例高的英雄
-      // 例：剩余40分选18分英雄(45%)比选5分英雄(12.5%)得分更高
-      sc += scoreRatio * 45 * w.val;
+      // 6. 分数策略权重（核心：根据当前策略调整分数加成）
+      const scoreRatio = hero.score / (remaining||1); // 分数占剩余预算的比例
 
-      // 7. 绝对分数加成：高分英雄本身就有更高价值
-      sc += (hero.score / 20) * 20 * w.val;
+      if (shouldFeint) {
+        // 赛马策略：推荐中分段（6-10分），避免过早暴露高分
+        const idealScore = 8;
+        const dist = Math.abs(hero.score - idealScore);
+        sc += Math.max(0, 20 - dist * 4);
+        // 额外奖励：选后留有足够预算部署高分后手
+        const reserveAfter = remaining - hero.score;
+        if (reserveAfter >= 20 && slotsLeft >= 2) sc += 15; // 留够后手空间
+      } else if (shouldMatch || canDominate) {
+        // 跟牌/压制策略：高分英雄加权
+        sc += scoreRatio * 50;
+        sc += (hero.score / 20) * 25;
+      } else if (isLateGame) {
+        // 收尾：分数要刚好填满预算，避免浪费
+        const waste = remaining - hero.score * slotsLeft; // 剩余会浪费多少
+        sc += Math.max(0, 20 - Math.abs(waste) * 0.5);
+        sc += scoreRatio * 35;
+      } else {
+        // 常规：高分优先但考虑后续余量
+        sc += scoreRatio * 40;
+        sc += (hero.score / 20) * 20;
+        // 奖励选完后余量合理的选择（不要太极端）
+        const afterRemain = remaining - hero.score;
+        const afterAvg    = slotsLeft > 1 ? afterRemain / (slotsLeft-1) : 0;
+        if (afterAvg >= 6 && afterAvg <= 18) sc += 10; // 余量合理区间奖励
+      }
 
       return sc;
     }
@@ -1498,34 +1533,25 @@ async function showAIRecommend() {
       .sort((a, b) => b.aiScore - a.aiScore)
       .slice(0, 8);
 
-    // ── 预测对方下一选择 ──
+    // ── 对方预测 ──
     function predictEnemy() {
-      if (!ePicks.length && curStep === 0) return [];
-      const cScore   = {};
-      const eRole    = isA ? 'b' : 'a';
-      const eBudget  = lim[eRole] || 50;
-      const eUsed    = isA ? (gs.bUsed || 0) : (gs.aUsed || 0);
-      const eLeft    = eBudget - eUsed;
-      let   eNextStep = curStep;
+      const cScore = {};
+      let eNextStep = curStep;
       for (let s = curStep; s < 10; s++) {
         if (order[s] === eRole) { eNextStep = s; break; }
       }
 
-      // 该step历史常选的英雄
-      if (stepPick[eNextStep]) {
+      if ((stepPick[eNextStep])) {
         Object.entries(stepPick[eNextStep]).forEach(([name, cnt]) => {
           if (pickedNames.has(name)) return;
           const hero = ALL.find(h => h.name === name);
           if (!hero || hero.score > eLeft) return;
-          cScore[name] = (cScore[name] || 0) + cnt * 2;
-          if ((stepJudged[eNextStep] || {})[name] >= 2) {
-            const sWR = (stepWin[eNextStep][name] || 0) / stepJudged[eNextStep][name];
-            cScore[name] += sWR * 20;
+          cScore[name] = (cScore[name]||0) + cnt * 2;
+          if ((stepJudged[eNextStep]||{})[name] >= 2) {
+            cScore[name] += ((stepWin[eNextStep]||{})[name]||0) / stepJudged[eNextStep][name] * 20;
           }
         });
       }
-
-      // 对方已选英雄的历史同队组合
       ePicks.forEach(ep => {
         Object.keys(teamCombo).forEach(key => {
           const [a, b] = key.split('|');
@@ -1533,46 +1559,64 @@ async function showAIRecommend() {
           if (!partner || pickedNames.has(partner)) return;
           const hero = ALL.find(h => h.name === partner);
           if (!hero || hero.score > eLeft) return;
-          cScore[partner] = (cScore[partner] || 0) + teamCombo[key] * 3;
+          cScore[partner] = (cScore[partner]||0) + teamCombo[key] * 3;
         });
       });
 
       return Object.entries(cScore)
-        .sort((a, b) => b[1] - a[1]).slice(0, 5)
+        .sort((a, b) => b[1]-a[1]).slice(0, 5)
         .map(([name]) => ({ name, hero: ALL.find(h => h.name === name) }))
         .filter(x => x.hero);
     }
 
-    const predicted  = predictEnemy();
-    const posW       = getPosWeight(nextStep);
-    const hotCombos  = Object.entries(teamCombo)
-      .filter(([_k, v]) => v >= 2).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    const topWR      = Object.entries(judgedCount)
+    const predicted = predictEnemy();
+    const hotCombos = Object.entries(teamCombo)
+      .filter(([_k, v]) => v >= 2).sort((a,b) => b[1]-a[1]).slice(0, 3);
+    const topWR = Object.entries(judgedCount)
       .filter(([n, t]) => t >= 2 && !pickedNames.has(n) && available.find(h => h.name === n))
-      .map(([n, t]) => ({ name: n, wr: Math.round((winCount[n] || 0) / t * 100) }))
-      .sort((a, b) => b.wr - a.wr).slice(0, 3);
+      .map(([n, t]) => ({ name: n, wr: Math.round((winCount[n]||0)/t*100) }))
+      .sort((a,b) => b.wr-a.wr).slice(0, 3);
 
-    const TL          = { str: '💪力量', agi: '⚡敏捷', int: '🧠智力' };
-    const myPickNames = myPicks.map(p => p.name).join('、') || '（未选）';
-    const ePickNames  = ePicks.map(p => p.name).join('、')  || '（未选）';
-    const teamLabel   = `${isA ? 'JUMP方' : 'Sunday方'}（上限${myBudget}分）`;
+    const TL = { str:'💪力量', agi:'⚡敏捷', int:'🧠智力' };
+    const myPickNames = myPicks.map(p=>p.name).join('、') || '（未选）';
+    const ePickNames  = ePicks.map(p=>p.name).join('、')  || '（未选）';
+    const teamLabel   = `${isA?'JUMP方':'Sunday方'}（上限${myBudget}分）`;
 
     let out = '';
 
     // ── 当前局面 ──
     out += `<div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px 10px;margin-bottom:8px">
       <div style="color:#fcd34d;font-weight:700;margin-bottom:5px">📊 当前局面</div>
-      <div style="margin-bottom:2px">身份：<span style="color:#fbbf24;font-weight:700">${teamLabel}</span></div>
-      <div style="margin-bottom:2px">当前位置：<span style="color:#a78bfa;font-weight:700">${stepDesc[nextStep] || '等待中'}</span></div>
-      <div style="margin-bottom:4px;font-size:10px;color:rgba(255,255,255,.45);background:rgba(167,139,250,.08);border-radius:4px;padding:3px 6px">${posW.desc}</div>
-      <div style="margin-bottom:2px">我方已选（${myPicks.length}/5）：<span style="color:#fca5a5">${myPickNames}</span></div>
-      <div style="margin-bottom:2px">对方已选（${ePicks.length}/5）：<span style="color:#93c5fd">${ePickNames}</span></div>
-      <div>剩余预算：<span style="color:#4ade80;font-weight:700">${remaining}分</span> · 剩余名额：<span style="color:#4ade80;font-weight:700">${slotsLeft}位</span>
-        <span style="color:rgba(255,255,255,.35);font-size:10px;margin-left:6px">胜率基于${judgedRounds}场有效批注</span>
+      <div style="margin-bottom:2px">身份：<span style="color:#fbbf24;font-weight:700">${teamLabel}</span> &nbsp;·&nbsp; ${stepDesc[nextStep]||'等待中'}</div>
+      <div style="margin-bottom:5px;padding:4px 8px;background:rgba(255,255,255,.06);border-radius:5px;border-left:3px solid ${strategy.color}">
+        <span style="color:${strategy.color};font-size:11px;font-weight:700">${strategy.text}</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:3px">
+        <div>我方：<span style="color:#fca5a5">${myPickNames}</span></div>
+      </div>
+      <div style="margin-bottom:4px">对方：<span style="color:#93c5fd">${ePickNames}</span></div>
+      <div style="display:flex;gap:10px;font-size:11px">
+        <span>我方剩余 <b style="color:#4ade80">${remaining}分</b> / <b style="color:#4ade80">${slotsLeft}位</b>（均摊<b style="color:#fbbf24">${myAvgBudget.toFixed(1)}分</b>）</span>
+        <span style="color:rgba(255,255,255,.4)">|</span>
+        <span>对方剩余 <b style="color:#93c5fd">${eLeft}分</b> / <b style="color:#93c5fd">${eSlots}位</b>（均摊<b style="color:#f87171">${eAvgBudget.toFixed(1)}分</b>）</span>
       </div>
     </div>`;
 
-    // ── 预测对方 ──
+    // ── 赛马提示：如果触发赛马策略，额外显示后手高分资源 ──
+    if (shouldFeint) {
+      const highCards = available.filter(h => h.score >= 12).sort((a,b)=>b.score-a.score).slice(0,3);
+      if (highCards.length) {
+        out += `<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+          <div style="color:#fbbf24;font-weight:700;margin-bottom:4px">🎭 赛马后手储备（建议留存）</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:5px">先出低分引对面高分，以下高分牌留作后手</div>`;
+        highCards.forEach(h => {
+          out += `<span style="display:inline-block;margin:2px;padding:2px 8px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:4px;font-size:11px;color:#fbbf24">${h.name} ${h.score}分</span>`;
+        });
+        out += `</div>`;
+      }
+    }
+
+    // ── 对方预测 ──
     if (ePicks.length > 0 || curStep > 0) {
       out += `<div style="background:rgba(147,197,253,.07);border:1px solid rgba(147,197,253,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
         <div style="color:#93c5fd;font-weight:700;margin-bottom:6px">🔮 预测对方下一选择</div>`;
@@ -1580,13 +1624,13 @@ async function showAIRecommend() {
         out += `<div style="color:rgba(255,255,255,.4);font-size:11px">历史数据不足，暂无预测</div>`;
       } else {
         predicted.forEach((p, i) => {
-          const jc = judgedCount[p.name] || 0;
-          const wr = jc >= 2 ? Math.round((winCount[p.name] || 0) / jc * 100) + '%胜率' : '无批注数据';
-          const ap = pickCount[p.name] ? `出场${pickCount[p.name]}次` : '首次';
+          const jc   = judgedCount[p.name]||0;
+          const wr   = jc >= 2 ? Math.round((winCount[p.name]||0)/jc*100)+'%胜率' : '无批注数据';
+          const ap   = pickCount[p.name] ? `出场${pickCount[p.name]}次` : '首次';
           out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-            <span style="color:#93c5fd;font-weight:700;min-width:16px">${i + 1}.</span>
+            <span style="color:#93c5fd;font-weight:700;min-width:16px">${i+1}.</span>
             <span style="font-weight:700">${p.name}</span>
-            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type] || ''} ${p.hero.score}分 · ${ap} · ${wr}</span>
+            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[p.hero.type]||''} ${p.hero.score}分 · ${ap} · ${wr}</span>
           </div>`;
         });
       }
@@ -1595,45 +1639,51 @@ async function showAIRecommend() {
 
     // ── 我方推荐 ──
     out += `<div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-      <div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 推荐选择（${stepDesc[nextStep]}）</div>`;
+      <div style="color:#4ade80;font-weight:700;margin-bottom:6px">🎯 推荐选择</div>`;
     if (!ranked.length) {
       out += `<div style="color:rgba(255,255,255,.4)">没有可推荐的英雄（预算不足或已全部选完）</div>`;
     } else {
       ranked.forEach((h, i) => {
-        const jc     = judgedCount[h.name] || 0;
-        const wrText = jc >= 2 ? Math.round((winCount[h.name] || 0) / jc * 100) + '%胜率' : '无批注数据';
-        const ap     = pickCount[h.name] ? `出场${pickCount[h.name]}次` : '首次';
-        const spFreq = (stepPick[nextStep] || {})[h.name] ? `本位${stepPick[nextStep][h.name]}次` : '';
-        const medal  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-        out += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-          <span style="min-width:20px;text-align:center">${medal}</span>
-          <span style="font-weight:700;color:#fbbf24">${h.name}</span>
-          <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[h.type] || ''} ${h.score}分 · ${ap}${spFreq ? ' · ' + spFreq : ''} · ${wrText}</span>
+        const jc      = judgedCount[h.name]||0;
+        const wrText  = jc >= 2 ? Math.round((winCount[h.name]||0)/jc*100)+'%胜率' : '无批注数据';
+        const ap      = pickCount[h.name] ? `出场${pickCount[h.name]}次` : '首次';
+        const spFreq  = (stepPick[nextStep]||{})[h.name] ? `本位${stepPick[nextStep][h.name]}次` : '';
+        const medal   = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+        // 计算选了这个英雄后的余量是否合理
+        const afterRem = remaining - h.score;
+        const afterAvg = slotsLeft > 1 ? (afterRem/(slotsLeft-1)).toFixed(1) : '—';
+        out += `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="min-width:20px;text-align:center">${medal}</span>
+            <span style="font-weight:700;color:#fbbf24">${h.name}</span>
+            <span style="color:rgba(255,255,255,.4);font-size:10px;margin-left:auto">${TL[h.type]||''} ${h.score}分 · ${ap}${spFreq?' · '+spFreq:''} · ${wrText}</span>
+          </div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3);padding-left:26px">选后剩余 ${afterRem}分 / ${slotsLeft-1}位（均摊${afterAvg}分）</div>
         </div>`;
       });
     }
     out += `</div>`;
 
-    // ── 热门同队组合 ──
+    // ── 热门组合 ──
     if (hotCombos.length > 0) {
       out += `<div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
         <div style="color:#fbbf24;font-weight:700;margin-bottom:6px">🤝 历史热门组合</div>`;
       hotCombos.forEach(([key, cnt]) => {
         const [a, b] = key.split('|');
-        const gone = pickedNames.has(a) || pickedNames.has(b);
-        out += `<div style="font-size:11px;padding:3px 0;color:${gone ? 'rgba(255,255,255,.3)' : '#fbbf24'}">
-          ${a} + ${b} <span style="color:rgba(255,255,255,.4)">同队${cnt}次</span>${gone ? ' <span style="color:rgba(248,113,113,.6);font-size:10px">(已选)</span>' : ''}
+        const gone = pickedNames.has(a)||pickedNames.has(b);
+        out += `<div style="font-size:11px;padding:3px 0;color:${gone?'rgba(255,255,255,.3)':'#fbbf24'}">
+          ${a} + ${b} <span style="color:rgba(255,255,255,.4)">同队${cnt}次</span>${gone?' <span style="font-size:10px;color:rgba(248,113,113,.6)">(已选)</span>':''}
         </div>`;
       });
       out += `</div>`;
     }
 
-    // ── 高批注胜率英雄 ──
+    // ── 高批注胜率 ──
     if (topWR.length > 0) {
       out += `<div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
-        <div style="color:#f87171;font-weight:700;margin-bottom:6px">🏆 高胜率可选英雄（有效批注）</div>`;
+        <div style="color:#f87171;font-weight:700;margin-bottom:6px">🏆 高胜率可选（有效批注）</div>`;
       topWR.forEach(({ name, wr }) => {
-        const jc = judgedCount[name] || 0;
+        const jc = judgedCount[name]||0;
         out += `<div style="font-size:11px;padding:3px 0">${name} <span style="color:#4ade80;font-weight:700">${wr}%</span> 胜率 <span style="color:rgba(255,255,255,.35)">（${jc}场批注）</span></div>`;
       });
       out += `</div>`;
@@ -1641,12 +1691,12 @@ async function showAIRecommend() {
 
     if (judgedRounds < 3) {
       out += `<div style="padding:6px 8px;background:rgba(251,191,36,.1);border-radius:6px;font-size:10px;color:rgba(251,191,36,.7)">
-        ⚠️ 目前仅有 ${judgedRounds} 场有效批注，胜率数据较少，推荐主要依据出场数据和分数价值
+        ⚠️ 仅${judgedRounds}场有效批注，胜率参考价值有限，随对局增多准确度提升
       </div>`;
     }
 
     document.getElementById('aiContent').innerHTML = out;
-  } catch (e) {
+  } catch(e) {
     document.getElementById('aiContent').innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">读取失败，请检查网络连接</div>';
     console.error(e);
   }
