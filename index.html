@@ -2504,9 +2504,8 @@ let _myAuthCodes = { a: null, b: null }; // 本次生成的码
 const VIEW_CODE_PATH = 'config/viewCode';
 let _myViewCodes = [];
 
-function genViewCodes() {
-  const refInput = document.getElementById('refCodeInput').value.trim();
-  if (!refInput) { alert('请先输入裁判码'); return; }
+async function genViewCodes() {
+  if (!await verifyRefCode()) return;
   const db = firebase.database();
   const chars = '0123456789';
   const now = Date.now();
@@ -2550,9 +2549,19 @@ async function verifyViewCode(code) {
   return { ok: true };
 }
 
-function genAuthCode(role) {
+async function verifyRefCode() {
   const refInput = document.getElementById('refCodeInput').value.trim();
-  if (!refInput) { alert('请先输入裁判码'); return; }
+  if (!refInput) { alert('请先输入裁判码'); return false; }
+  const db = firebase.database();
+  const inputHash = await sha256(refInput);
+  const snap = await db.ref('config/refCodeHash').once('value');
+  const correctHash = snap.val() || REF_CODE_HASH;
+  if (inputHash !== correctHash) { alert('裁判码错误！'); return false; }
+  return true;
+}
+
+async function genAuthCode(role) {
+  if (!await verifyRefCode()) return;
   const db = firebase.database();
   const chars = '0123456789';
   const now = Date.now();
