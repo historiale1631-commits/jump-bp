@@ -2314,9 +2314,11 @@ function listenRoom(aName, bName) {
         if (currentYuceSfx.readyState >= 3) {
           doPlay(); // 已缓存，直接播
         } else {
-          currentYuceSfx.addEventListener('canplay', doPlay, { once: true });
+          let _played = false;
+          const safeDoPlay = () => { if (_played) return; _played = true; doPlay(); };
+          currentYuceSfx.addEventListener('canplay', safeDoPlay, { once: true });
           // 超过1.5秒还没ready就直接显示文字（网络慢时兜底）
-          setTimeout(() => { showYuceBar(d.team, d.idx); }, 1500);
+          setTimeout(() => { if (!_played) { _played = true; showYuceBar(d.team, d.idx); } }, 1500);
         }
       } else {
         showYuceBar(d.team, d.idx);
@@ -2835,16 +2837,20 @@ function playYuce(team, idx) {
   showYuceBar(team, idx); // 发送方本地立即显示
 }
 
+const _yuceTimers = {}; // 各队冷却计时器引用
 function startYuceCooldown(team, T) {
   const btn = document.getElementById('yuceBtn' + T);
   if (!btn) return;
+  // 先清除旧计时器，防止多个并行
+  if (_yuceTimers[team]) { clearInterval(_yuceTimers[team]); }
   btn.disabled = true;
   let left = YUCE_CD / 1000;
   btn.textContent = `🎯 冷却 ${left}s`;
-  const timer = setInterval(() => {
+  _yuceTimers[team] = setInterval(() => {
     left--;
     if (left <= 0) {
-      clearInterval(timer);
+      clearInterval(_yuceTimers[team]);
+      delete _yuceTimers[team];
       btn.disabled = false;
       btn.textContent = '🎯 预测胜利 ▼';
     } else {
