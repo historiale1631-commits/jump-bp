@@ -2492,9 +2492,24 @@ let _myAuthCodes = { a: null, b: null }; // 本次生成的码
 const VIEW_CODE_PATH = 'config/viewCode';
 let _myViewCodes = [];
 
-function genViewCodes() {
+async function verifyRefCode() {
   const refInput = document.getElementById('refCodeInput').value.trim();
-  if (!refInput) { alert('请先输入裁判码'); return; }
+  if (!refInput) { alert('请先输入裁判码'); return false; }
+  try {
+    const inputHash = await sha256(refInput);
+    const snap = await firebase.database().ref('config/refCodeHash').once('value');
+    const correctHash = snap.val() || REF_CODE_HASH;
+    if (inputHash !== correctHash) { alert('裁判码错误！'); return false; }
+    return true;
+  } catch(e) {
+    // 任何错误（网络/权限/crypto）一律拦截，不允许通过
+    alert('裁判码验证失败，请检查网络后重试');
+    return false;
+  }
+}
+
+async function genViewCodes() {
+  if (!await verifyRefCode()) return;
   const db = firebase.database();
   const chars = '0123456789';
   const now = Date.now();
@@ -2538,9 +2553,8 @@ async function verifyViewCode(code) {
   return { ok: true };
 }
 
-function genAuthCode(role) {
-  const refInput = document.getElementById('refCodeInput').value.trim();
-  if (!refInput) { alert('请先输入裁判码'); return; }
+async function genAuthCode(role) {
+  if (!await verifyRefCode()) return;
   const db = firebase.database();
   const chars = '0123456789';
   const now = Date.now();
@@ -2738,7 +2752,7 @@ function autoReconnect() {
     <button onclick="bgmRandom()" style="width:100%;padding:6px;margin-bottom:8px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:6px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔀 随机下一首</button>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
       <span style="font-size:12px">🔈</span>
-      <input type="range" id="bgmVolume" min="0" max="100" value="7" style="flex:1;accent-color:#a78bfa;cursor:pointer" oninput="setBgmVolume(this.value)"/>
+      <input type="range" id="bgmVolume" min="0" max="100" value="4" style="flex:1;accent-color:#a78bfa;cursor:pointer" oninput="setBgmVolume(this.value)"/>
       <span style="font-size:12px">🔊</span>
     </div>
     <div style="display:flex;gap:5px">
@@ -2751,7 +2765,7 @@ function autoReconnect() {
     <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-align:center;letter-spacing:1px">🔔 网页音效</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
       <span style="font-size:12px">🔈</span>
-      <input type="range" id="sfxVolumeSlider" min="0" max="100" value="80" style="flex:1;accent-color:#34d399;cursor:pointer" oninput="setSfxVolume(this.value)"/>
+      <input type="range" id="sfxVolumeSlider" min="0" max="100" value="35" style="flex:1;accent-color:#34d399;cursor:pointer" oninput="setSfxVolume(this.value)"/>
       <span style="font-size:12px">🔊</span>
     </div>
     <div style="display:flex;gap:5px">
@@ -2766,7 +2780,7 @@ function autoReconnect() {
 <audio id="bgm" preload="auto"></audio>
 <script>
 // 全局音效音量（0~1），默认80%
-let sfxVolume = 0.8;
+let sfxVolume = 0.35;
 
 
 // ── 预测胜利语音 ──
@@ -2906,7 +2920,7 @@ let bgmPlaying = false;
 
 function bgmInit() {
   const bgm = document.getElementById('bgm');
-  bgm.volume = 0.07;
+  bgm.volume = 0.04;
   bgmIndex = Math.floor(Math.random() * BGM_LIST.length);
   bgm.src = BGM_LIST[bgmIndex].url;
   bgm.removeEventListener('ended', bgmNext);
