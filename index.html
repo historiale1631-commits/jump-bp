@@ -2945,17 +2945,9 @@ function showYuceBar(team, idx) {
 
 // 接收对方的预测胜利广播已在 Firebase 监听里处理
 const BGM_LIST = [
-  { name: "DracoVirgo - 清廉なるHeretics", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/DracoVirgo%20-%20%E6%B8%85%E5%BB%89%E3%81%AA%E3%82%8BHeretics%20(%E6%B8%85%E5%BB%89%E7%9A%84Heretics)_L.ogg" },
-  { name: "with you", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/with%20you.mp3" },
-  { name: "三无Marblue - STYX HELIX", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E4%B8%89%E6%97%A0Marblue%20-%20STYX%20HELIX_H.ogg" },
-  { name: "堕", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%A0%95.mp3" },
-  { name: "岛谷瞳 - 深紅", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.ogg" },
-  { name: "心似烟火", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%BF%83%E4%BC%BC%E7%83%9F%E7%81%AB.mp3" },
-  { name: "我们之间的回忆", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%88%91%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%9B%9E%E5%BF%86.mp3" },
-  { name: "永世的摇篮", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B0%B8%E4%B8%96%E7%9A%84%E6%91%87%E7%AF%AE.mp3" },
-  { name: "深澤秀行 - エミヤ (卫宫)", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg" },
-  { name: "澤野弘之 - Release My Soul", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%BE%A4%E9%87%8E%E5%BC%98%E4%B9%8B%20(%E3%81%95%E3%82%8F%E3%81%AE%20%E3%81%B2%E3%82%8D%E3%82%86%E3%81%8D)_Aimee%20Blackschleger%20-%20Release%20My%20Soul_L.mp3" },
-  { name: "红莲华", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3" }
+  { url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg", name: "深澤秀行 - エミヤ (卫宫) (UBW Extended)_L" },
+  { url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/BGM1.mp3", name: "BGM1" },
+  { url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/bgm2.ogg", name: "bgm2" }
 ];
 let bgmIndex = 0;
 let bgmShuffle = false;
@@ -3252,17 +3244,9 @@ function toggleBgmPanel() {
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B6.mp3",
   ];
   const BGM_URLS = [
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E4%B8%89%E6%97%A0Marblue%20-%20STYX%20HELIX_H.ogg",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%A0%95.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%B2%9B%E8%B0%B7%E7%9E%B3%20-%20%E6%B7%B1%E7%B4%85%20(%E6%B7%B1%E7%BA%A2)_H.ogg",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%BF%83%E4%BC%BC%E7%83%9F%E7%81%AB.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%88%91%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%9B%9E%E5%BF%86.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B0%B8%E4%B8%96%E7%9A%84%E6%91%87%E7%AF%AE.mp3",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%BE%A4%E9%87%8E%E5%BC%98%E4%B9%8B%20(%E3%81%95%E3%82%8F%E3%81%AE%20%E3%81%B2%E3%82%8D%E3%82%86%E3%81%8D)_Aimee%20Blackschleger%20-%20Release%20My%20Soul_L.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E7%BA%A2%E8%8E%B2%E5%8D%8E.mp3",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/DracoVirgo%20-%20%E6%B8%85%E5%BB%89%E3%81%AA%E3%82%8BHeretics%20(%E6%B8%85%E5%BB%89%E7%9A%84Heretics)_L.ogg",
-    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/with%20you.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/BGM1.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/bgm2.ogg",
   ];
 
   // 表情包：延迟15秒缓存
@@ -3362,7 +3346,7 @@ function toggleBgmPanel() {
   window.checkCacheStats = async function() {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    const info = { cached: keys.length, total: 231, percent: Math.round(keys.length/231*100)+'%' };
+    const info = { cached: keys.length, total: 223, percent: Math.round(keys.length/231*100)+'%' };
     console.log('[Cache] 缓存状态:', info);
     return info;
   };
