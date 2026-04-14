@@ -900,7 +900,7 @@ function isPickedThisRound(name) { return getRoundSet().has(name); }
 function canPick(name, score) {
   if (isGloballyUnavailable(name) || isPickedThisRound(name) || isRoundMutexBlocked(name)) return false;
   const t = ct(), r = rem(t), picked = (t === 'a' ? gs.aPicks : gs.bPicks) || [], left = 5 - picked.length;
-  if (left <= 0 || r - score < (left - 1) * 5) return false;
+  if (left <= 0 || r - score < (left - 1) * MIN_SC) return false;
   return true;
 }
 function myTurn() { return gs.active && !gs.paused && !gs.roundEnded && !gs.ended && gs.step < 10 && ct() === myRole; }
@@ -1112,7 +1112,7 @@ function endRound() {
       const d = snap.val(); if (!d) return;
       const round = { roundNum: d.roundNum, aPicks: d.aPicks || [], bPicks: d.bPicks || [], aUsed: d.aUsed || 0, bUsed: d.bUsed || 0, sundayTeamAtRound: getSundayTeam() };
       const newAllRounds = [...(d.allRounds || []), round];
-      const newGlobal = [...(d.globalPicked || []), ...(d.aPicks || []).map(h=>h.name), ...(d.bPicks || []).map(h=>h.name)];
+      const newGlobal = [...new Set([...(d.globalPicked || []), ...(d.aPicks || []).map(h=>h.name), ...(d.bPicks || []).map(h=>h.name)])];
       refDb.update({ active: false, allRounds: newAllRounds, globalPicked: newGlobal });
     });
   });
@@ -1342,6 +1342,9 @@ function doPick(h) {
   refDb.update({ pickSfxTs: pickTs });
 
   const releaseLock = () => { isPicking = false; };
+  // 超时兜底：8秒后强制释放锁，防止 Firebase 回调未触发导致永久卡死
+  const _pickTimeout = setTimeout(() => { if (isPicking) { isPicking = false; console.warn('[doPick] 超时强制释放锁'); } }, 8000);
+  const releaseLockFull = () => { clearTimeout(_pickTimeout); releaseLock(); };
 
   // 写入前用事务验证 step 没有被其他客户端推进
   refDb.child('step').transaction(currentStep => {
@@ -1351,9 +1354,9 @@ function doPick(h) {
     if (err || !committed) { releaseLock(); startUiTick(); return; }
     // 验证通过，执行实际写入
     if (ns >= 10) {
-      refDb.update(update, err2 => { if (err2) { releaseLock(); return; } endRound(); releaseLock(); });
+      refDb.update(update, err2 => { if (err2) { releaseLockFull(); return; } endRound(); releaseLockFull(); });
     } else {
-      refDb.update(update, err2 => { releaseLock(); });
+      refDb.update(update, err2 => { releaseLockFull(); });
     }
   });
 }
@@ -1970,20 +1973,27 @@ function updateOrderDots() {
   });
 }
 
+// syncUI 差量缓存——只更新真正变化的字段
+let _syncCache = {};
+function _setTxt(id, val) { const el = document.getElementById(id); if (el && _syncCache[id] !== val) { el.textContent = val; _syncCache[id] = val; } }
+function _setHtml(id, val) { const el = document.getElementById(id); if (el && _syncCache[id] !== val) { el.innerHTML = val; _syncCache[id] = val; } }
+function _setCls(id, val) { const el = document.getElementById(id); if (el && el.className !== val) el.className = val; }
+function _setDisp(id, val) { const el = document.getElementById(id); if (el && el.style.display !== val) el.style.display = val; }
+
 function syncUI() {
   const rn = gs.roundNum || 0;
   const sundayTeam = getSundayTeam();
-  document.getElementById('sundayTeamHint').textContent = sundayTeam === 'a' ? gs.aName : gs.bName;
-  document.getElementById('jumpTeamHint').textContent = sundayTeam === 'a' ? gs.bName : gs.aName;
-  document.getElementById('aLabel').innerHTML = `${gs.aName} <span class="role-badge ${'a'===sundayTeam?'sunday':'jump'}">${'a'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>`;
-  document.getElementById('bLabel').innerHTML = `${gs.bName} <span class="role-badge ${'b'===sundayTeam?'sunday':'jump'}">${'b'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>`;
-  document.getElementById('bankALabel').textContent = '🔴 ' + gs.aName + ' 备用';
-  document.getElementById('bankBLabel').textContent = '🔵 ' + gs.bName + ' 备用';
+  _setTxt('sundayTeamHint', sundayTeam === 'a' ? gs.aName : gs.bName);
+  _setTxt('jumpTeamHint', sundayTeam === 'a' ? gs.bName : gs.aName);
+  _setHtml('aLabel', `${gs.aName} <span class="role-badge ${'a'===sundayTeam?'sunday':'jump'}">${'a'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>`);
+  _setHtml('bLabel', `${gs.bName} <span class="role-badge ${'b'===sundayTeam?'sunday':'jump'}">${'b'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>`);
+  _setTxt('bankALabel', '🔴 ' + gs.aName + ' 备用');
+  _setTxt('bankBLabel', '🔵 ' + gs.bName + ' 备用');
   const aLim = getLIM()['a'], bLim = getLIM()['b'];
-  document.getElementById('aScore').innerHTML = `已用 ${gs.aUsed} / ${aLim} 分`;
-  document.getElementById('aScore').className = 'score-total a' + (gs.aUsed > aLim ? ' score-over' : '');
-  document.getElementById('bScore').innerHTML = `已用 ${gs.bUsed} / ${bLim} 分`;
-  document.getElementById('bScore').className = 'score-total b' + (gs.bUsed > bLim ? ' score-over' : '');
+  _setHtml('aScore', `已用 ${gs.aUsed} / ${aLim} 分`);
+  _setCls('aScore', 'score-total a' + (gs.aUsed > aLim ? ' score-over' : ''));
+  _setHtml('bScore', `已用 ${gs.bUsed} / ${bLim} 分`);
+  _setCls('bScore', 'score-total b' + (gs.bUsed > bLim ? ' score-over' : ''));
 
   // 轮次变化时清除预测文字（用轮次号追踪，不用picks数量判断）
   if (gs.roundNum !== (window._yuceShownRound||0) && gs.active) {
@@ -1995,7 +2005,7 @@ function syncUI() {
   renderOrderBar();
   updateOrderDots();
 
-  if (rn > 0) { document.getElementById('roundBadge').textContent = '第'+rn+'轮'; document.getElementById('roundBadge').style.display = 'inline-block'; }
+  if (rn > 0) { _setTxt('roundBadge', '第'+rn+'轮'); document.getElementById('roundBadge').style.display = 'inline-block'; }
 
   for (let i=1;i<=5;i++) {
     ['a','b'].forEach(t=>{
@@ -2017,47 +2027,51 @@ function syncUI() {
 
   const isEnd = gs.ended, isRoundEnd = gs.roundEnded;
   if (isEnd) {
-    document.getElementById('phaseBar').textContent='全部BP已结束';
-    document.getElementById('statusBar').textContent='查看汇总';
-    document.getElementById('actionRow').style.display='none';
-    document.getElementById('notMyTurnMsg').style.display='none';
-    document.getElementById('waitNextMsg').style.display='none';
+    _setTxt('phaseBar','全部BP已结束');
+    _setTxt('statusBar','查看汇总');
+    _setDisp('actionRow','none');
+    _setDisp('notMyTurnMsg','none');
+    _setDisp('waitNextMsg','none');
     showResult();
   } else if (isRoundEnd) {
-    document.getElementById('phaseBar').textContent='第'+rn+'轮BP结束！';
-    document.getElementById('statusBar').textContent='等待裁判开始下一轮...';
-    document.getElementById('actionRow').style.display='none';
-    document.getElementById('notMyTurnMsg').style.display='none';
-    document.getElementById('waitNextMsg').style.display='block';
+    _setTxt('phaseBar','第'+rn+'轮BP结束！');
+    _setTxt('statusBar','等待裁判开始下一轮...');
+    _setDisp('actionRow','none');
+    _setDisp('notMyTurnMsg','none');
+    _setDisp('waitNextMsg','block');
   } else if (gs.active && gs.step < 10) {
-    document.getElementById('waitNextMsg').style.display='none';
+    _setDisp('waitNextMsg','none');
     const t=ct(); const tName=t==='a'?gs.aName:gs.bName; const isSunday=t===sundayTeam;
-    document.getElementById('curName').textContent=(isSunday?'Sunday方':'JUMP方')+' ('+tName+')';
+    _setTxt('curName',(isSunday?'Sunday方':'JUMP方')+' ('+tName+')');
     document.getElementById('curTag').textContent=tName;
     document.getElementById('curTag').className='team-tag '+t;
-    document.getElementById('curRound').textContent='第'+rn+'轮 第'+(gs.step+1)+'选';
-    document.getElementById('curLimit').textContent='剩余: '+rem(t)+'分';
-    document.getElementById('phaseBar').textContent='第'+rn+'轮BP — 第'+(gs.step+1)+'选';
-    document.getElementById('statusBar').textContent=gs.paused?'⏸ 已暂停':(isSunday?'Sunday方':'JUMP方')+' ('+tName+') 正在选人...';
+    _setTxt('curRound','第'+rn+'轮 第'+(gs.step+1)+'选');
+    _setTxt('curLimit','剩余: '+rem(t)+'分');
+    _setTxt('phaseBar','第'+rn+'轮BP — 第'+(gs.step+1)+'选');
+    _setTxt('statusBar',gs.paused?'⏸ 已暂停':(isSunday?'Sunday方':'JUMP方')+' ('+tName+') 正在选人...');
     const mt=myTurn();
     const tip=document.getElementById('turnTip');
     tip.textContent=mt?'← 你的回合！':(isPlayer()?'等待对方...':'观战中');
     tip.className=mt?'my-turn-tip':'not-turn-tip';
-    document.getElementById('actionRow').style.display=(mt||!isPlayer())?'flex':'none';
-    document.getElementById('notMyTurnMsg').style.display=(isPlayer()&&!mt)?'block':'none';
+    _setDisp('actionRow',(mt||!isPlayer())?'flex':'none');
+    _setDisp('notMyTurnMsg',(isPlayer()&&!mt)?'block':'none');
     if(!mt){ sel=null; if (!isPicking) document.getElementById('pickBtn').disabled=true; }
     if(!isPlayer()) document.getElementById('pickBtn').disabled=true;
   } else {
-    document.getElementById('phaseBar').textContent='等待裁判开始...';
-    document.getElementById('statusBar').textContent='裁判按「开始新一轮BP」后才能选人';
+    _setTxt('phaseBar','等待裁判开始...');
+    _setTxt('statusBar','裁判按「开始新一轮BP」后才能选人');
     document.getElementById('turnTip').textContent='';
-    document.getElementById('actionRow').style.display='flex';
-    document.getElementById('notMyTurnMsg').style.display='none';
-    document.getElementById('waitNextMsg').style.display='none';
+    _setDisp('actionRow','flex');
+    _setDisp('notMyTurnMsg','none');
+    _setDisp('waitNextMsg','none');
     document.getElementById('pickBtn').disabled=true;
   }
 
   const allR = gs.allRounds || [];
+  // 历史记录只在数据真正变化时重建
+  const _histHash = allR.length + '|' + (allR[allR.length-1]?.winner||'');
+  if (_histHash !== syncUI._lastHistHash) {
+    syncUI._lastHistHash = _histHash;
   const buildHist = team => allR.map(r=>{
     const picks=team==='a'?r.aPicks:r.bPicks;
     if(!picks||!picks.length) return '';
@@ -2072,6 +2086,7 @@ function syncUI() {
   }).join('');
   document.getElementById('histA').innerHTML = buildHist('a');
   document.getElementById('histB').innerHTML = buildHist('b');
+  } // end histHash check
 
   const gp = gs.globalPicked||[]; const curP = [...(gs.aPicks||[]),...(gs.bPicks||[])].map(h=>h.name); const allP = [...new Set([...gp,...curP])];
   document.getElementById('globalPool').innerHTML = allP.length ? allP.map(n=>`<span class="pool-item">${n}</span>`).join('') : '<span style="font-size:9px;color:rgba(255,255,255,.25)">暂无</span>';
@@ -2098,6 +2113,12 @@ function _buildHeroCard(h) {
 }
 
 function renderGrid() {
+  // 计算当前状态哈希，相同则跳过重渲染
+  const _rgHash = (gs.step||0) + '|' + (gs.aPicks||[]).length + '|' + (gs.bPicks||[]).length
+    + '|' + tab + '|' + (document.getElementById('searchInp')?.value||'')
+    + '|' + JSON.stringify(gs.globalPicked||[]);
+  if (_rgHash === renderGrid._lastHash) return;
+  renderGrid._lastHash = _rgHash;
   const q = document.getElementById('searchInp').value.toLowerCase(); const mt = myTurn();
   let list = tab === 'all' ? ALL : HEROES[tab].map(h=>({...h, type: tab}));
   if (q) list = list.filter(h => h.name.toLowerCase().includes(q));
@@ -2291,6 +2312,7 @@ function listenRoom(aName, bName) {
   // 先移除旧的 _yuce 监听器（防止重连时重复注册）
   refDb.child('_yuce').off('value');
   window._lastYuceTs = 0; // 重连后重置，确保能收到最新预测
+  renderGrid._lastHash = null; // 重连后强制重渲染英雄格子
   // 独立监听预测胜利广播（_yuce节点与主游戏数据完全隔离，不参与任何统计）
   refDb.child('_yuce').on('value', snap => {
     const d = snap.val();
@@ -3202,6 +3224,12 @@ function toggleBgmPanel() {
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B2%81%E8%B7%AF%E4%BF%AE-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E9%9F%B3%E6%95%88.wav",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B8%A3%E4%BA%BA%EF%BC%88%E5%B0%BE%E5%85%BD%E6%A8%A1%E5%BC%8F%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%B5%81%E8%8E%B9.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%9D%92%E9%9B%89.mp3",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91Saber-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/BLOO-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.wav",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/DIO-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
@@ -3214,6 +3242,15 @@ function toggleBgmPanel() {
   ];
 
   // BGM：延迟5秒缓存（体积大，不抢首屏）
+  // 预测胜利语音（已在 YUCE_LIST 定义，此处引用同步）
+  const CACHED_YUCE_URLS = [
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B1.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B2.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B3.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B4.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B5.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/yuce@main/%E9%A2%84%E6%B5%8B6.mp3",
+  ];
   const BGM_URLS = [
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E4%B8%89%E6%97%A0Marblue%20-%20STYX%20HELIX_H.ogg",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E5%A0%95.mp3",
@@ -3293,46 +3330,12 @@ function toggleBgmPanel() {
     }
   };
 
-  // 拦截 Image 加载（英雄头像用 img.src 加载，不走 fetch）
-  const OrigImage = window.Image;
-  window.Image = function(w, h) {
-    const img = new OrigImage(w, h);
-    const origSrcDesc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-    let _src = '';
-    Object.defineProperty(img, 'src', {
-      get() { return _src; },
-      set(url) {
-        _src = url;
-        if (url && url.includes('cdn.jsdelivr.net')) {
-          caches.open(CACHE_NAME).then(async cache => {
-            const cached = await cache.match(url);
-            if (cached) {
-              const blob = await cached.blob();
-              origSrcDesc.set.call(img, URL.createObjectURL(blob));
-            } else {
-              origSrcDesc.set.call(img, url);
-              // 加载完成后写入缓存
-              img.addEventListener('load', async () => {
-                try {
-                  const res = await origFetch(url, {mode:'cors'});
-                  if (res.ok) cache.put(url, res);
-                } catch(e) {}
-              }, {once: true});
-            }
-          }).catch(() => { origSrcDesc.set.call(img, url); });
-        } else {
-          origSrcDesc.set.call(img, url);
-        }
-      }
-    });
-    return img;
-  };
-
-  // 后台预缓存函数
+  // Image 加载由 precacheUrls 统一处理，不覆盖全局构造函数
+  // 后台预缓存函数（并行下载，不阻塞页面）
   async function precacheUrls(urls, label) {
     const cache = await caches.open(CACHE_NAME);
     let done = 0;
-    for (const url of urls) {
+    const tasks = urls.map(async url => {
       try {
         const hit = await cache.match(url);
         if (!hit) {
@@ -3340,14 +3343,15 @@ function toggleBgmPanel() {
           if (res.ok) { await cache.put(url, res); done++; }
         }
       } catch(e) {}
-    }
+    });
+    await Promise.allSettled(tasks);
     if (done > 0) console.log(`[Cache] ${label} 新缓存 ${done} 个`);
   }
 
   // 打开页面后开始缓存
   window.addEventListener('load', () => {
     // 核心资源立即开始
-    precacheUrls(CORE_URLS, '核心资源');
+    precacheUrls([...CORE_URLS, ...CACHED_YUCE_URLS], '核心资源');
     // BGM 延迟5秒
     setTimeout(() => precacheUrls(BGM_URLS, 'BGM'), 5000);
     // 表情包延迟15秒
@@ -3358,7 +3362,7 @@ function toggleBgmPanel() {
   window.checkCacheStats = async function() {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    const info = { cached: keys.length, total: 218, percent: Math.round(keys.length/218*100)+'%' };
+    const info = { cached: keys.length, total: 231, percent: Math.round(keys.length/231*100)+'%' };
     console.log('[Cache] 缓存状态:', info);
     return info;
   };
