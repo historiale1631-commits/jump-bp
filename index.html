@@ -553,9 +553,19 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e u
 </div>
 
 <div class="judge-overlay" id="aiOv" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-  <div class="judge-modal" style="max-width:420px;text-align:left">
+  <div class="judge-modal" style="max-width:460px;text-align:left">
     <h3 style="text-align:center">🔬 测试分析系统</h3>
-    <div id="aiContent" style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:400px;overflow-y:auto;margin:10px 0"></div>
+    <!-- Tab 切换 -->
+    <div style="display:flex;gap:3px;margin-bottom:8px">
+      <button id="aiTab0" onclick="switchAiTab(0)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(167,139,250,.25);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;font-weight:700">🎯 BP推荐</button>
+      <button id="aiTab1" onclick="switchAiTab(1)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">📈 出场</button>
+      <button id="aiTab2" onclick="switchAiTab(2)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🏆 胜率</button>
+      <button id="aiTab3" onclick="switchAiTab(3)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🤝 组合</button>
+    </div>
+    <div id="aiContent"       style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:420px;overflow-y:auto;margin:10px 0"></div>
+    <div id="aiPickContent"   style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
+    <div id="aiWrContent"     style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
+    <div id="aiComboContent"  style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <button onclick="document.getElementById('aiOv').style.display='none'" style="width:100%;margin-top:10px;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">关闭</button>
   </div>
 </div>
@@ -1943,6 +1953,331 @@ async function showAIRecommend() {
   }
 }
 
+// ── AI面板 Tab 切换 ──
+const AI_TAB_STYLES = [
+  { bg: 'rgba(167,139,250,.25)', border: 'rgba(167,139,250,.5)', color: '#c4b5fd' },
+  { bg: 'rgba(96,165,250,.2)',   border: 'rgba(96,165,250,.5)',  color: '#60a5fa' },
+  { bg: 'rgba(74,222,128,.2)',   border: 'rgba(74,222,128,.5)',  color: '#4ade80' },
+  { bg: 'rgba(251,191,36,.2)',   border: 'rgba(251,191,36,.5)',  color: '#fbbf24' },
+];
+const AI_TAB_CONTENTS = ['aiContent','aiPickContent','aiWrContent','aiComboContent'];
+
+function switchAiTab(idx) {
+  AI_TAB_CONTENTS.forEach((id, i) => {
+    document.getElementById(id).style.display = i === idx ? 'block' : 'none';
+  });
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('aiTab' + i);
+    if (!btn) continue;
+    const s = i === idx ? AI_TAB_STYLES[i] : null;
+    btn.style.background   = s ? s.bg     : 'rgba(255,255,255,.05)';
+    btn.style.borderColor  = s ? s.border : 'rgba(255,255,255,.12)';
+    btn.style.color        = s ? s.color  : 'rgba(255,255,255,.5)';
+    btn.style.fontWeight   = s ? '700'    : 'normal';
+  }
+  if (idx === 1) showAIPickStats();
+  if (idx === 2) showAIWrStats();
+  if (idx === 3) showAIComboStats();
+}
+
+// 公用：读取并计算基础数据
+async function loadStatsData() {
+  const snap = await firebase.database().ref('rooms').once('value');
+  const histData = snap.val() || {};
+  const validRounds = [];
+  Object.values(histData).forEach(room => {
+    (room.allRounds || []).forEach(r => {
+      const aP = (r.aPicks||[]).filter(p=>p&&p.name);
+      const bP = (r.bPicks||[]).filter(p=>p&&p.name);
+      const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
+      const isComplete = aP.length >= 5 && bP.length >= 5;
+      const rounds3 = (room.allRounds||[]).length >= 3;
+      if (hasJudge || (isComplete && rounds3)) validRounds.push({ r, aP, bP, hasJudge });
+    });
+  });
+  const heroStats = {}, comboStats = {};
+  validRounds.forEach(({ r, aP, bP, hasJudge }) => {
+    [aP, bP].forEach((team, ti) => {
+      const isW = r.winner === (ti === 0 ? 'a' : 'b');
+      team.forEach(h => {
+        if (!heroStats[h.name]) heroStats[h.name] = { pick:0, judgedPick:0, judgedWin:0 };
+        heroStats[h.name].pick++;
+        if (hasJudge) { heroStats[h.name].judgedPick++; if (isW) heroStats[h.name].judgedWin++; }
+      });
+      if (hasJudge) {
+        for (let i=0;i<team.length;i++) for (let j=i+1;j<team.length;j++) {
+          const k=[team[i].name,team[j].name].sort().join('|');
+          comboStats[k]=(comboStats[k]||0)+1;
+        }
+      }
+    });
+  });
+  return { validRounds, heroStats, comboStats, totalGames: validRounds.length, judgedGames: validRounds.filter(x=>x.hasJudge).length };
+}
+
+function heroAvatar(name) {
+  const url = HERO_IMG[name];
+  if (!url) return `<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);text-align:center;line-height:22px;font-size:9px;flex-shrink:0">${name.slice(0,1)}</span>`;
+  return `<img src="${url}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+function heroInfo(name) {
+  const h = ALL.find(x=>x.name===name);
+  const TL={str:'💪',agi:'⚡',int:'🧠'};
+  return h ? `${TL[h.type]||''}${h.score}分` : '';
+}
+function statsHeader(total, judged) {
+  return `<div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:8px;text-align:center">共 <b style="color:#fbbf24">${total}</b> 场有效大场（含批注${judged}场）</div>`;
+}
+
+async function showAIPickStats() {
+  const el = document.getElementById('aiPickContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 统计中...</div>';
+  try {
+    const { heroStats, totalGames, judgedGames } = await loadStatsData();
+    const byPick = Object.entries(heroStats).sort((a,b)=>b[1].pick-a[1].pick).slice(0,30);
+    let out = statsHeader(totalGames, judgedGames);
+    out += `<div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;padding:8px 10px">
+      <div style="color:#60a5fa;font-weight:700;font-size:11px;margin-bottom:6px">📈 出场次数 Top30</div>`;
+    byPick.forEach(([name,s],i)=>{
+      const rate=totalGames>0?Math.round(s.pick/totalGames*100):0;
+      const bw=Math.round(s.pick/(byPick[0][1].pick||1)*100);
+      out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+        ${heroAvatar(name)}
+        <span style="font-size:11px;flex:1">${name}</span>
+        <span style="font-size:9px;color:rgba(255,255,255,.35)">${heroInfo(name)}</span>
+        <div style="width:50px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden"><div style="width:${bw}%;height:100%;background:#60a5fa;border-radius:3px"></div></div>
+        <span style="font-size:10px;color:#60a5fa;min-width:28px;text-align:right">${s.pick}次</span>
+        <span style="font-size:9px;color:rgba(255,255,255,.3);min-width:30px">${rate}%</span>
+      </div>`;
+    });
+    out+=`</div>`;
+    el.innerHTML=out;
+  } catch(e){ el.innerHTML='<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>'; console.error(e); }
+}
+
+async function showAIWrStats() {
+  const el = document.getElementById('aiWrContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 统计中...</div>';
+  try {
+    const { heroStats, totalGames, judgedGames } = await loadStatsData();
+    const byWR = Object.entries(heroStats)
+      .filter(([,s])=>s.judgedPick>=2)
+      .map(([name,s])=>[name,s,Math.round(s.judgedWin/s.judgedPick*100)])
+      .sort((a,b)=>b[2]-a[2]).slice(0,30);
+    let out = statsHeader(totalGames, judgedGames);
+    out+=`<div style="background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:8px 10px">
+      <div style="color:#4ade80;font-weight:700;font-size:11px;margin-bottom:2px">🏆 有效批注胜率 Top30</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px">至少2场批注才计入</div>`;
+    if(byWR.length===0){
+      out+=`<div style="color:rgba(255,255,255,.3);text-align:center;padding:8px;font-size:10px">批注数据不足，暂无排名</div>`;
+    } else {
+      byWR.forEach(([name,s,wr],i)=>{
+        const color=wr>=60?'#4ade80':wr>=45?'#fbbf24':'#f87171';
+        out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+          ${heroAvatar(name)}
+          <span style="font-size:11px;flex:1">${name}</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.35)">${heroInfo(name)}</span>
+          <div style="width:50px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden"><div style="width:${wr}%;height:100%;background:${color};border-radius:3px"></div></div>
+          <span style="font-size:10px;color:${color};font-weight:700;min-width:30px;text-align:right">${wr}%</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.3);min-width:30px">${s.judgedPick}场</span>
+        </div>`;
+      });
+    }
+    out+=`</div>`;
+    el.innerHTML=out;
+  } catch(e){ el.innerHTML='<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>'; console.error(e); }
+}
+
+async function showAIComboStats() {
+  const el = document.getElementById('aiComboContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 统计中...</div>';
+  try {
+    const { comboStats, totalGames, judgedGames } = await loadStatsData();
+    const byCombos = Object.entries(comboStats).sort((a,b)=>b[1]-a[1]).slice(0,30);
+    let out = statsHeader(totalGames, judgedGames);
+    out+=`<div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:8px 10px">
+      <div style="color:#fbbf24;font-weight:700;font-size:11px;margin-bottom:2px">🤝 同队组合 Top30</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px">基于有效批注场次</div>`;
+    if(byCombos.length===0){
+      out+=`<div style="color:rgba(255,255,255,.3);text-align:center;padding:8px;font-size:10px">批注数据不足</div>`;
+    } else {
+      byCombos.forEach(([k,cnt],i)=>{
+        const [a,b]=k.split('|');
+        const bw=Math.round(cnt/(byCombos[0][1]||1)*100);
+        out+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+          ${heroAvatar(a)}<span style="font-size:10px">${a}</span>
+          <span style="color:rgba(255,255,255,.25);font-size:9px">+</span>
+          ${heroAvatar(b)}<span style="font-size:10px">${b}</span>
+          <div style="flex:1"></div>
+          <div style="width:40px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden"><div style="width:${bw}%;height:100%;background:#fbbf24;border-radius:3px"></div></div>
+          <span style="font-size:10px;color:#fbbf24;min-width:24px;text-align:right">${cnt}次</span>
+        </div>`;
+      });
+    }
+    out+=`</div>`;
+    el.innerHTML=out;
+  } catch(e){ el.innerHTML='<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>'; console.error(e); }
+}
+
+async function showAIStats() {
+  const el = document.getElementById('aiStatsContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 统计中...</div>';
+  try {
+    const snap = await firebase.database().ref('rooms').once('value');
+    const histData = snap.val() || {};
+
+    // ── 有效大场定义：有裁判批注 OR 双方选够5人且至少完成3轮BP ──
+    const validRounds = [];
+    Object.values(histData).forEach(room => {
+      (room.allRounds || []).forEach(r => {
+        const aP = (r.aPicks||[]).filter(p=>p&&p.name);
+        const bP = (r.bPicks||[]).filter(p=>p&&p.name);
+        const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
+        const isComplete = aP.length >= 5 && bP.length >= 5;
+        // 未批注但至少3轮BP的房间视为有效大场（用 allRounds 长度判断）
+        const rounds3 = (room.allRounds||[]).length >= 3;
+        if (hasJudge || (isComplete && rounds3)) {
+          validRounds.push({ r, aP, bP, hasJudge });
+        }
+      });
+    });
+
+    const totalGames = validRounds.length;
+    const judgedGames = validRounds.filter(x => x.hasJudge).length;
+
+    // 统计各英雄数据
+    const heroStats = {}; // name -> { pick, win, judgedPick, teamCombo }
+    const comboStats = {}; // 'A|B' -> count
+
+    validRounds.forEach(({ r, aP, bP, hasJudge }) => {
+      [aP, bP].forEach((team, ti) => {
+        const isW = r.winner === (ti === 0 ? 'a' : 'b');
+        team.forEach(h => {
+          if (!heroStats[h.name]) heroStats[h.name] = { pick: 0, win: 0, judgedPick: 0, judgedWin: 0 };
+          heroStats[h.name].pick++;
+          if (hasJudge) {
+            heroStats[h.name].judgedPick++;
+            if (isW) heroStats[h.name].judgedWin++;
+          }
+        });
+        // 组合统计（有效批注场次）
+        if (hasJudge) {
+          for (let i = 0; i < team.length; i++)
+            for (let j = i+1; j < team.length; j++) {
+              const k = [team[i].name, team[j].name].sort().join('|');
+              comboStats[k] = (comboStats[k]||0) + 1;
+            }
+        }
+      });
+    });
+
+    // 出场率排序（按总出场次数）
+    const byPick = Object.entries(heroStats).sort((a,b) => b[1].pick - a[1].pick).slice(0, 30);
+    // 胜率排序（至少2场批注）
+    const byWR = Object.entries(heroStats)
+      .filter(([,s]) => s.judgedPick >= 2)
+      .map(([name, s]) => [name, s, Math.round(s.judgedWin / s.judgedPick * 100)])
+      .sort((a,b) => b[2] - a[2]).slice(0, 30);
+    // 组合排序
+    const byCombos = Object.entries(comboStats).sort((a,b) => b[1] - a[1]).slice(0, 30);
+
+    const TL = { str:'💪', agi:'⚡', int:'🧠' };
+    function heroAvatar(name) {
+      const url = HERO_IMG[name];
+      if (!url) return `<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);text-align:center;line-height:22px;font-size:9px;flex-shrink:0">${name.slice(0,1)}</span>`;
+      return `<img src="${url}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;vertical-align:middle" onerror="this.style.display='none'">`;
+    }
+    function heroInfo(name) {
+      const h = ALL.find(x=>x.name===name);
+      return h ? `${TL[h.type]||''}${h.score}分` : '';
+    }
+
+    let out = `<div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:8px;text-align:center">
+      共 <b style="color:#fbbf24">${totalGames}</b> 场有效大场（含批注${judgedGames}场）
+    </div>`;
+
+    // ── 出场率 ──
+    out += `<div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+      <div style="color:#60a5fa;font-weight:700;font-size:11px;margin-bottom:6px">📈 出场次数 Top30</div>`;
+    byPick.forEach(([name, s], i) => {
+      const rate = totalGames > 0 ? Math.round(s.pick / totalGames * 100) : 0;
+      const barW = Math.round(s.pick / (byPick[0][1].pick||1) * 100);
+      out += `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+        ${heroAvatar(name)}
+        <span style="font-size:11px;flex:1">${name}</span>
+        <span style="font-size:9px;color:rgba(255,255,255,.35)">${heroInfo(name)}</span>
+        <div style="width:50px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:#60a5fa;border-radius:3px"></div>
+        </div>
+        <span style="font-size:10px;color:#60a5fa;min-width:28px;text-align:right">${s.pick}次</span>
+        <span style="font-size:9px;color:rgba(255,255,255,.3);min-width:30px">${rate}%</span>
+      </div>`;
+    });
+    out += `</div>`;
+
+    // ── 胜率 ──
+    out += `<div style="background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+      <div style="color:#4ade80;font-weight:700;font-size:11px;margin-bottom:2px">🏆 有效批注胜率 Top30</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px">至少2场批注才计入</div>`;
+    if (byWR.length === 0) {
+      out += `<div style="color:rgba(255,255,255,.3);text-align:center;padding:8px;font-size:10px">批注数据不足，暂无排名</div>`;
+    } else {
+      byWR.forEach(([name, s, wr], i) => {
+        const barW = wr;
+        const color = wr >= 60 ? '#4ade80' : wr >= 45 ? '#fbbf24' : '#f87171';
+        out += `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+          ${heroAvatar(name)}
+          <span style="font-size:11px;flex:1">${name}</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.35)">${heroInfo(name)}</span>
+          <div style="width:50px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden">
+            <div style="width:${barW}%;height:100%;background:${color};border-radius:3px"></div>
+          </div>
+          <span style="font-size:10px;color:${color};font-weight:700;min-width:30px;text-align:right">${wr}%</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.3);min-width:30px">${s.judgedPick}场</span>
+        </div>`;
+      });
+    }
+    out += `</div>`;
+
+    // ── 组合 ──
+    out += `<div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:8px 10px">
+      <div style="color:#fbbf24;font-weight:700;font-size:11px;margin-bottom:2px">🤝 同队组合 Top30</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px">基于有效批注场次</div>`;
+    if (byCombos.length === 0) {
+      out += `<div style="color:rgba(255,255,255,.3);text-align:center;padding:8px;font-size:10px">批注数据不足</div>`;
+    } else {
+      byCombos.forEach(([k, cnt], i) => {
+        const [a, b] = k.split('|');
+        const barW = Math.round(cnt / (byCombos[0][1]||1) * 100);
+        out += `<div style="display:flex;align-items:center;gap:4px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
+          ${heroAvatar(a)}
+          <span style="font-size:10px">${a}</span>
+          <span style="color:rgba(255,255,255,.25);font-size:9px">+</span>
+          ${heroAvatar(b)}
+          <span style="font-size:10px">${b}</span>
+          <div style="flex:1"></div>
+          <div style="width:40px;background:rgba(255,255,255,.08);border-radius:3px;height:6px;overflow:hidden">
+            <div style="width:${barW}%;height:100%;background:#fbbf24;border-radius:3px"></div>
+          </div>
+          <span style="font-size:10px;color:#fbbf24;min-width:24px;text-align:right">${cnt}次</span>
+        </div>`;
+      });
+    }
+    out += `</div>`;
+
+    el.innerHTML = out;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>';
+    console.error(e);
+  }
+}
+
 // ── 修复8：orderBar 只在首次或换边时重建，不在每次 syncUI 重建 ──
 let lastOrderHash = '';
 function renderOrderBar() {
@@ -2285,31 +2620,36 @@ function listenRoom(aName, bName) {
     const d = snap.val();
     if (!d || !d.ts) return;
     if (d.ts === (window._lastYuceTs||0)) return;
-    if (Date.now() - d.ts > 8000) return;
+    // 逻辑：8秒内=实时新事件（音效+文字）；超过8秒=重连恢复（只显文字不播音效）
+    const isStale = Date.now() - d.ts > 8000;
     window._lastYuceTs = d.ts;
-    // 发送方：本地已处理（playYuce里已播音效和显示文字），跳过
-    // 接收方（含裁判）：等音效可播放后再同步显示文字，保证音画同步
-    const isSender = (myRole === d.team);
+    const isSender = (d.nonce && d.nonce === window._selfYuceNonce);
     if (!isSender) {
-      const url = YUCE_LIST[d.idx];
-      if (url) {
-        if (currentYuceSfx) { currentYuceSfx.pause(); currentYuceSfx.currentTime = 0; }
-        currentYuceSfx = new Audio(url);
-        currentYuceSfx.volume = sfxVolume;
-        // 等音频可以播放时再同步显示文字，保证音画同步
-        const doPlay = () => {
-          currentYuceSfx.play().catch(()=>{});
-          showYuceBar(d.team, d.idx);
-        };
-        if (currentYuceSfx.readyState >= 3) {
-          doPlay(); // 已缓存，直接播
-        } else {
-          currentYuceSfx.addEventListener('canplay', doPlay, { once: true });
-          // 超过1.5秒还没ready就直接显示文字（网络慢时兜底）
-          setTimeout(() => { showYuceBar(d.team, d.idx); }, 1500);
-        }
-      } else {
+      if (isStale) {
+        // 重连恢复旧预测：只显示文字，不重播音效
         showYuceBar(d.team, d.idx);
+      } else {
+        // 实时新事件：音画同步
+        const url = YUCE_LIST[d.idx];
+        if (url) {
+          if (currentYuceSfx) { currentYuceSfx.pause(); currentYuceSfx.currentTime = 0; }
+          currentYuceSfx = new Audio(url);
+          currentYuceSfx.volume = sfxVolume;
+          const doPlay = () => {
+            currentYuceSfx.play().catch(()=>{});
+            showYuceBar(d.team, d.idx);
+          };
+          if (currentYuceSfx.readyState >= 3) {
+            doPlay();
+          } else {
+            let _played = false;
+            const safeDoPlay = () => { if (_played) return; _played = true; doPlay(); };
+            currentYuceSfx.addEventListener('canplay', safeDoPlay, { once: true });
+            setTimeout(() => { if (!_played) { _played = true; showYuceBar(d.team, d.idx); } }, 1500);
+          }
+        } else {
+          showYuceBar(d.team, d.idx);
+        }
       }
     }
   });
