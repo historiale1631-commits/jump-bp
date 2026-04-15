@@ -1334,7 +1334,13 @@ function doPick(h) {
   const ns = expectedStep + 1;
   sel = null;
   const { overflowedBank, curTeam } = calcTime();
-  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns, stepStartTs: firebase.database.ServerValue.TIMESTAMP, mainUsed: 0 };
+  // 爱莉希雅选中时：pick update 里直接包含 paused:true，避免竞态
+  const isElysia = h.name === '爱莉希雅';
+  const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns,
+    stepStartTs: isElysia ? 0 : firebase.database.ServerValue.TIMESTAMP,
+    mainUsed: gs.mainUsed || 0,
+    ...(isElysia ? { paused: true } : { mainUsed: 0 })
+  };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
   // 确认选取时播放英雄专属音效并广播（中断上一个）
@@ -3155,16 +3161,7 @@ function playHeroVideo(isSender) {
   const wasBgmPlaying = bgm && !bgm.paused;
   if (wasBgmPlaying) bgm.pause();
 
-  // 只有发送方负责暂停 BP 计时（避免双方重复写入）
-  if (isSender && gs.active && !gs.paused && !gs.roundEnded && !gs.ended) {
-    const { overflowedBank, curTeam } = calcTime();
-    const sinceResume = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
-    const newMainUsed = Math.min(60, (gs.mainUsed || 0) + sinceResume);
-    const savedBank = Math.max(0, (curTeam === 'a' ? gs.bankA : gs.bankB) - overflowedBank);
-    const update = { paused: true, mainUsed: newMainUsed, stepStartTs: 0 };
-    if (curTeam === 'a') update.bankA = savedBank; else update.bankB = savedBank;
-    if (refDb) refDb.update(update);
-  }
+  // 暂停已在 doPick 的 update 里一并写入，无需重复处理
 
   ov.style.display = 'flex';
   // 渐入：先从透明+静音开始，0.7秒渐入
