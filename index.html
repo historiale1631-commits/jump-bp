@@ -570,11 +570,13 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <button id="aiTab1" onclick="switchAiTab(1)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">📈 出场</button>
       <button id="aiTab2" onclick="switchAiTab(2)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🏆 胜率</button>
       <button id="aiTab3" onclick="switchAiTab(3)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🤝 组合</button>
+      <button id="aiTab4" onclick="switchAiTab(4)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">⚖️ 预测</button>
     </div>
     <div id="aiContent"       style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiPickContent"   style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiWrContent"     style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiComboContent"  style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
+    <div id="aiPredContent"   style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <button onclick="document.getElementById('aiOv').style.display='none'" style="width:100%;margin-top:10px;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">关闭</button>
   </div>
 </div>
@@ -1985,8 +1987,9 @@ const AI_TAB_STYLES = [
   { bg: 'rgba(96,165,250,.2)',   border: 'rgba(96,165,250,.5)',  color: '#60a5fa' },
   { bg: 'rgba(74,222,128,.2)',   border: 'rgba(74,222,128,.5)',  color: '#4ade80' },
   { bg: 'rgba(251,191,36,.2)',   border: 'rgba(251,191,36,.5)',  color: '#fbbf24' },
+  { bg: 'rgba(251,146,60,.2)',   border: 'rgba(251,146,60,.5)',  color: '#fb923c' },
 ];
-const AI_TAB_CONTENTS = ['aiContent','aiPickContent','aiWrContent','aiComboContent'];
+const AI_TAB_CONTENTS = ['aiContent','aiPickContent','aiWrContent','aiComboContent','aiPredContent'];
 
 function switchAiTab(idx) {
   AI_TAB_CONTENTS.forEach((id, i) => {
@@ -2004,6 +2007,7 @@ function switchAiTab(idx) {
   if (idx === 1) showAIPickStats();
   if (idx === 2) showAIWrStats();
   if (idx === 3) showAIComboStats();
+  if (idx === 4) showAIPrediction();
 }
 
 // 公用：读取并计算基础数据
@@ -2165,6 +2169,145 @@ async function showAIComboStats() {
     out+=`</div>`;
     el.innerHTML=out;
   } catch(e){ el.innerHTML='<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>'; console.error(e); }
+}
+
+
+// ── 胜率预测系统 ──
+// 算法说明：
+// 1. 英雄基础分 = 历史有效批注胜率（至少2场，否则用50%）
+// 2. 组合协同加成 = 队内有历史高频组合（出现>=2次）每对+3%
+// 3. 积分效率分 = 实际用分/上限的比值（越接近上限越充分利用预算）
+// 4. 先手/后手系数 = Sunday方(先手)微弱优势+2%
+// 5. 最终归一化到双方加和=100%
+
+async function showAIPrediction() {
+  const el = document.getElementById('aiPredContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 计算中...</div>';
+  try {
+    const aName = gs.aName || 'A队', bName = gs.bName || 'B队';
+    const aPicks = (gs.aPicks || []).filter(h => h && h.name);
+    const bPicks = (gs.bPicks || []).filter(h => h && h.name);
+
+    if (aPicks.length === 0 && bPicks.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px">双方尚未选人，无法预测</div>';
+      return;
+    }
+
+    // 读取历史数据
+    const { heroStats, comboStats, totalGames, judgedGames } = await loadStatsData();
+
+    // 计算单支队伍的综合评分
+    function calcTeamScore(picks, teamKey, lim) {
+      if (!picks.length) return 50;
+
+      // ① 英雄基础胜率均值
+      let wrSum = 0, wrCnt = 0;
+      picks.forEach(h => {
+        const s = heroStats[h.name];
+        if (s && s.judgedPick >= 2) {
+          wrSum += s.judgedWin / s.judgedPick * 100;
+          wrCnt++;
+        } else {
+          wrSum += 50; // 无数据默认50%
+          wrCnt++;
+        }
+      });
+      const baseWR = wrSum / wrCnt;
+
+      // ② 组合协同加成（队内每对高频组合+3%，上限+12%）
+      let comboBonus = 0;
+      for (let i = 0; i < picks.length; i++) {
+        for (let j = i + 1; j < picks.length; j++) {
+          const k = [picks[i].name, picks[j].name].sort().join('|');
+          if ((comboStats[k] || 0) >= 2) comboBonus += 3;
+        }
+      }
+      comboBonus = Math.min(comboBonus, 12);
+
+      // ③ 积分效率分（用分越接近上限说明选角色越充分，+0~5%）
+      const used = picks.reduce((s, h) => s + (h.score || 0), 0);
+      const efficiencyBonus = lim > 0 ? (used / lim) * 5 : 0;
+
+      return baseWR + comboBonus + efficiencyBonus;
+    }
+
+    const lim = getLIM();
+    const sunday = getSundayTeam(); // 'a' 或 'b'
+    const aLim = lim['a'], bLim = lim['b'];
+
+    let scoreA = calcTeamScore(aPicks, 'a', aLim);
+    let scoreB = calcTeamScore(bPicks, 'b', bLim);
+
+    // ④ 先手（Sunday方）微弱优势 +2
+    if (sunday === 'a') scoreA += 2; else scoreB += 2;
+
+    // 归一化到100%
+    const total = scoreA + scoreB;
+    const pctA = Math.round(scoreA / total * 100);
+    const pctB = 100 - pctA;
+
+    // 各英雄贡献明细
+    function heroDetail(picks) {
+      return picks.map(h => {
+        const s = heroStats[h.name];
+        const wr = (s && s.judgedPick >= 2) ? Math.round(s.judgedWin / s.judgedPick * 100) : null;
+        const wrTxt = wr !== null ? `${wr}%胜率(${s.judgedPick}场)` : '暂无数据';
+        const color = wr === null ? 'rgba(255,255,255,.35)' : wr >= 60 ? '#4ade80' : wr >= 45 ? '#fbbf24' : '#f87171';
+        return `<div style="display:flex;align-items:center;gap:5px;padding:2px 0">
+          ${heroAvatar(h.name)}
+          <span style="flex:1;font-size:11px">${h.name}</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.35)">${heroInfo(h.name)}</span>
+          <span style="font-size:9px;color:${color}">${wrTxt}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // 胜率条颜色
+    const aColor = pctA > pctB ? '#4ade80' : pctA < pctB ? '#f87171' : '#fbbf24';
+    const bColor = pctB > pctA ? '#4ade80' : pctB < pctA ? '#f87171' : '#fbbf24';
+    const sunTxt = sunday === 'a' ? `${aName}(Sunday先手)` : `${bName}(Sunday先手)`;
+
+    let out = `
+    <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:10px;text-align:center">
+      基于 ${judgedGames} 场历史批注数据 · ${sunTxt}
+    </div>
+
+    <!-- 大胜率条 -->
+    <div style="background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden;margin-bottom:12px;height:32px;display:flex">
+      <div style="width:${pctA}%;background:linear-gradient(90deg,rgba(220,50,50,.6),rgba(220,50,50,.3));display:flex;align-items:center;justify-content:center;transition:width .5s ease">
+        <span style="font-size:13px;font-weight:700;color:#fca5a5">${pctA}%</span>
+      </div>
+      <div style="width:${pctB}%;background:linear-gradient(90deg,rgba(50,100,220,.3),rgba(50,100,220,.6));display:flex;align-items:center;justify-content:center;transition:width .5s ease">
+        <span style="font-size:13px;font-weight:700;color:#93c5fd">${pctB}%</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:10px">
+      <span style="color:#fca5a5">${aName}</span>
+      <span style="color:#93c5fd">${bName}</span>
+    </div>
+
+    <!-- 双方英雄明细 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:rgba(220,50,50,.07);border:1px solid rgba(220,50,50,.2);border-radius:8px;padding:8px">
+        <div style="color:#fca5a5;font-size:10px;font-weight:700;margin-bottom:6px">${aName} · <span style="color:${aColor}">${pctA}%</span></div>
+        ${aPicks.length ? heroDetail(aPicks) : '<div style="color:rgba(255,255,255,.25);font-size:10px">暂未选人</div>'}
+      </div>
+      <div style="background:rgba(50,100,220,.07);border:1px solid rgba(50,100,220,.2);border-radius:8px;padding:8px">
+        <div style="color:#93c5fd;font-size:10px;font-weight:700;margin-bottom:6px">${bName} · <span style="color:${bColor}">${pctB}%</span></div>
+        ${bPicks.length ? heroDetail(bPicks) : '<div style="color:rgba(255,255,255,.25);font-size:10px">暂未选人</div>'}
+      </div>
+    </div>
+
+    <!-- 算法说明 -->
+    <div style="margin-top:10px;padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:rgba(255,255,255,.25);line-height:1.6">
+      算法：英雄历史胜率均值 + 同队组合协同加成(>=2次共现+3%) + 预算使用效率 + 先手微弱优势
+    </div>`;
+
+    el.innerHTML = out;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">计算失败</div>';
+    console.error(e);
+  }
 }
 
 
