@@ -1338,7 +1338,13 @@ function doPick(h) {
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
 
   // 确认选取时播放英雄专属音效并广播（中断上一个）
-  if (HERO_SFX[h.name]) {
+  // 爱莉希雅：触发专属视频（广播给所有人）
+  if (h.name === '爱莉希雅') {
+    playHeroVideo();
+    const ts = Date.now();
+    refDb.update({ sfxHero: '爱莉希雅_video', sfxTs: ts });
+    lastSfxTs = ts;
+  } else if (HERO_SFX[h.name]) {
     if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
     currentHeroSfx = new Audio(HERO_SFX[h.name]);
     currentHeroSfx.volume = sfxVolume;
@@ -1996,35 +2002,54 @@ function switchAiTab(idx) {
 async function loadStatsData() {
   const snap = await firebase.database().ref('rooms').once('value');
   const histData = snap.val() || {};
-  const validRounds = [];
+
+  // ── 以"房间"为单位统计，一个房间=一场大场（全局BP，3轮BP）──
+  // 有效大场条件：
+  //   1. 至少有一轮有裁判批注胜负，OR
+  //   2. 已完成至少3轮BP（allRounds.length >= 3）且每轮双方各满5人
+  const validRooms = [];
   Object.values(histData).forEach(room => {
-    (room.allRounds || []).forEach(r => {
+    const rounds = room.allRounds || [];
+    if (!rounds.length) return;
+    const hasAnyJudge = rounds.some(r => r.winner === 'a' || r.winner === 'b' || r.winner === 'draw');
+    const allComplete = rounds.every(r =>
+      (r.aPicks||[]).filter(p=>p&&p.name).length >= 5 &&
+      (r.bPicks||[]).filter(p=>p&&p.name).length >= 5
+    );
+    if (hasAnyJudge || (rounds.length >= 3 && allComplete)) {
+      validRooms.push({ rounds, hasAnyJudge });
+    }
+  });
+
+  const heroStats = {}, comboStats = {};
+  // 统计时以轮次为颗粒度（每轮BP英雄不同），但"场数"计房间数
+  validRooms.forEach(({ rounds, hasAnyJudge }) => {
+    rounds.forEach(r => {
       const aP = (r.aPicks||[]).filter(p=>p&&p.name);
       const bP = (r.bPicks||[]).filter(p=>p&&p.name);
       const hasJudge = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
-      const isComplete = aP.length >= 5 && bP.length >= 5;
-      const rounds3 = (room.allRounds||[]).length >= 3;
-      if (hasJudge || (isComplete && rounds3)) validRounds.push({ r, aP, bP, hasJudge });
-    });
-  });
-  const heroStats = {}, comboStats = {};
-  validRounds.forEach(({ r, aP, bP, hasJudge }) => {
-    [aP, bP].forEach((team, ti) => {
-      const isW = r.winner === (ti === 0 ? 'a' : 'b');
-      team.forEach(h => {
-        if (!heroStats[h.name]) heroStats[h.name] = { pick:0, judgedPick:0, judgedWin:0 };
-        heroStats[h.name].pick++;
-        if (hasJudge) { heroStats[h.name].judgedPick++; if (isW) heroStats[h.name].judgedWin++; }
-      });
-      if (hasJudge) {
-        for (let i=0;i<team.length;i++) for (let j=i+1;j<team.length;j++) {
-          const k=[team[i].name,team[j].name].sort().join('|');
-          comboStats[k]=(comboStats[k]||0)+1;
+      [aP, bP].forEach((team, ti) => {
+        const isW = r.winner === (ti === 0 ? 'a' : 'b');
+        team.forEach(h => {
+          if (!heroStats[h.name]) heroStats[h.name] = { pick:0, judgedPick:0, judgedWin:0 };
+          heroStats[h.name].pick++;
+          if (hasJudge) { heroStats[h.name].judgedPick++; if (isW) heroStats[h.name].judgedWin++; }
+        });
+        if (hasJudge) {
+          for (let i=0;i<team.length;i++) for (let j=i+1;j<team.length;j++) {
+            const k=[team[i].name,team[j].name].sort().join('|');
+            comboStats[k]=(comboStats[k]||0)+1;
+          }
         }
-      }
+      });
     });
   });
-  return { validRounds, heroStats, comboStats, totalGames: validRounds.length, judgedGames: validRounds.filter(x=>x.hasJudge).length };
+
+  const totalGames = validRooms.length;  // 场数=房间数（大场）
+  const judgedGames = validRooms.filter(x=>x.hasAnyJudge).length;
+  // 出场率基数：总轮次数（每场3轮，英雄每轮都可能出场）
+  const totalRounds = validRooms.reduce((s,x)=>s+x.rounds.length, 0);
+  return { validRooms, heroStats, comboStats, totalGames, judgedGames, totalRounds };
 }
 
 function heroAvatar(name) {
@@ -2045,13 +2070,13 @@ async function showAIPickStats() {
   const el = document.getElementById('aiPickContent');
   el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 统计中...</div>';
   try {
-    const { heroStats, totalGames, judgedGames } = await loadStatsData();
+    const { heroStats, totalGames, judgedGames, totalRounds } = await loadStatsData();
     const byPick = Object.entries(heroStats).sort((a,b)=>b[1].pick-a[1].pick).slice(0,30);
     let out = statsHeader(totalGames, judgedGames);
     out += `<div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;padding:8px 10px">
       <div style="color:#60a5fa;font-weight:700;font-size:11px;margin-bottom:6px">📈 出场次数 Top30</div>`;
     byPick.forEach(([name,s],i)=>{
-      const rate=totalGames>0?Math.round(s.pick/totalGames*100):0;
+      const rate=totalRounds>0?Math.round(s.pick/totalRounds*100):0;
       const bw=Math.round(s.pick/(byPick[0][1].pick||1)*100);
       out+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
         <span style="color:rgba(255,255,255,.3);font-size:9px;min-width:16px;text-align:right">${i+1}</span>
@@ -2807,14 +2832,19 @@ function listenRoom(aName, bName) {
     // 接收并播放英雄音效（5秒内的新事件才触发）
     if (data.sfxHero && data.sfxTs && data.sfxTs !== lastSfxTs && (Date.now() - data.sfxTs) < 5000) {
       lastSfxTs = data.sfxTs;
-      const sfxUrl = HERO_SFX[data.sfxHero];
-      if (sfxUrl) {
-        try {
-          if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
-          currentHeroSfx = new Audio(sfxUrl);
-          currentHeroSfx.volume = sfxVolume;
-          currentHeroSfx.play().catch(e => console.warn('音效播放失败:', e));
-        } catch(e) { console.warn('音效加载失败:', e); }
+      if (data.sfxHero === '爱莉希雅_video') {
+        // 所有人都播放视频
+        playHeroVideo();
+      } else {
+        const sfxUrl = HERO_SFX[data.sfxHero];
+        if (sfxUrl) {
+          try {
+            if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
+            currentHeroSfx = new Audio(sfxUrl);
+            currentHeroSfx.volume = sfxVolume;
+            currentHeroSfx.play().catch(e => console.warn('音效播放失败:', e));
+          } catch(e) { console.warn('音效加载失败:', e); }
+        }
       }
     }
     // yuce预测广播已由独立监听器处理，此处无需处理
@@ -3261,6 +3291,27 @@ function showYuceBar(team, idx) {
 }
 
 // 接收对方的预测胜利广播已在 Firebase 监听里处理
+
+// ── 爱莉希雅专属视频 ──
+function playHeroVideo() {
+  const ov = document.getElementById('heroVideoOv');
+  const vid = document.getElementById('heroVideo');
+  if (!ov || !vid) return;
+  // 暂停BGM
+  const bgm = document.getElementById('bgm');
+  const wasBgmPlaying = bgm && !bgm.paused;
+  if (wasBgmPlaying) bgm.pause();
+  // 显示遮罩并播放
+  ov.style.display = 'flex';
+  vid.currentTime = 0;
+  vid.volume = sfxVolume;
+  vid.play().catch(() => {});
+  // 播放结束后关闭并恢复BGM
+  vid.onended = () => {
+    ov.style.display = 'none';
+    if (wasBgmPlaying && bgm) bgm.play().catch(() => {});
+  };
+}
 const BGM_LIST = [
   { name: "深澤秀行 - エミヤ (卫宫)", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg" },
   { name: "BGM1", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/BGM1.mp3" },
@@ -3732,5 +3783,10 @@ function toggleBgmPanel() {
   }
 })();
 </script>
+
+<!-- 爱莉希雅特殊视频遮罩 -->
+<div id="heroVideoOv" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center">
+  <video id="heroVideo" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(255,180,220,.4)" playsinline></video>
+</div>
 </body>
 </html>
