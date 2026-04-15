@@ -6,7 +6,7 @@
 <title>JUMP大赛 BP系统</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e url('https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_093214.png') center/cover no-repeat fixed;image-rendering:high-quality;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e url('https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png') center/cover no-repeat fixed;image-rendering:high-quality;color:#fff;min-height:100vh;display:flex;flex-direction:column}
 
 .conn-bar{text-align:center;font-size:10px;padding:3px;background:rgba(0,0,0,.3);flex-shrink:0}
 .conn-bar.online{color:#4ade80}.conn-bar.offline{color:#f87171}.conn-bar.waiting{color:#fcd34d}
@@ -298,7 +298,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e u
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/%E9%BB%91%E8%93%9D%E6%9F%93-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/%E9%BB%91%E8%B4%9E%E5%BE%B7-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_093214.png">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_093214.png">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/%E5%81%A5%E6%AC%A1%E9%83%8E-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/NAO-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F.png">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/talk.png">
@@ -3367,6 +3367,7 @@ function toggleBgmPanel() {
   // 核心资源（英雄头像+音效）：打开页面后立即后台缓存
   const CORE_URLS = [
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_093214.png",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_103201.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_103139.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_103117.png",
@@ -3686,7 +3687,7 @@ function toggleBgmPanel() {
   window.checkCacheStats = async function() {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    const info = { cached: keys.length, total: 215, percent: Math.round(keys.length/218*100)+'%' };
+    const info = { cached: keys.length, total: 216, percent: Math.round(keys.length/218*100)+'%' };
     console.log('[Cache] 缓存状态:', info);
     return info;
   };
