@@ -1340,7 +1340,7 @@ function doPick(h) {
   // 确认选取时播放英雄专属音效并广播（中断上一个）
   // 爱莉希雅：触发专属视频（广播给所有人）
   if (h.name === '爱莉希雅') {
-    playHeroVideo();
+    playHeroVideo(true); // 发送方
     const ts = Date.now();
     refDb.update({ sfxHero: '爱莉希雅_video', sfxTs: ts });
     lastSfxTs = ts;
@@ -2833,8 +2833,8 @@ function listenRoom(aName, bName) {
     if (data.sfxHero && data.sfxTs && data.sfxTs !== lastSfxTs && (Date.now() - data.sfxTs) < 5000) {
       lastSfxTs = data.sfxTs;
       if (data.sfxHero === '爱莉希雅_video') {
-        // 所有人都播放视频
-        playHeroVideo();
+        // 接收方播放视频（不重复暂停/恢复计时）
+        playHeroVideo(false);
       } else {
         const sfxUrl = HERO_SFX[data.sfxHero];
         if (sfxUrl) {
@@ -3293,19 +3293,22 @@ function showYuceBar(team, idx) {
 // 接收对方的预测胜利广播已在 Firebase 监听里处理
 
 // ── 爱莉希雅专属视频 ──
-function playHeroVideo() {
+let _videoPlaying = false; // 防止多次触发
+
+function playHeroVideo(isSender) {
+  if (_videoPlaying) return; // 已在播放，忽略重复触发
+  _videoPlaying = true;
+
   const ov = document.getElementById('heroVideoOv');
   const vid = document.getElementById('heroVideo');
-  if (!ov || !vid) return;
+  if (!ov || !vid) { _videoPlaying = false; return; }
+
   const bgm = document.getElementById('bgm');
   const wasBgmPlaying = bgm && !bgm.paused;
+  if (wasBgmPlaying) bgm.pause();
 
-  // 禁止暂停：监听 pause 事件强制恢复播放
-  const preventPause = () => { vid.play().catch(() => {}); };
-  vid.addEventListener('pause', preventPause);
-
-  // 视频开始时通过 Firebase 广播暂停计时
-  if (gs.active && !gs.paused && !gs.roundEnded && !gs.ended) {
+  // 只有发送方负责暂停 BP 计时（避免双方重复写入）
+  if (isSender && gs.active && !gs.paused && !gs.roundEnded && !gs.ended) {
     const { overflowedBank, curTeam } = calcTime();
     const sinceResume = gs.stepStartTs > 0 ? Math.max(0, Math.floor((serverNow() - gs.stepStartTs) / 1000)) : 0;
     const newMainUsed = Math.min(60, (gs.mainUsed || 0) + sinceResume);
@@ -3315,34 +3318,48 @@ function playHeroVideo() {
     if (refDb) refDb.update(update);
   }
 
-  const closeVideo = () => {
-    vid.removeEventListener('pause', preventPause);
-    // 渐变消失 1.5秒
-    vid.style.opacity = '0';
-    setTimeout(() => {
-      ov.style.display = 'none';
-      vid.style.opacity = '1';
-      vid.pause();
-      if (wasBgmPlaying && bgm) bgm.play().catch(() => {});
-      // 视频结束后恢复计时（同裁判继续功能）
-      if (gs.active && gs.paused && !gs.roundEnded && !gs.ended) {
-        const resumeTs = Date.now();
-        if (refDb) refDb.update({ resumeSfxTs: resumeTs, resumeAt: resumeTs + 1000 });
-      }
-    }, 1500);
-  };
-
-  if (wasBgmPlaying) bgm.pause();
   ov.style.display = 'flex';
   vid.style.opacity = '1';
   vid.currentTime = 0;
   vid.volume = Math.min(sfxVolume * 1.5, 1);
-  vid.onended = closeVideo;
-  vid.onerror = closeVideo;
-  vid.play().catch(() => {});
 
-  // 超时兜底：60秒强制关闭
-  setTimeout(() => { if (ov.style.display !== 'none') closeVideo(); }, 60000);
+  let _closing = false;
+  const closeVideo = () => {
+    if (_closing) return;
+    _closing = true;
+    _videoPlaying = false;
+    // 渐变消失
+    vid.style.opacity = '0';
+    setTimeout(() => {
+      ov.style.display = 'none';
+      vid.style.opacity = '1';
+      vid.onended = null;
+      // 清除防暂停并真正暂停
+      vid._preventPause = false;
+      vid.pause();
+      if (wasBgmPlaying && bgm) bgm.play().catch(() => {});
+      // 只有发送方恢复计时
+      if (isSender && gs.active && gs.paused && !gs.roundEnded && !gs.ended) {
+        const resumeTs = Date.now();
+        if (refDb) refDb.update({ resumeSfxTs: resumeTs, resumeAt: resumeTs + 3000 });
+      }
+    }, 1500);
+  };
+
+  vid._preventPause = true;
+  // 防暂停：用标志位，避免 closeVideo 里的 pause() 触发死循环
+  vid.onpause = () => {
+    if (vid._preventPause && !_closing) {
+      vid.play().catch(() => {});
+    }
+  };
+  vid.onended = closeVideo;
+  vid.onerror = null; // 不用 onerror，避免加载抖动误关闭
+
+  vid.play().catch(() => { _videoPlaying = false; });
+
+  // 超时兜底 90秒
+  setTimeout(() => { if (!_closing) closeVideo(); }, 90000);
 }
 const BGM_LIST = [
   { name: "深澤秀行 - エミヤ (卫宫)", url: "https://cdn.jsdelivr.net/gh/historiale1631-commits/gedan-main@main/%E6%B7%B1%E6%BE%A4%E7%A7%80%E8%A1%8C%20-%20%E3%82%A8%E3%83%9F%E3%83%A4%20(%E5%8D%AB%E5%AE%AB)%20(UBW%20Extended)_L.ogg" },
