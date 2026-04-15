@@ -3328,15 +3328,16 @@ function playHeroVideo(isSender) {
     if (_closing) return;
     _closing = true;
     _videoPlaying = false;
+    // 立刻停止视频，防止渐变期间重播
+    vid._preventPause = false;
+    vid.onended = null;
+    vid.onpause = null;
+    vid.pause();
     // 渐变消失
     vid.style.opacity = '0';
     setTimeout(() => {
       ov.style.display = 'none';
       vid.style.opacity = '1';
-      vid.onended = null;
-      // 清除防暂停并真正暂停
-      vid._preventPause = false;
-      vid.pause();
       if (wasBgmPlaying && bgm) bgm.play().catch(() => {});
       // 只有发送方恢复计时
       if (isSender && gs.active && gs.paused && !gs.roundEnded && !gs.ended) {
