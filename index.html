@@ -1340,9 +1340,11 @@ function doPick(h) {
   // 确认选取时播放英雄专属音效并广播（中断上一个）
   // 爱莉希雅：触发专属视频（广播给所有人）
   if (h.name === '爱莉希雅') {
-    playHeroVideo(true); // 发送方
+    // 发送方也在同一时间点开始播（1.5秒后）
+    setTimeout(() => playHeroVideo(true), 1500);
     const ts = Date.now();
-    refDb.update({ sfxHero: '爱莉希雅_video', sfxTs: ts });
+    const videoPlayAt = ts + 1500; // 1.5秒后所有人同时开始
+    refDb.update({ sfxHero: '爱莉希雅_video', sfxTs: ts, videoPlayAt });
     lastSfxTs = ts;
   } else if (HERO_SFX[h.name]) {
     if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
@@ -2833,8 +2835,9 @@ function listenRoom(aName, bName) {
     if (data.sfxHero && data.sfxTs && data.sfxTs !== lastSfxTs && (Date.now() - data.sfxTs) < 5000) {
       lastSfxTs = data.sfxTs;
       if (data.sfxHero === '爱莉希雅_video') {
-        // 接收方播放视频（不重复暂停/恢复计时）
-        playHeroVideo(false);
+        // 接收方：等到约定时间点再开始播，实现全场同步
+        const delay = data.videoPlayAt ? Math.max(0, data.videoPlayAt - Date.now()) : 0;
+        setTimeout(() => playHeroVideo(false), delay);
       } else {
         const sfxUrl = HERO_SFX[data.sfxHero];
         if (sfxUrl) {
@@ -3010,6 +3013,7 @@ window.onload = () => {
   const SFX_URLS = [
     ...Object.values(HERO_SFX),
     ...YUCE_LIST, // 预测胜利语音
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4", // 爱莉希雅专属视频
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E9%80%89%E5%8F%96%E4%BA%BA%E7%89%A9.mp3',
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3',
     'https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3',
@@ -3472,6 +3476,7 @@ function toggleBgmPanel() {
 
   // 核心资源（英雄头像+音效）：打开页面后立即后台缓存
   const CORE_URLS = [
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4", // 爱莉希雅专属视频
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_093214.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/21b4b7a8-bb05-4bc9-9ebd-954b754b0f78_0_1776216745503edit.jpg",
@@ -3795,7 +3800,7 @@ function toggleBgmPanel() {
   window.checkCacheStats = async function() {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    const info = { cached: keys.length, total: 218, percent: Math.round(keys.length/218*100)+'%' };
+    const info = { cached: keys.length, total: 219, percent: Math.round(keys.length/218*100)+'%' };
     console.log('[Cache] 缓存状态:', info);
     return info;
   };
