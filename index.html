@@ -758,6 +758,19 @@ function serverNow() { return Date.now() + serverTimeOffset; }
 let firedForStep = -1;
 let lastSfxTs = 0;
 let currentHeroSfx = null;
+
+// 统一音频播放函数：优先从 Cache API 读取，减少网络请求
+async function _playAudio(url, volume, onended) {
+  let src = url;
+  if (window._cachedAudio) {
+    src = await window._cachedAudio(url);
+  }
+  const audio = new Audio(src);
+  audio.volume = volume || sfxVolume;
+  if (onended) audio.onended = onended;
+  audio.play().catch(() => {});
+  return audio;
+}
 const _emojiImgCache = {}; // 表情图片预缓存（全局）
 let lastEmojiTsA = 0, lastEmojiTsB = 0;
 
@@ -1356,9 +1369,7 @@ function doPick(h) {
     lastSfxTs = ts;
   } else if (HERO_SFX[h.name]) {
     if (currentHeroSfx) { currentHeroSfx.pause(); currentHeroSfx.currentTime = 0; }
-    currentHeroSfx = new Audio(HERO_SFX[h.name]);
-    currentHeroSfx.volume = sfxVolume;
-    currentHeroSfx.play().catch(() => {});
+    _playAudio(HERO_SFX[h.name]).then(a => { currentHeroSfx = a; });
     const ts = Date.now();
     lastSfxTs = ts;
     refDb.update({ sfxHero: h.name, sfxTs: ts });
@@ -1366,9 +1377,7 @@ function doPick(h) {
   // 通用确认选取音效（所有人都能听到）
   const pickTs = Date.now();
   lastPickSfxTs = pickTs;
-  const pickSfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E9%80%89%E5%8F%96%E4%BA%BA%E7%89%A9.mp3');
-  pickSfx.volume = sfxVolume;
-  pickSfx.play().catch(() => {});
+  _playAudio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E9%80%89%E5%8F%96%E4%BA%BA%E7%89%A9.mp3');
   refDb.update({ pickSfxTs: pickTs });
 
   const releaseLock = () => { isPicking = false; };
@@ -2180,18 +2189,52 @@ async function showAIComboStats() {
 // 4. 先手/后手系数 = Sunday方(先手)微弱优势+2%
 // 5. 最终归一化到双方加和=100%
 
-async function showAIPrediction() {
+async function showAIPrediction(roundIdx) {
   const el = document.getElementById('aiPredContent');
-  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 计算中...</div>';
+
+  // 构建所有可选轮次：历史轮次 + 当前轮
+  const allRounds = gs.allRounds || [];
+  const rounds = [];
+  allRounds.forEach(r => {
+    const aP = (r.aPicks || []).filter(h => h && h.name);
+    const bP = (r.bPicks || []).filter(h => h && h.name);
+    if (aP.length > 0 || bP.length > 0) {
+      rounds.push({ label: '第' + r.roundNum + '轮', aPicks: aP, bPicks: bP, winner: r.winner, isHistory: true, roundNum: r.roundNum });
+    }
+  });
+  // 当前轮（如果有选人）
+  const curA = (gs.aPicks || []).filter(h => h && h.name);
+  const curB = (gs.bPicks || []).filter(h => h && h.name);
+  if (curA.length > 0 || curB.length > 0) {
+    rounds.push({ label: '当前轮(第' + (gs.roundNum || 1) + '轮)', aPicks: curA, bPicks: curB, winner: null, isHistory: false, roundNum: gs.roundNum || 1 });
+  }
+
+  if (rounds.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px">双方尚未选人，无法预测</div>';
+    return;
+  }
+
+  // 默认选最后一轮（当前轮或最新历史）
+  if (roundIdx === undefined || roundIdx >= rounds.length) roundIdx = rounds.length - 1;
+  const selected = rounds[roundIdx];
+
+  // 轮次切换按钮
+  let tabHtml = '<div style="display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap">';
+  rounds.forEach((r, i) => {
+    const isActive = i === roundIdx;
+    tabHtml += `<button onclick="showAIPrediction(${i})" style="padding:3px 7px;border-radius:5px;font-size:9px;cursor:pointer;font-family:inherit;
+      background:${isActive ? 'rgba(251,146,60,.25)' : 'rgba(255,255,255,.05)'};
+      border:1px solid ${isActive ? 'rgba(251,146,60,.5)' : 'rgba(255,255,255,.12)'};
+      color:${isActive ? '#fb923c' : 'rgba(255,255,255,.5)'}">${r.label}</button>`;
+  });
+  tabHtml += '</div>';
+
+  el.innerHTML = tabHtml + '<div style="text-align:center;color:rgba(255,255,255,.4);padding:12px 0">⏳ 计算中...</div>';
+
   try {
     const aName = gs.aName || 'A队', bName = gs.bName || 'B队';
-    const aPicks = (gs.aPicks || []).filter(h => h && h.name);
-    const bPicks = (gs.bPicks || []).filter(h => h && h.name);
-
-    if (aPicks.length === 0 && bPicks.length === 0) {
-      el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px">双方尚未选人，无法预测</div>';
-      return;
-    }
+    const aPicks = selected.aPicks;
+    const bPicks = selected.bPicks;
 
     // 读取历史数据
     const { heroStats, comboStats, totalGames, judgedGames } = await loadStatsData();
@@ -2303,7 +2346,7 @@ async function showAIPrediction() {
       算法：英雄历史胜率均值 + 同队组合协同加成(>=2次共现+3%) + 预算使用效率 + 先手微弱优势
     </div>`;
 
-    el.innerHTML = out;
+    el.innerHTML = tabHtml + out;
   } catch(e) {
     el.innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">计算失败</div>';
     console.error(e);
@@ -2814,9 +2857,7 @@ function listenRoom(aName, bName) {
     // 接收并播放暂停音效
     if (data.pauseSfxTs && data.pauseSfxTs !== lastPauseSfxTs && (Date.now() - data.pauseSfxTs) < 5000) {
       lastPauseSfxTs = data.pauseSfxTs;
-      const psfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3');
-      psfx.volume = sfxVolume;
-      psfx.play().catch(() => {});
+      _playAudio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E8%A3%81%E5%88%A4%E6%9A%82%E5%81%9C%E5%A3%B0%E9%9F%B3.mp3');
     }
     // 接收并播放通用确认选取音效
     if (data.pickSfxTs && data.pickSfxTs !== lastPickSfxTs && (Date.now() - data.pickSfxTs) < 5000) {
@@ -3715,6 +3756,20 @@ function toggleBgmPanel() {
 
   // 拦截 fetch，缓存优先
   const origFetch = window.fetch;
+
+  // 音频缓存辅助：new Audio() 不走 fetch，用此函数从缓存读取并返回 blob URL
+  window._cachedAudio = async function(url) {
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(url);
+      if (cached) {
+        const blob = await cached.blob();
+        return URL.createObjectURL(blob);
+      }
+    } catch(e) {}
+    return url; // 缓存没有就直接用原始URL
+  };
+
   window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : input.url;
     if (!url.includes('cdn.jsdelivr.net')) return origFetch(input, init);
