@@ -571,12 +571,14 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
       <button id="aiTab2" onclick="switchAiTab(2)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🏆 胜率</button>
       <button id="aiTab3" onclick="switchAiTab(3)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">🤝 组合</button>
       <button id="aiTab4" onclick="switchAiTab(4)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">⚖️ 预测</button>
+      <button id="aiTab5" onclick="switchAiTab(5)" style="flex:1;padding:4px 2px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)">📋 近期</button>
     </div>
     <div id="aiContent"       style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.8;max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiPickContent"   style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiWrContent"     style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiComboContent"  style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <div id="aiPredContent"   style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
+    <div id="aiRecentContent" style="display:none;font-size:12px;color:rgba(255,255,255,.8);max-height:420px;overflow-y:auto;margin:10px 0"></div>
     <button onclick="document.getElementById('aiOv').style.display='none'" style="width:100%;margin-top:10px;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit">关闭</button>
   </div>
 </div>
@@ -1139,7 +1141,7 @@ function endRound() {
     // 重新读一次最新快照，避免用闭包里的旧 gs
     refDb.once('value', snap => {
       const d = snap.val(); if (!d) return;
-      const round = { roundNum: d.roundNum, aPicks: d.aPicks || [], bPicks: d.bPicks || [], aUsed: d.aUsed || 0, bUsed: d.bUsed || 0, sundayTeamAtRound: getSundayTeam() };
+      const round = { roundNum: d.roundNum, aPicks: d.aPicks || [], bPicks: d.bPicks || [], aUsed: d.aUsed || 0, bUsed: d.bUsed || 0, sundayTeamAtRound: getSundayTeam(), endedAt: Date.now() };
       const newAllRounds = [...(d.allRounds || []), round];
       const newGlobal = [...(d.globalPicked || []), ...(d.aPicks || []).map(h=>h.name), ...(d.bPicks || []).map(h=>h.name)];
       refDb.update({ active: false, allRounds: newAllRounds, globalPicked: newGlobal });
@@ -1997,8 +1999,9 @@ const AI_TAB_STYLES = [
   { bg: 'rgba(74,222,128,.2)',   border: 'rgba(74,222,128,.5)',  color: '#4ade80' },
   { bg: 'rgba(251,191,36,.2)',   border: 'rgba(251,191,36,.5)',  color: '#fbbf24' },
   { bg: 'rgba(251,146,60,.2)',   border: 'rgba(251,146,60,.5)',  color: '#fb923c' },
+  { bg: 'rgba(148,163,184,.2)',  border: 'rgba(148,163,184,.5)', color: '#94a3b8' },
 ];
-const AI_TAB_CONTENTS = ['aiContent','aiPickContent','aiWrContent','aiComboContent','aiPredContent'];
+const AI_TAB_CONTENTS = ['aiContent','aiPickContent','aiWrContent','aiComboContent','aiPredContent','aiRecentContent'];
 
 function switchAiTab(idx) {
   AI_TAB_CONTENTS.forEach((id, i) => {
@@ -2017,6 +2020,7 @@ function switchAiTab(idx) {
   if (idx === 2) showAIWrStats();
   if (idx === 3) showAIComboStats();
   if (idx === 4) showAIPrediction();
+  if (idx === 5) showAIRecent();
 }
 
 // 公用：读取并计算基础数据
@@ -2354,6 +2358,127 @@ async function showAIPrediction(roundIdx) {
 }
 
 
+// ── 近期BP记录 ──
+async function showAIRecent() {
+  const el = document.getElementById('aiRecentContent');
+  el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:24px 0">⏳ 加载中...</div>';
+  try {
+    const snap = await firebase.database().ref('rooms').once('value');
+    const histData = snap.val() || {};
+    const TL = { str:'💪', agi:'⚡', int:'🧠' };
+
+    // 收集所有有内容的房间，按时间倒序（用最后一轮的 roundNum 估算）
+    const rooms = [];
+    Object.entries(histData).forEach(([roomId, room]) => {
+      const rounds = room.allRounds || [];
+      if (!rounds.length) return;
+      // 判断是否有任何选人记录
+      const hasAnyPick = rounds.some(r =>
+        ((r.aPicks||[]).length > 0 || (r.bPicks||[]).length > 0)
+      );
+      if (!hasAnyPick) return;
+      rooms.push({ roomId, room, rounds, aName: room.aName||'A队', bName: room.bName||'B队' });
+    });
+
+    if (!rooms.length) {
+      el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px">暂无记录</div>';
+      return;
+    }
+
+    // 按房间创建时间倒序（越新越靠前），兜底用最后一轮 endedAt 或轮次号
+    rooms.sort((a, b) => {
+      const aTs = a.room.createdAt || Math.max(...a.rounds.map(r => r.endedAt || 0));
+      const bTs = b.room.createdAt || Math.max(...b.rounds.map(r => r.endedAt || 0));
+      if (aTs !== bTs) return bTs - aTs;
+      // 都没有时间戳则按轮次号倒序
+      const aMax = Math.max(...a.rounds.map(r => r.roundNum || 0));
+      const bMax = Math.max(...b.rounds.map(r => r.roundNum || 0));
+      return bMax - aMax;
+    });
+    const recent = rooms.slice(0, 15);
+
+    const total = rooms.length;
+    let out = `<div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:8px;text-align:center">共 ${total} 场记录，显示最近 ${recent.length} 场</div>`;
+
+    recent.forEach(({ roomId, room, rounds, aName, bName }, ri) => {
+      const hasAnyJudge = rounds.some(r => r.winner === 'a' || r.winner === 'b' || r.winner === 'draw');
+      const judgedCount = rounds.filter(r => r.winner === 'a' || r.winner === 'b' || r.winner === 'draw').length;
+
+      // 整场胜负统计
+      let aWins = 0, bWins = 0, draws = 0;
+      rounds.forEach(r => {
+        if (r.winner === 'a') aWins++;
+        else if (r.winner === 'b') bWins++;
+        else if (r.winner === 'draw') draws++;
+      });
+
+      const matchResult = hasAnyJudge
+        ? `${aWins}胜 ${draws > 0 ? draws+'平 ' : ''}${bWins}胜`
+        : '未批注';
+      const resultColor = aWins > bWins ? '#fca5a5' : bWins > aWins ? '#93c5fd' : '#fbbf24';
+
+      out += `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;margin-bottom:8px">
+        <!-- 场次标题 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.8)">${aName} vs ${bName}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:9px;color:rgba(255,255,255,.3)">${rounds.length}轮BP</span>
+            <span style="font-size:9px;padding:1px 6px;border-radius:4px;background:${hasAnyJudge ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.06)'};color:${hasAnyJudge ? '#4ade80' : 'rgba(255,255,255,.3)'}">
+              ${hasAnyJudge ? matchResult : '未批注'}
+            </span>
+          </div>
+        </div>`;
+
+      // 每轮BP展开
+      rounds.forEach(r => {
+        const aP = (r.aPicks || []).filter(p => p && p.name);
+        const bP = (r.bPicks || []).filter(p => p && p.name);
+        const hasJ = r.winner === 'a' || r.winner === 'b' || r.winner === 'draw';
+        const winBadge = !hasJ ? '' :
+          r.winner === 'a' ? `<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(220,50,50,.2);color:#fca5a5">A胜</span>` :
+          r.winner === 'b' ? `<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(50,100,220,.2);color:#93c5fd">B胜</span>` :
+          `<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(251,191,36,.2);color:#fbbf24">平局</span>`;
+
+        const sundaySide = r.sundayTeamAtRound === 'a' ? aName : bName;
+
+        out += `<div style="background:rgba(255,255,255,.025);border-radius:7px;padding:6px 8px;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;font-size:9px;color:rgba(255,255,255,.4)">
+            <span style="font-weight:700;color:rgba(255,255,255,.6)">第${r.roundNum}轮</span>
+            <span>· Sunday方：${sundaySide}</span>
+            ${winBadge}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+            <div>
+              <div style="font-size:8px;color:#fca5a5;margin-bottom:2px">${aName}（${(r.aUsed||0)}分）</div>
+              ${aP.length ? aP.map(h => `<div style="display:flex;align-items:center;gap:3px;padding:1px 0">
+                ${heroAvatar(h.name)}
+                <span style="font-size:9px">${h.name}</span>
+                <span style="font-size:8px;color:rgba(255,255,255,.3)">${h.score}分</span>
+              </div>`).join('') : '<div style="font-size:9px;color:rgba(255,255,255,.25)">暂无</div>'}
+            </div>
+            <div>
+              <div style="font-size:8px;color:#93c5fd;margin-bottom:2px">${bName}（${(r.bUsed||0)}分）</div>
+              ${bP.length ? bP.map(h => `<div style="display:flex;align-items:center;gap:3px;padding:1px 0">
+                ${heroAvatar(h.name)}
+                <span style="font-size:9px">${h.name}</span>
+                <span style="font-size:8px;color:rgba(255,255,255,.3)">${h.score}分</span>
+              </div>`).join('') : '<div style="font-size:9px;color:rgba(255,255,255,.25)">暂无</div>'}
+            </div>
+          </div>
+        </div>`;
+      });
+
+      out += '</div>';
+    });
+
+    el.innerHTML = out;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#f87171;text-align:center;padding:20px">读取失败</div>';
+    console.error(e);
+  }
+}
+
+
 // ── 修复8：orderBar 只在首次或换边时重建，不在每次 syncUI 重建 ──
 let lastOrderHash = '';
 function renderOrderBar() {
@@ -2664,7 +2789,7 @@ async function startMatch() {
 
   refDb.once('value', snap => {
     if (!snap.val()) {
-      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [], mainUsed: 0, scoreA: 0, scoreB: 0 };
+      const init = { aName, bName, aPicks: [], bPicks: [], aUsed: 0, bUsed: 0, step: 0, active: false, paused: false, roundEnded: false, roundNum: 0, globalPicked: [], allRounds: [], players: 1, ended: false, swapped: false, stepStartTs: 0, bankA: 300, bankB: 300, takenRoles: myRole !== 'ref' ? [myRole] : [], mainUsed: 0, scoreA: 0, scoreB: 0, createdAt: Date.now() };
       refDb.set(init).then(() => {
         document.getElementById('waitCode').textContent = roomId;
         document.getElementById('waitOv').style.display = 'flex';
