@@ -224,6 +224,38 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   80%{opacity:1;transform:translateX(0) scale(1);}
   100%{opacity:0;transform:translateX(0) scale(0.8);}
 }
+@keyframes vipFloat {
+  0%   { transform: scale(0.85) translateY(30px) rotate(-2deg); opacity:0; filter: brightness(1.8) blur(6px); }
+  15%  { transform: scale(1.08) translateY(-8px) rotate(1.5deg); opacity:1; filter: brightness(1.3) blur(0px); }
+  30%  { transform: scale(1.0) translateY(0px) rotate(-0.5deg); filter: brightness(1); }
+  45%  { transform: scale(1.04) translateY(-5px) rotate(0.8deg); }
+  60%  { transform: scale(1.01) translateY(2px) rotate(-0.3deg); }
+  75%  { transform: scale(1.05) translateY(-6px) rotate(1deg); filter: brightness(1.15); }
+  88%  { transform: scale(1.02) translateY(1px) rotate(-0.2deg); filter: brightness(1); }
+  100% { transform: scale(1.06) translateY(-4px) rotate(0.5deg); filter: brightness(1.1); }
+}
+@keyframes vipGlow {
+  0%,100% { box-shadow: 0 0 40px rgba(255,200,80,.5), 0 0 80px rgba(255,150,50,.3), 0 0 120px rgba(255,100,200,.15); }
+  25%      { box-shadow: 0 0 60px rgba(255,230,100,.8), 0 0 120px rgba(255,200,50,.5), 0 0 180px rgba(200,100,255,.3); }
+  50%      { box-shadow: 0 0 80px rgba(150,200,255,.7), 0 0 140px rgba(100,150,255,.4), 0 0 200px rgba(255,150,100,.2); }
+  75%      { box-shadow: 0 0 60px rgba(255,180,80,.8), 0 0 100px rgba(255,120,60,.5), 0 0 160px rgba(255,200,150,.3); }
+}
+@keyframes vipBgShimmer {
+  0%   { background: radial-gradient(ellipse at 30% 50%, rgba(255,180,50,.25) 0%, rgba(0,0,0,.65) 60%); }
+  33%  { background: radial-gradient(ellipse at 70% 40%, rgba(180,100,255,.2) 0%, rgba(0,0,0,.65) 60%); }
+  66%  { background: radial-gradient(ellipse at 50% 70%, rgba(50,180,255,.2) 0%, rgba(0,0,0,.65) 60%); }
+  100% { background: radial-gradient(ellipse at 30% 50%, rgba(255,180,50,.25) 0%, rgba(0,0,0,.65) 60%); }
+}
+@keyframes vipTextFlicker {
+  0%,100% { opacity:1; letter-spacing:4px; text-shadow:0 0 20px rgba(255,200,80,.9),0 0 40px rgba(255,150,50,.5); }
+  20%     { opacity:.7; letter-spacing:6px; text-shadow:0 0 30px rgba(255,230,100,1),0 0 60px rgba(255,200,80,.7); }
+  50%     { opacity:1; letter-spacing:3px; text-shadow:0 0 15px rgba(200,150,255,.9),0 0 35px rgba(180,100,255,.6); }
+  80%     { opacity:.85; letter-spacing:5px; text-shadow:0 0 25px rgba(100,200,255,.9),0 0 50px rgba(50,150,255,.6); }
+}
+@keyframes vipParticle {
+  0%   { transform: translateY(0) scale(1); opacity:.8; }
+  100% { transform: translateY(-80px) scale(0.3); opacity:0; }
+}
 </style>
 <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwutouxiang@main/%E8%93%9D%E6%9F%93%E6%83%A3%E5%8F%B3%E4%BB%8B-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E5%A4%B4%E5%83%8F%E6%96%B0.png">
 <link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E9%80%89%E5%8F%96%E4%BA%BA%E7%89%A9.mp3">
@@ -415,6 +447,16 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/DEE9B05972AECF10AAB93C8372384E03.gif">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/F23385E24FE0850107A9B4B24CB28F85.gif">
 <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/biaoqing-main@main/b2439f312da6fa2aecb2b021b836a156.gif">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E5%85%AB%E9%87%8D%E7%A5%9E%E5%AD%90-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A8%B1%E6%BB%A1%E9%9B%86-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%B2%A2%E7%94%B0%E7%BA%B2%E5%90%89-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B8%A3%E4%BA%BA%EF%BC%88%E5%B0%BE%E5%85%BD%E6%A8%A1%E5%BC%8F%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91Saber-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
+<link rel="preload" as="audio" href="https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%89%A2%E9%83%91%E5%87%BA%E5%9C%BA.mp3">
 </head>
 <body>
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
@@ -818,6 +860,7 @@ let currentEmojiPopupB = null;
 // ── 裁判表情禁用/公告 ──
 let emojiLocked = false;
 let lastAnnouncTs = 0;
+let lastVipImgTs = 0;
 
 function openAnnounce() {
   document.getElementById('announceOv').style.display = 'flex';
@@ -2746,11 +2789,18 @@ function showResult() {
 }
 
 async function startMatch() {
+  let _isVipEntry = false;
   if (myRole === 'a' || myRole === 'b') {
     const code = (document.getElementById('authCodeInput')?.value || '').trim().toUpperCase();
     if (!code) { alert('请输入裁判发放的建房授权码'); return; }
     const result = await verifyAuthCode(code);
     if (!result.ok) { alert(result.msg); return; }
+    if (result.vip) {
+      _isVipEntry = true;
+      // VIP码：自动填入专属队伍名，不需要手动输入
+      const nameInp = document.getElementById(myRole === 'a' ? 'inpA' : 'inpB');
+      if (nameInp && !nameInp.value.trim()) nameInp.value = VIP_TEAM_NAME;
+    }
   }
   if (myRole === 'view') {
     const code = (document.getElementById('viewCodeInput')?.value || '').trim().toUpperCase();
@@ -2796,6 +2846,16 @@ async function startMatch() {
         document.getElementById('waitCode').textContent = roomId;
         document.getElementById('waitOv').style.display = 'flex';
         listenRoom(aName, bName);
+        // VIP码：listenRoom注册完后再写入触发信号，确保监听器已挂上
+        if (_isVipEntry) { setTimeout(() => {
+          if (!refDb) return;
+          refDb.once('value', s => {
+            const d = s.val();
+            if (d && !d.vipImgShown) {
+              refDb.update({ vipImgTs: Date.now(), vipImgShown: true });
+            }
+          });
+        }, 300); }
         // 30分钟后检查：如果从未开始过BP则自动删除（无效对局清理）
         setTimeout(() => {
           if (!refDb) return;
@@ -2809,6 +2869,16 @@ async function startMatch() {
       });
     } else {
       listenRoom(aName, bName);
+      // VIP码加入已有房间：也触发入场效果
+      if (_isVipEntry) { setTimeout(() => {
+        if (!refDb) return;
+        refDb.once('value', s => {
+          const d = s.val();
+          if (d && !d.vipImgShown) {
+            refDb.update({ vipImgTs: Date.now(), vipImgShown: true });
+          }
+        });
+      }, 300); }
     }
   });
 }
@@ -2911,6 +2981,11 @@ function listenRoom(aName, bName) {
       const btn = document.getElementById('emojiLockBtn');
       if (btn) btn.textContent = emojiLocked ? '😄 启用表情' : '😄 禁用表情';
     }
+    // VIP专属图片播报
+    if (data.vipImgTs && data.vipImgTs !== lastVipImgTs && (Date.now() - data.vipImgTs) < 30000) {
+      lastVipImgTs = data.vipImgTs;
+      showVipImage();
+    }
     // 裁判公告
     if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
       lastAnnouncTs = data.announceTs;
@@ -2936,6 +3011,10 @@ function listenRoom(aName, bName) {
     // 接收开始新一轮信号：播放音效并倒计时3秒后真正开始
     if (data.startSfxTs && data.startSfxTs !== lastStartSfxTs) {
       lastStartSfxTs = data.startSfxTs;
+      // 停止VIP出场语音，恢复BGM
+      if (vipEntrySfx) { vipEntrySfx.pause(); vipEntrySfx.currentTime = 0; vipEntrySfx = null; }
+      const bgm = document.getElementById('bgm');
+      if (bgm && bgm.paused && bgmPlaying) bgm.play().catch(() => {});
       const startSfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E5%BC%80%E5%A7%8B%E6%96%B0%E4%B8%80%E8%BD%AE%E9%9F%B3%E6%95%88.mp3');
       startSfx.volume = sfxVolume;
       startSfx.play().catch(() => {});
@@ -3142,7 +3221,15 @@ function clearMyAuthCodes() {
   if (elB) elB.textContent = '——';
 }
 
+// 专属永久码（硬编码，永久有效，无需裁判生成）
+const VIP_CODE = 'XJMZZ';
+const VIP_TEAM_NAME = '下次再让你赢';
+
 async function verifyAuthCode(code) {
+  // VIP专属永久码判断（A/B队通用）
+  if (code === VIP_CODE) {
+    return { ok: true, vip: true };
+  }
   const db = firebase.database();
   const snap = await db.ref(AUTH_PATH + '/' + code).once('value');
   const data = snap.val();
@@ -3542,6 +3629,72 @@ function playHeroVideo(isSender) {
   setTimeout(() => { if (!_closing) closeVideo(); }, 90000);
 }
 
+// ── VIP专属图片播报 ──
+// VIP出场语音实例（全局，供新一轮开始时中断）
+let vipEntrySfx = null;
+
+function showVipImage() {
+  const ov = document.getElementById('vipImgOv');
+  const img = document.getElementById('vipImg');
+  if (!ov || !img) return;
+
+  // 暂停BGM，播放出场语音
+  const bgm = document.getElementById('bgm');
+  if (bgm && !bgm.paused) bgm.pause();
+
+  if (vipEntrySfx) { vipEntrySfx.pause(); vipEntrySfx.currentTime = 0; }
+  vipEntrySfx = new Audio('https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%89%A2%E9%83%91%E5%87%BA%E5%9C%BA.mp3');
+  vipEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+  vipEntrySfx.play().catch(() => {});
+
+  // 重置图片动画
+  img.style.animation = 'none';
+  img.offsetHeight; // reflow
+  img.style.animation = 'vipFloat 8s ease-in-out forwards, vipGlow 2.5s ease-in-out infinite';
+
+  ov.style.opacity = '0';
+  ov.style.display = 'flex';
+
+  // 渐入 0.4秒
+  let op = 0;
+  const fadeIn = setInterval(() => {
+    op = Math.min(op + 0.04, 1);
+    ov.style.opacity = op;
+    if (op >= 1) clearInterval(fadeIn);
+  }, 16);
+
+  // 粒子效果
+  const pCont = document.getElementById('vipParticles');
+  if (pCont) {
+    pCont.innerHTML = '';
+    const colors = ['#fcd34d','#f9a8d4','#93c5fd','#86efac','#fbbf24','#e879f9'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      const size = 4 + Math.random() * 8;
+      p.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        left:${5+Math.random()*90}%;bottom:${Math.random()*40}%;
+        animation:vipParticle ${1.5+Math.random()*2.5}s ease-out ${Math.random()*4}s infinite;
+        opacity:0`;
+      pCont.appendChild(p);
+    }
+  }
+
+  // 8秒后渐出 0.6秒
+  setTimeout(() => {
+    let out = 1;
+    const fadeOut = setInterval(() => {
+      out = Math.max(out - 0.025, 0);
+      ov.style.opacity = out;
+      if (out <= 0) {
+        clearInterval(fadeOut);
+        ov.style.display = 'none';
+        if (pCont) pCont.innerHTML = '';
+      }
+    }, 16);
+  }, 8000);
+}
+
 // ── 流萤专属视频 ──
 let _fireflyVideoPlaying = false;
 window._forceCloseFireflyVideo = null;  // 外部强制关闭句柄
@@ -3722,6 +3875,13 @@ function toggleBgmPanel() {
 
   // 核心资源（英雄头像+音效）：打开页面后立即后台缓存
   const CORE_URLS = [
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E5%8D%AB%E5%AE%AB%E5%88%87%E5%97%A3.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A5%AA%E7%A5%88.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%89%B9%E5%B0%94%E6%B3%95%E5%8A%A0%E5%B0%94%E7%BD%97.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E7%A7%BD%E5%9C%9F%E5%AE%87%E6%99%BA%E6%B3%A2%E9%BC%AC.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%9D%92%E9%9B%89.mp3",
+    "https://cdn.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%89%A2%E9%83%91%E5%87%BA%E5%9C%BA.mp3",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/d378e8c6-0e0d-4dc8-a447-ff6f6f73b2e0.jpg",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/21b4b7a8-bb05-4bc9-9ebd-954b754b0f78_0_1776216745503edit.jpg",
@@ -4092,6 +4252,14 @@ function toggleBgmPanel() {
 })();
 </script>
 
+<!-- VIP专属图片播报 -->
+<div id="vipImgOv" style="display:none;position:fixed;inset:0;z-index:9998;align-items:center;justify-content:center;pointer-events:none;opacity:0;animation:vipBgShimmer 3s ease infinite">
+  <div id="vipImgInner" style="position:relative;text-align:center">
+    <img id="vipImg" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg" style="max-width:58vw;max-height:65vh;border-radius:20px;display:block;margin:0 auto;animation:vipFloat 8s ease-in-out forwards, vipGlow 2.5s ease-in-out infinite" crossorigin="anonymous"/>
+    <div style="margin-top:16px;color:#fcd34d;font-size:17px;font-weight:700;animation:vipTextFlicker 2s ease-in-out infinite">✨ 下次再让你赢 ✨</div>
+    <div id="vipParticles" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:20px"></div>
+  </div>
+</div>
 <!-- 流萤专属视频遮罩 -->
 <div id="fireflyVideoOv" style="display:none;position:fixed;inset:0;z-index:9999;background:transparent;pointer-events:none;align-items:center;justify-content:center">
   <video id="fireflyVideo" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/d16aa87d7e7ccf1b69d1be8c083f5620.mp4" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(180,220,255,.4);transition:opacity 0.3s ease" playsinline></video>
