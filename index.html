@@ -3376,6 +3376,32 @@ function autoReconnect() {
   document.body.querySelectorAll('div[style*="bottom:20px"]').forEach(el => el.remove());
   startMatch();
 }
+// ── 视频 Blob 预加载（方案A：完全本地化，消除网络卡顿）──
+(function preloadVideosAsBlob() {
+  var videos = [
+    { id: 'fireflyVideo', url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/d16aa87d7e7ccf1b69d1be8c083f5620.mp4', key: 'fireflyBlobUrl' },
+    { id: 'heroVideo',    url: 'https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4',  key: 'heroVideoBlobUrl' }
+  ];
+  videos.forEach(function(v) {
+    var el = document.getElementById(v.id);
+    fetch(v.url)
+      .then(function(res) {
+        if (!res.ok) throw new Error('fetch失败 ' + res.status);
+        return res.blob();
+      })
+      .then(function(blob) {
+        var blobUrl = URL.createObjectURL(blob);
+        window[v.key] = blobUrl;
+        if (el) { el.src = blobUrl; el.load(); }
+        console.log('[视频预加载完成]', v.id);
+      })
+      .catch(function(err) {
+        console.warn('[视频预加载失败，回退CDN]', v.id, err);
+        window[v.key] = v.url;
+        if (el) { el.src = v.url; el.load(); }
+      });
+  });
+})();
 </script>
 <audio id="bgm" preload="auto"></audio>
 
@@ -3568,6 +3594,12 @@ function playHeroVideo(isSender) {
 
   // 暂停已在 doPick 的 update 里一并写入，无需重复处理
 
+  // blob兜底：若blob还没加载好，回退CDN直链
+  if (!vid.src || vid.src === window.location.href) {
+    vid.src = window.heroVideoBlobUrl || 'https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4';
+    vid.load();
+  }
+
   ov.style.display = 'flex';
   // 渐入：先从透明+静音开始，0.7秒渐入
   vid.style.opacity = '0';
@@ -3710,6 +3742,12 @@ function playFireflyVideo(isSender) {
   const bgm = document.getElementById('bgm');
   const wasBgmPlaying = bgm && !bgm.paused;
   if (wasBgmPlaying) bgm.pause();
+
+  // blob兜底：若blob还没加载好，回退CDN直链
+  if (!vid.src || vid.src === window.location.href) {
+    vid.src = window.fireflyBlobUrl || 'https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/d16aa87d7e7ccf1b69d1be8c083f5620.mp4';
+    vid.load();
+  }
 
   ov.style.display = 'flex';
   vid.style.opacity = '0';
@@ -4262,11 +4300,11 @@ function toggleBgmPanel() {
 </div>
 <!-- 流萤专属视频遮罩 -->
 <div id="fireflyVideoOv" style="display:none;position:fixed;inset:0;z-index:9999;background:transparent;pointer-events:none;align-items:center;justify-content:center">
-  <video id="fireflyVideo" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/d16aa87d7e7ccf1b69d1be8c083f5620.mp4" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(180,220,255,.4);transition:opacity 0.3s ease" playsinline></video>
+  <video id="fireflyVideo" src="" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(180,220,255,.4);transition:opacity 0.3s ease" playsinline></video>
 </div>
 <!-- 爱莉希雅特殊视频遮罩 -->
 <div id="heroVideoOv" style="display:none;position:fixed;inset:0;z-index:9999;background:transparent;pointer-events:none;align-items:center;justify-content:center">
-  <video id="heroVideo" src="https://cdn.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/video_%E6%AD%A4%E5%90%8E%E5%B0%86%E6%9C%89%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%8E%E6%9C%AA%E7%A6%BB%E5%8E%BB..._0_2.mp4" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(255,180,220,.4);transition:opacity 0.3s ease" playsinline></video>
+  <video id="heroVideo" src="" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(255,180,220,.4);transition:opacity 0.3s ease" playsinline></video>
 </div>
 </body>
 </html>
