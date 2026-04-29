@@ -2796,10 +2796,11 @@ async function startMatch() {
     const result = await verifyAuthCode(code);
     if (!result.ok) { alert(result.msg); return; }
     if (result.vip) {
-      _isVipEntry = true;
+      // 只有原版码(XJMZZ)才触发专属入场动画，其余通用码不触发
+      _isVipEntry = (result.vipTeamName === VIP_TEAM_NAME);
       // VIP码：自动填入专属队伍名，不需要手动输入
       const nameInp = document.getElementById(myRole === 'a' ? 'inpA' : 'inpB');
-      if (nameInp && !nameInp.value.trim()) nameInp.value = VIP_TEAM_NAME;
+      if (nameInp && !nameInp.value.trim()) nameInp.value = result.vipTeamName || VIP_TEAM_NAME;
     }
   }
   if (myRole === 'view') {
@@ -3224,11 +3225,16 @@ function clearMyAuthCodes() {
 // 专属永久码（硬编码，永久有效，无需裁判生成）
 const VIP_CODE = 'XJMZZ';
 const VIP_TEAM_NAME = '下次再让你赢';
+// AB通用码列表（码 -> 默认队伍名）
+const VIP_CODE_MAP = {
+  'XJMZZ': '下次再让你赢',
+  'MWJS': '魔丸降世',
+};
 
 async function verifyAuthCode(code) {
   // VIP专属永久码判断（A/B队通用）
-  if (code === VIP_CODE) {
-    return { ok: true, vip: true };
+  if (VIP_CODE_MAP.hasOwnProperty(code)) {
+    return { ok: true, vip: true, vipTeamName: VIP_CODE_MAP[code] };
   }
   const db = firebase.database();
   const snap = await db.ref(AUTH_PATH + '/' + code).once('value');
