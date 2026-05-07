@@ -1200,11 +1200,26 @@ async function submitReg() {
   for (let i = 0; i < 4; i++) {
     if (!members[i].name || !members[i].contact) { msg.style.color = '#f87171'; msg.textContent = `请填写队员${i+1}的姓名和联系方式`; return; }
   }
-  // 验证报名许可码
-  const PERMIT_CODE = '76159';
-  const permit = v('reg_permit');
+  // 验证报名许可码（20个一次性码）
+  const VALID_PERMIT_CODES = ['30T9NT','3A3ZMF','3W5UZB','5LXO6Q','65KXVF','6DPBHS','8MDD4V','9T84AZ','9XUY41','AHXTHV','DW2PCN','IBLJH7','IKCIDK','JIUJV6','OH9SDB','Q85JSG','WNNHJ7','XAJI0Y','XVG0FN','YTJXEP'];
+  const permit = v('reg_permit').toUpperCase();
   if (!permit) { msg.style.color = '#f87171'; msg.textContent = '请输入报名许可码'; return; }
-  if (permit !== PERMIT_CODE) { msg.style.color = '#f87171'; msg.textContent = '✗ 报名许可码错误，无法录入数据'; return; }
+  if (!VALID_PERMIT_CODES.includes(permit)) { msg.style.color = '#f87171'; msg.textContent = '✗ 报名许可码无效'; return; }
+  // 检查该码是否已被使用过
+  msg.style.color = '#fcd34d'; msg.textContent = '⏳ 验证许可码...';
+  try {
+    const dbCheck = firebase.database();
+    const usedSnap = await dbCheck.ref('usedPermitCodes/' + permit).once('value');
+    if (usedSnap.exists()) {
+      msg.style.color = '#f87171';
+      msg.textContent = '✗ 该许可码已被使用，无法再次报名';
+      return;
+    }
+  } catch(e) {
+    msg.style.color = '#f87171';
+    msg.textContent = '✗ 验证失败：' + e.message;
+    return;
+  }
 
   msg.style.color = '#fcd34d'; msg.textContent = '⏳ 提交中...';
   try {
@@ -1215,9 +1230,14 @@ async function submitReg() {
     const existSnap = await db.ref('registrations/' + safeKey).once('value');
     const finalKey = existSnap.exists() ? safeKey + '_' + Date.now() : safeKey;
     await db.ref('registrations/' + finalKey).set({
-      team, captain, members, subs,
+      team, captain, members, subs, permit,
       ts: Date.now(),
       ua: navigator.userAgent.slice(0,100)
+    });
+    // 标记许可码为已使用
+    await db.ref('usedPermitCodes/' + permit).set({
+      usedBy: team,
+      ts: Date.now()
     });
     msg.style.color = '#86efac';
     msg.textContent = '✓ 报名提交成功！';
