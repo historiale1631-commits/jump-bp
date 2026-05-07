@@ -618,6 +618,53 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     </div>
     <div id="audioLoadBar" style="margin-top:8px;font-size:10px;color:rgba(255,255,255,.35);text-align:center">🔄 音频资源加载中...</div>
     <button class="mbtn" onclick="startMatch()">进入对局</button>
+    <button class="mbtn" style="margin-top:8px;background:linear-gradient(135deg,#0e7490,#0891b2);border-color:rgba(34,211,238,.4)" onmouseover="this.style.background='linear-gradient(135deg,#155e75,#0e7490)'" onmouseout="this.style.background='linear-gradient(135deg,#0e7490,#0891b2)'" onclick="document.getElementById('regOv').style.display='flex'">📝 比赛报名</button>
+  </div>
+</div>
+
+<!-- 比赛报名弹窗 -->
+<div class="overlay" id="regOv" style="display:none;z-index:200;background:rgba(0,0,0,.6)">
+  <div class="wait-modal" style="min-width:340px;max-width:95%;max-height:90vh;overflow-y:auto;text-align:left">
+    <h3 style="text-align:center">📝 比赛报名</h3>
+    <p style="text-align:center;margin-bottom:12px">填写信息提交后将保存至数据库</p>
+    <div style="font-size:11px;color:#fcd34d;font-weight:700;margin-bottom:4px">🛡 队伍名 <span style="color:#f87171">*</span></div>
+    <input id="reg_team" placeholder="请输入队伍名称" maxlength="30" style="width:100%;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;margin-bottom:4px;box-sizing:border-box"/>
+    <div style="font-size:11px;color:#fcd34d;font-weight:700;margin-bottom:4px;margin-top:8px">👑 队长<span style="color:#f87171"> *</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_captain_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_captain_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#a5b4fc;font-weight:700;margin-bottom:4px;margin-top:8px">⚔ 队员1<span style="color:#f87171"> *</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_m1_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_m1_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#a5b4fc;font-weight:700;margin-bottom:4px;margin-top:8px">⚔ 队员2<span style="color:#f87171"> *</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_m2_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_m2_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#a5b4fc;font-weight:700;margin-bottom:4px;margin-top:8px">⚔ 队员3<span style="color:#f87171"> *</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_m3_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_m3_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#a5b4fc;font-weight:700;margin-bottom:4px;margin-top:8px">⚔ 队员4<span style="color:#f87171"> *</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_m4_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_m4_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#86efac;font-weight:700;margin-bottom:4px;margin-top:8px">🔄 替补1</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_sub1_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_sub1_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>    <div style="font-size:11px;color:#86efac;font-weight:700;margin-bottom:4px;margin-top:8px">🔄 替补2</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="reg_sub2_name" placeholder="姓名/ID" maxlength="20" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+      <input id="reg_sub2_contact" placeholder="联系方式" maxlength="40" style="flex:1;padding:7px 9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;box-sizing:border-box;min-width:0"/>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px;margin-top:10px">💭 备注（可选）</div>
+    <textarea id="reg_note" placeholder="想说的话，例如可参赛时间..." maxlength="200" style="width:100%;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-size:12px;font-family:inherit;resize:vertical;min-height:50px;margin-bottom:10px;box-sizing:border-box"></textarea>
+    <div id="regMsg" style="font-size:11px;text-align:center;margin-bottom:8px;min-height:14px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn" style="flex:1;background:linear-gradient(135deg,#16a34a,#22c55e);border-color:rgba(134,239,172,.4)" onclick="submitReg()">✓ 提交报名</button>
+      <button class="mbtn" style="flex:1;background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.18)" onclick="document.getElementById('regOv').style.display='none';document.getElementById('regMsg').textContent=''">取消</button>
+    </div>
   </div>
 </div>
 
@@ -1147,6 +1194,43 @@ document.addEventListener('DOMContentLoaded', () => {
   if (codeEl) codeEl.textContent = genCode();
 });
 function copyCode(btn) { navigator.clipboard.writeText(document.getElementById('myCode').textContent).then(() => { btn.textContent = '✓'; setTimeout(() => btn.textContent = '复制', 1500); }); }
+
+async function submitReg() {
+  const v = id => (document.getElementById(id).value || '').trim();
+  const team = v('reg_team');
+  const captain = { name: v('reg_captain_name'), contact: v('reg_captain_contact') };
+  const members = [1,2,3,4].map(i => ({ name: v(`reg_m${i}_name`), contact: v(`reg_m${i}_contact`) }));
+  const subs = [1,2].map(i => ({ name: v(`reg_sub${i}_name`), contact: v(`reg_sub${i}_contact`) }));
+  const note = v('reg_note');
+  const msg = document.getElementById('regMsg');
+
+  if (!team) { msg.style.color = '#f87171'; msg.textContent = '请填写队伍名'; return; }
+  if (!captain.name || !captain.contact) { msg.style.color = '#f87171'; msg.textContent = '请填写队长姓名和联系方式'; return; }
+  for (let i = 0; i < 4; i++) {
+    if (!members[i].name || !members[i].contact) { msg.style.color = '#f87171'; msg.textContent = `请填写队员${i+1}的姓名和联系方式`; return; }
+  }
+
+  msg.style.color = '#fcd34d'; msg.textContent = '⏳ 提交中...';
+  try {
+    const db = firebase.database();
+    await db.ref('registrations').push({
+      team, captain, members, subs, note,
+      ts: Date.now(),
+      ua: navigator.userAgent.slice(0,100)
+    });
+    msg.style.color = '#86efac';
+    msg.textContent = '✓ 报名提交成功！';
+    // 清空所有表单
+    ['reg_team','reg_captain_name','reg_captain_contact','reg_m1_name','reg_m1_contact','reg_m2_name','reg_m2_contact','reg_m3_name','reg_m3_contact','reg_m4_name','reg_m4_contact','reg_sub1_name','reg_sub1_contact','reg_sub2_name','reg_sub2_contact','reg_note'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    setTimeout(() => {
+      document.getElementById('regOv').style.display = 'none';
+      msg.textContent = '';
+    }, 1500);
+  } catch(e) {
+    msg.style.color = '#f87171';
+    msg.textContent = '✗ 提交失败：' + e.message;
+  }
+}
 function setRole(r) {
   myRole = r;
   document.getElementById('rA').className = r === 'a' ? 'sel-a' : '';
