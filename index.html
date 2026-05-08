@@ -1008,6 +1008,7 @@ let currentEmojiPopupB = null;
 let emojiLocked = false;
 let lastAnnouncTs = 0;
 let lastVipImgTs = 0;
+let lastMwjsSfxTs = 0;
 
 function openAnnounce() {
   document.getElementById('announceOv').style.display = 'flex';
@@ -3087,6 +3088,7 @@ function showResult() {
 
 async function startMatch() {
   let _isVipEntry = false;
+  let _isMwjsEntry = false;
   let _vipTeamName = '';
   if (myRole === 'a' || myRole === 'b') {
     const code = (document.getElementById('authCodeInput')?.value || '').trim().toUpperCase();
@@ -3096,6 +3098,7 @@ async function startMatch() {
     if (result.vip) {
       // 只有原版码(XJMZZ)才触发专属入场动画，其余通用码不触发
       _isVipEntry = (result.vipTeamName === VIP_TEAM_NAME);
+      _isMwjsEntry = (result.vipTeamName === '魔丸降世');
       _vipTeamName = result.vipTeamName || VIP_TEAM_NAME;
       // VIP码：自动填入专属队伍名，不需要手动输入
       const nameInp = document.getElementById(myRole === 'a' ? 'inpA' : 'inpB');
@@ -3156,6 +3159,16 @@ async function startMatch() {
             }
           });
         }, 300); }
+        // MWJS：广播专属入场语音信号
+        if (_isMwjsEntry) { setTimeout(() => {
+          if (!refDb) return;
+          refDb.once('value', s => {
+            const d = s.val();
+            if (d && !d.mwjsSfxShown) {
+              refDb.update({ mwjsSfxTs: Date.now(), mwjsSfxShown: true });
+            }
+          });
+        }, 300); }
         // 30分钟后检查：如果从未开始过BP则自动删除（无效对局清理）
         setTimeout(() => {
           if (!refDb) return;
@@ -3181,6 +3194,16 @@ async function startMatch() {
           const d = s.val();
           if (d && !d.vipImgShown) {
             refDb.update({ vipImgTs: Date.now(), vipImgShown: true });
+          }
+        });
+      }, 300); }
+      // MWJS：加入已有房间也广播专属入场语音信号
+      if (_isMwjsEntry) { setTimeout(() => {
+        if (!refDb) return;
+        refDb.once('value', s => {
+          const d = s.val();
+          if (d && !d.mwjsSfxShown) {
+            refDb.update({ mwjsSfxTs: Date.now(), mwjsSfxShown: true });
           }
         });
       }, 300); }
@@ -3291,6 +3314,11 @@ function listenRoom(aName, bName) {
       lastVipImgTs = data.vipImgTs;
       showVipImage();
     }
+    // MWJS专属入场语音
+    if (data.mwjsSfxTs && data.mwjsSfxTs !== lastMwjsSfxTs && (Date.now() - data.mwjsSfxTs) < 30000) {
+      lastMwjsSfxTs = data.mwjsSfxTs;
+      playMwjsAudio();
+    }
     // 裁判公告
     if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
       lastAnnouncTs = data.announceTs;
@@ -3316,8 +3344,9 @@ function listenRoom(aName, bName) {
     // 接收开始新一轮信号：播放音效并倒计时3秒后真正开始
     if (data.startSfxTs && data.startSfxTs !== lastStartSfxTs) {
       lastStartSfxTs = data.startSfxTs;
-      // 停止VIP出场语音，恢复BGM
+      // 停止VIP/MWJS出场语音，恢复BGM
       if (vipEntrySfx) { vipEntrySfx.pause(); vipEntrySfx.currentTime = 0; vipEntrySfx = null; }
+      if (mwjsEntrySfx) { mwjsEntrySfx.pause(); mwjsEntrySfx.currentTime = 0; mwjsEntrySfx = null; }
       const bgm = document.getElementById('bgm');
       if (bgm && bgm.paused && bgmPlaying) bgm.play().catch(() => {});
       const startSfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E5%BC%80%E5%A7%8B%E6%96%B0%E4%B8%80%E8%BD%AE%E9%9F%B3%E6%95%88.mp3');
@@ -3980,6 +4009,15 @@ function playHeroVideo(isSender) {
 // ── VIP专属图片播报 ──
 // VIP出场语音实例（全局，供新一轮开始时中断）
 let vipEntrySfx = null;
+let mwjsEntrySfx = null;
+function playMwjsAudio() {
+  const bgm = document.getElementById('bgm');
+  if (bgm && !bgm.paused) bgm.pause();
+  if (mwjsEntrySfx) { mwjsEntrySfx.pause(); mwjsEntrySfx.currentTime = 0; }
+  mwjsEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%AD%94%E4%B8%B8.mp3');
+  mwjsEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+  mwjsEntrySfx.play().catch(() => {});
+}
 
 function showVipImage() {
   const ov = document.getElementById('vipImgOv');
@@ -4238,6 +4276,7 @@ function toggleBgmPanel() {
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%89%A2%E9%83%91%E5%87%BA%E5%9C%BA.mp3",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/d378e8c6-0e0d-4dc8-a447-ff6f6f73b2e0.jpg",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/11.png",
+    "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%AD%94%E4%B8%B8.mp3",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/21b4b7a8-bb05-4bc9-9ebd-954b754b0f78_0_1776216745503edit.jpg",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_103201.png",
