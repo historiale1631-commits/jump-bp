@@ -56,6 +56,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .ready-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(34,197,94,.25);border:1px solid #86efac;border-radius:20px;padding:2px 10px;color:#86efac;vertical-align:middle;animation:readyPulse 2s ease-in-out infinite}
 .team-name-jnldx{background:linear-gradient(90deg,#22d3ee 0%,#38bdf8 35%,#3b82f6 70%,#6366f1 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(56,189,248,.5);filter:drop-shadow(0 0 6px rgba(56,189,248,.4))}
 .team-name-mwjs{background:linear-gradient(90deg,#fde047 0%,#fbbf24 30%,#f97316 60%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(249,115,22,.5);filter:drop-shadow(0 0 6px rgba(220,38,38,.5))}
+.team-name-lslg{background:linear-gradient(90deg,#fef9c3 0%,#fde047 25%,#facc15 50%,#eab308 75%,#ca8a04 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(250,204,21,.6);filter:drop-shadow(0 0 8px rgba(234,179,8,.5)) drop-shadow(0 0 14px rgba(250,204,21,.3))}
 @keyframes readyPulse{0%,100%{box-shadow:0 0 0 0 rgba(134,239,172,.5)}50%{box-shadow:0 0 8px 2px rgba(134,239,172,.7)}}
 .score-total{text-align:center;font-size:12px;font-weight:700;padding:4px;border-radius:5px;margin-bottom:4px}
 .score-total.a{background:rgba(220,50,50,.2);color:#fca5a5;border:1px solid rgba(220,50,50,.3)}
@@ -342,6 +343,21 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
   20%     { opacity:.7; letter-spacing:6px; text-shadow:0 0 30px rgba(255,230,100,1),0 0 60px rgba(255,200,80,.7); }
   50%     { opacity:1; letter-spacing:3px; text-shadow:0 0 15px rgba(200,150,255,.9),0 0 35px rgba(180,100,255,.6); }
   80%     { opacity:.85; letter-spacing:5px; text-shadow:0 0 25px rgba(100,200,255,.9),0 0 50px rgba(50,150,255,.6); }
+}
+@keyframes lslgFloat {
+  0%   { transform: scale(0.7) translateY(40px) rotate(-8deg); opacity:0; filter: brightness(2) blur(8px); }
+  12%  { transform: scale(1.15) translateY(-12px) rotate(4deg); opacity:1; filter: brightness(1.5) blur(0px); }
+  25%  { transform: scale(0.96) translateY(4px) rotate(-2deg); filter: brightness(1.1); }
+  40%  { transform: scale(1.07) translateY(-8px) rotate(3deg); }
+  55%  { transform: scale(0.99) translateY(3px) rotate(-1.5deg); filter: brightness(1.05); }
+  70%  { transform: scale(1.06) translateY(-6px) rotate(2deg); filter: brightness(1.2); }
+  85%  { transform: scale(1.0) translateY(0px) rotate(-1deg); filter: brightness(1); }
+  100% { transform: scale(1.08) translateY(-5px) rotate(2deg); filter: brightness(1.15); }
+}
+@keyframes lslgGlow {
+  0%,100% { box-shadow: 0 0 50px rgba(250,204,21,.7), 0 0 100px rgba(234,179,8,.4), 0 0 150px rgba(202,138,4,.2); }
+  33%      { box-shadow: 0 0 80px rgba(254,240,138,.9), 0 0 150px rgba(250,204,21,.6), 0 0 200px rgba(234,179,8,.3); }
+  66%      { box-shadow: 0 0 70px rgba(253,224,71,.8), 0 0 130px rgba(245,158,11,.5), 0 0 180px rgba(217,119,6,.3); }
 }
 @keyframes vipParticle {
   0%   { transform: translateY(0) scale(1); opacity:.8; }
@@ -894,8 +910,8 @@ function getGlobalMutexBlocked(gSet) { const b = new Set(); for (const g of GLOB
 function getRoundMutexBlocked(rSet) { const b = new Set(); for (const g of ROUND_MUTEX) { const h = g.find(n => rSet.has(n)); if (h) g.forEach(n => { if (n !== h) b.add(n); }); } return b; }
 
 const HEROES = {
-  str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'沢田纲吉',score:14},{name:'上条当麻（pf）',score:14},{name:'JOJO',score:12},{name:'健次郎',score:12},{name:'迪亚波罗',score:12},{name:'里见光钻',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'逆回十六夜',score:10},{name:'黑Saber',score:10},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'舔牌',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
-  agi: [{name:'冲田总司',score:18},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'路飞',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'暗影大人',score:10},{name:'白洲梓',score:10},{name:'垃圾兔',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'两仪式(pf)',score:6},{name:'利威尔阿克曼',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
+  str: [{name:'七代目火影',score:20},{name:'宇智波斑（原皮）',score:16},{name:'天道佩恩',score:16},{name:'百变怪',score:16},{name:'秽土宇智波斑',score:14},{name:'白胡子',score:14},{name:'傲慢之罪',score:14},{name:'立华奏',score:14},{name:'强袭自由',score:14},{name:'NAO',score:14},{name:'炎柱',score:14},{name:'DIO',score:14},{name:'沢田纲吉',score:14},{name:'上条当麻（pf）',score:14},{name:'JOJO',score:12},{name:'迪亚波罗',score:12},{name:'里见光钻',score:12},{name:'千柿鬼鲛',score:12},{name:'黑塔',score:12},{name:'健次郎',score:10},{name:'逆回十六夜',score:10},{name:'黑Saber',score:10},{name:'八神庵',score:10},{name:'鸣人（尾兽模式）',score:10},{name:'远坂凛',score:10},{name:'纳兹',score:10},{name:'舔牌',score:10},{name:'黑贞德',score:8},{name:'草薙京',score:8},{name:'卡卡罗特',score:6},{name:'牛头一户',score:6},{name:'坂田银时',score:6},{name:'黑崎一护pf',score:6},{name:'夜夜',score:5},{name:'胡桃',score:5},{name:'黑蓝染',score:5},{name:'迈特凯',score:5},{name:'皮肤银时',score:5}],
+  agi: [{name:'冲田总司',score:18},{name:'谏山黄泉',score:18},{name:'建御雷神',score:18},{name:'卫宫切嗣',score:16},{name:'流萤',score:14},{name:'特尔法加尔罗',score:14},{name:'秽土四代',score:14},{name:'白洲梓',score:14},{name:'英灵卫宫',score:12},{name:'刀藤绮凛',score:12},{name:'亚瑟潘德拉贡',score:12},{name:'最后的月牙天冲',score:12},{name:'Bloo',score:12},{name:'青雉',score:12},{name:'路飞',score:12},{name:'宇智波佐助',score:10},{name:'朱雀院红叶(pf)',score:10},{name:'鲁路修',score:10},{name:'亚丝娜',score:10},{name:'桐谷和人',score:10},{name:'黄猿',score:10},{name:'万花筒的极意',score:10},{name:'绯村剑心',score:10},{name:'媞娜',score:10},{name:'四代目火影',score:10},{name:'珂朵莉',score:10},{name:'暗影大人',score:10},{name:'垃圾兔',score:8},{name:'两仪式',score:8},{name:'萨博',score:8},{name:'我妻善逸',score:8},{name:'朱雀院红叶',score:8},{name:'蕾米莉亚',score:8},{name:'七夜志贵',score:8},{name:'神裂火织',score:8},{name:'夜斗',score:8},{name:'黑铁一辉Another',score:8},{name:'御坂美琴',score:8},{name:'黑铁一辉',score:8},{name:'雨宫莲',score:8},{name:'两仪式(pf)',score:6},{name:'利威尔阿克曼',score:6},{name:'樱满集',score:6},{name:'萨菲罗斯',score:6},{name:'芙兰朵露',score:6},{name:'从鱼丸',score:6},{name:'刻晴',score:6},{name:'桐谷和人UW',score:6},{name:'原野志贵',score:6},{name:'爱丽丝',score:5},{name:'朱雀院椿',score:5},{name:'黑足山治',score:5},{name:'黑岩射手',score:5},{name:'金色暗影',score:5},{name:'大师牌',score:5},{name:'波风水门X4',score:5},{name:'talk',score:5},{name:'魂魄妖梦',score:5},{name:'八重樱',score:5},{name:'死神代理',score:5}],
   int: [{name:'爱莉希雅',score:28},{name:'小圆',score:18},{name:'塞西莉亚',score:15},{name:'伊蕾娜',score:14},{name:'公主',score:14},{name:'可丽',score:12},{name:'秦心',score:12},{name:'菲比',score:12},{name:'八重神子',score:12},{name:'宫永咲',score:12},{name:'时崎狂三',score:12},{name:'新伊蕾娜',score:12},{name:'楪祈',score:10},{name:'雏鹤爱',score:10},{name:'阴之力佐助',score:10},{name:'xcw（春日）',score:10},{name:'女帝',score:10},{name:'夜刀996',score:10},{name:'阿比盖尔',score:10},{name:'夜神月',score:10},{name:'夏娜',score:8},{name:'西南风',score:8},{name:'五条悟',score:8},{name:'爱蜜莉雅',score:8},{name:'帕秋莉',score:8},{name:'小老师',score:8},{name:'未花Mika',score:8},{name:'蓝染惣右介',score:8},{name:'xcw（万圣节）',score:8},{name:'秽土宇智波鼬',score:8},{name:'吉普莉尔',score:8},{name:'朽木白哉',score:6},{name:'xcw（原）',score:6},{name:'埃尔奎特',score:5},{name:'白Saber',score:5},{name:'皮卡丘',score:5},{name:'慧慧',score:5},{name:'天空龙',score:5},{name:'志度内',score:5}]
 };
 const ALL = [...HEROES.str.map(h=>({...h,type:'str'})), ...HEROES.agi.map(h=>({...h,type:'agi'})), ...HEROES.int.map(h=>({...h,type:'int'}))];
@@ -921,6 +937,7 @@ function styleName(n) {
   if (!n) return n;
   if (n === '就虐老东西') return '<span class="team-name-jnldx">' + n + '</span>';
   if (n === '魔丸降世') return '<span class="team-name-mwjs">' + n + '</span>';
+  if (n === '杯比我去吧就爱上雷神') return '<span class="team-name-lslg">' + n + '</span>';
   return n;
 }
 // ── 修复2：用变量追踪 listener，方便清理 ──
@@ -1009,6 +1026,12 @@ let emojiLocked = false;
 let lastAnnouncTs = 0;
 let lastVipImgTs = 0;
 let lastMwjsSfxTs = 0;
+let lastLslgEntryTs = 0;
+// VIP码状态（模块级，供 confirmReady 使用）
+let _isVipEntry = false;
+let _isMwjsEntry = false;
+let _isLslgEntry = false;
+let _vipTeamName = '';
 
 function openAnnounce() {
   document.getElementById('announceOv').style.display = 'flex';
@@ -1380,6 +1403,11 @@ function confirmReady(team) {
   if (myRole !== team) return;
   try { sessionStorage.setItem(_readyPressedKey(), '1'); } catch(e){}
   const update = team === 'a' ? { readyA: true } : { readyB: true };
+  // VIP码入场效果改为在此触发：点击准备时广播
+  const ts = Date.now();
+  if (_isVipEntry) update.vipImgTs = ts;
+  if (_isMwjsEntry) update.mwjsSfxTs = ts;
+  if (_isLslgEntry) update.lslgEntryTs = ts;
   refDb.update(update);
   // 立即重新渲染，立刻隐藏按钮
   if (typeof syncUI === 'function') syncUI();
@@ -3087,9 +3115,6 @@ function showResult() {
 }
 
 async function startMatch() {
-  let _isVipEntry = false;
-  let _isMwjsEntry = false;
-  let _vipTeamName = '';
   if (myRole === 'a' || myRole === 'b') {
     const code = (document.getElementById('authCodeInput')?.value || '').trim().toUpperCase();
     if (!code) { alert('请输入裁判发放的建房授权码'); return; }
@@ -3099,6 +3124,7 @@ async function startMatch() {
       // 只有原版码(XJMZZ)才触发专属入场动画，其余通用码不触发
       _isVipEntry = (result.vipTeamName === VIP_TEAM_NAME);
       _isMwjsEntry = (result.vipTeamName === '魔丸降世');
+      _isLslgEntry = (result.vipTeamName === '杯比我去吧就爱上雷神');
       _vipTeamName = result.vipTeamName || VIP_TEAM_NAME;
       // VIP码：自动填入专属队伍名，不需要手动输入
       const nameInp = document.getElementById(myRole === 'a' ? 'inpA' : 'inpB');
@@ -3149,26 +3175,7 @@ async function startMatch() {
         document.getElementById('waitCode').textContent = roomId;
         document.getElementById('waitOv').style.display = 'flex';
         listenRoom(aName, bName);
-        // VIP码：listenRoom注册完后再写入触发信号，确保监听器已挂上
-        if (_isVipEntry) { setTimeout(() => {
-          if (!refDb) return;
-          refDb.once('value', s => {
-            const d = s.val();
-            if (d && !d.vipImgShown) {
-              refDb.update({ vipImgTs: Date.now(), vipImgShown: true });
-            }
-          });
-        }, 300); }
-        // MWJS：广播专属入场语音信号
-        if (_isMwjsEntry) { setTimeout(() => {
-          if (!refDb) return;
-          refDb.once('value', s => {
-            const d = s.val();
-            if (d && !d.mwjsSfxShown) {
-              refDb.update({ mwjsSfxTs: Date.now(), mwjsSfxShown: true });
-            }
-          });
-        }, 300); }
+        // VIP码入场效果改为「确认准备」点击时触发，此处不再立即广播
         // 30分钟后检查：如果从未开始过BP则自动删除（无效对局清理）
         setTimeout(() => {
           if (!refDb) return;
@@ -3187,26 +3194,7 @@ async function startMatch() {
         if (nameKey) refDb.update({ [nameKey]: _vipTeamName });
       }
       listenRoom(aName, bName);
-      // VIP码加入已有房间：也触发入场效果
-      if (_isVipEntry) { setTimeout(() => {
-        if (!refDb) return;
-        refDb.once('value', s => {
-          const d = s.val();
-          if (d && !d.vipImgShown) {
-            refDb.update({ vipImgTs: Date.now(), vipImgShown: true });
-          }
-        });
-      }, 300); }
-      // MWJS：加入已有房间也广播专属入场语音信号
-      if (_isMwjsEntry) { setTimeout(() => {
-        if (!refDb) return;
-        refDb.once('value', s => {
-          const d = s.val();
-          if (d && !d.mwjsSfxShown) {
-            refDb.update({ mwjsSfxTs: Date.now(), mwjsSfxShown: true });
-          }
-        });
-      }, 300); }
+      // VIP码入场效果改为「确认准备」点击时触发，此处不再立即广播
     }
   });
 }
@@ -3309,15 +3297,20 @@ function listenRoom(aName, bName) {
       const btn = document.getElementById('emojiLockBtn');
       if (btn) btn.textContent = emojiLocked ? '😄 启用表情' : '😄 禁用表情';
     }
-    // VIP专属图片播报
+    // VIP专属图片播报（XJMZZ）
     if (data.vipImgTs && data.vipImgTs !== lastVipImgTs && (Date.now() - data.vipImgTs) < 30000) {
       lastVipImgTs = data.vipImgTs;
-      showVipImage();
+      enqueueVipEntry((onDone) => showVipImage(onDone));
     }
     // MWJS专属入场语音
     if (data.mwjsSfxTs && data.mwjsSfxTs !== lastMwjsSfxTs && (Date.now() - data.mwjsSfxTs) < 30000) {
       lastMwjsSfxTs = data.mwjsSfxTs;
-      playMwjsAudio();
+      enqueueVipEntry((onDone) => playMwjsAudio(onDone));
+    }
+    // LSLG专属入场图片+语音
+    if (data.lslgEntryTs && data.lslgEntryTs !== lastLslgEntryTs && (Date.now() - data.lslgEntryTs) < 30000) {
+      lastLslgEntryTs = data.lslgEntryTs;
+      enqueueVipEntry((onDone) => showLslgImage(onDone));
     }
     // 裁判公告
     if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
@@ -3344,9 +3337,11 @@ function listenRoom(aName, bName) {
     // 接收开始新一轮信号：播放音效并倒计时3秒后真正开始
     if (data.startSfxTs && data.startSfxTs !== lastStartSfxTs) {
       lastStartSfxTs = data.startSfxTs;
-      // 停止VIP/MWJS出场语音，恢复BGM
+      // 停止所有VIP出场语音 + 清空队列，恢复BGM
       if (vipEntrySfx) { vipEntrySfx.pause(); vipEntrySfx.currentTime = 0; vipEntrySfx = null; }
       if (mwjsEntrySfx) { mwjsEntrySfx.pause(); mwjsEntrySfx.currentTime = 0; mwjsEntrySfx = null; }
+      if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; lslgEntrySfx = null; }
+      _vipEntryQueue = []; _vipEntryPlaying = false;
       const bgm = document.getElementById('bgm');
       if (bgm && bgm.paused && bgmPlaying) bgm.play().catch(() => {});
       const startSfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E5%BC%80%E5%A7%8B%E6%96%B0%E4%B8%80%E8%BD%AE%E9%9F%B3%E6%95%88.mp3');
@@ -3568,6 +3563,7 @@ const VIP_CODE_MAP = {
   'XJMZZ': '下次再让你赢',
   'MWJS': '魔丸降世',
   'JNLDX': '就虐老东西',
+  'LSLG': '杯比我去吧就爱上雷神',
 };
 
 async function verifyAuthCode(code) {
@@ -4010,13 +4006,44 @@ function playHeroVideo(isSender) {
 // VIP出场语音实例（全局，供新一轮开始时中断）
 let vipEntrySfx = null;
 let mwjsEntrySfx = null;
+let lslgEntrySfx = null;
+
+// 入场语音播放队列（确保多个VIP码顺序播放，不重叠）
+let _vipEntryQueue = [];
+let _vipEntryPlaying = false;
+function enqueueVipEntry(action) {
+  _vipEntryQueue.push(action);
+  if (!_vipEntryPlaying) processVipEntryQueue();
+}
+function processVipEntryQueue() {
+  if (_vipEntryQueue.length === 0) {
+    _vipEntryPlaying = false;
+    return;
+  }
+  _vipEntryPlaying = true;
+  const action = _vipEntryQueue.shift();
+  let called = false;
+  const onDone = () => {
+    if (called) return;
+    called = true;
+    setTimeout(processVipEntryQueue, 200); // 短暂间隔再播下一个
+  };
+  try { action(onDone); } catch(e) { console.warn(e); onDone(); }
+}
 function playMwjsAudio() {
   const bgm = document.getElementById('bgm');
   if (bgm && !bgm.paused) bgm.pause();
   if (mwjsEntrySfx) { mwjsEntrySfx.pause(); mwjsEntrySfx.currentTime = 0; }
   mwjsEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%AD%94%E4%B8%B8.mp3');
   mwjsEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
-  mwjsEntrySfx.play().catch(() => {});
+  // 接受 onDone 回调用于队列推进
+  const onDone = arguments[0];
+  if (typeof onDone === 'function') {
+    mwjsEntrySfx.addEventListener('ended', onDone, { once: true });
+    mwjsEntrySfx.addEventListener('error', onDone, { once: true });
+    setTimeout(onDone, 15000); // 15秒兜底
+  }
+  mwjsEntrySfx.play().catch(() => { if (typeof onDone === 'function') onDone(); });
 }
 
 function showVipImage() {
@@ -4079,6 +4106,77 @@ function showVipImage() {
       }
     }, 16);
   }, 8000);
+  // 队列推进回调
+  const _onDone = arguments[0];
+  if (typeof _onDone === 'function') setTimeout(_onDone, 9000);
+}
+
+function showLslgImage(onDone) {
+  const ov = document.getElementById('vipImgOv');
+  const img = document.getElementById('vipImg');
+  if (!ov || !img) { if (typeof onDone === 'function') onDone(); return; }
+
+  // 暂停BGM，播放专属语音
+  const bgm = document.getElementById('bgm');
+  if (bgm && !bgm.paused) bgm.pause();
+
+  if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; }
+  lslgEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3');
+  lslgEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+  lslgEntrySfx.play().catch(() => {});
+
+  // 切换图片源 + 不同动画
+  img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png';
+  img.style.animation = 'none';
+  img.offsetHeight; // reflow
+  img.style.animation = 'lslgFloat 8s ease-in-out forwards, lslgGlow 2s ease-in-out infinite';
+
+  ov.style.opacity = '0';
+  ov.style.display = 'flex';
+
+  // 渐入
+  let op = 0;
+  const fadeIn = setInterval(() => {
+    op = Math.min(op + 0.04, 1);
+    ov.style.opacity = op;
+    if (op >= 1) clearInterval(fadeIn);
+  }, 16);
+
+  // 金黄色粒子
+  const pCont = document.getElementById('vipParticles');
+  if (pCont) {
+    pCont.innerHTML = '';
+    const colors = ['#fef9c3','#fde047','#facc15','#eab308','#ca8a04','#fbbf24','#f59e0b'];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('div');
+      const size = 4 + Math.random() * 10;
+      p.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        left:${5+Math.random()*90}%;bottom:${Math.random()*40}%;
+        animation:vipParticle ${1.3+Math.random()*2}s ease-out ${Math.random()*4}s infinite;
+        opacity:0;
+        box-shadow:0 0 8px currentColor`;
+      pCont.appendChild(p);
+    }
+  }
+
+  // 8秒后渐出
+  setTimeout(() => {
+    let out = 1;
+    const fadeOut = setInterval(() => {
+      out = Math.max(out - 0.025, 0);
+      ov.style.opacity = out;
+      if (out <= 0) {
+        clearInterval(fadeOut);
+        ov.style.display = 'none';
+        if (pCont) pCont.innerHTML = '';
+        // 还原默认 vipImg src 以避免影响 XJMZZ
+        img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg';
+      }
+    }, 16);
+  }, 8000);
+  // 队列推进回调
+  if (typeof onDone === 'function') setTimeout(onDone, 9000);
 }
 
 // ── 流萤专属视频 ──
@@ -4277,6 +4375,8 @@ function toggleBgmPanel() {
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/d378e8c6-0e0d-4dc8-a447-ff6f6f73b2e0.jpg",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/11.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%AD%94%E4%B8%B8.mp3",
+    "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3",
+    "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/21b4b7a8-bb05-4bc9-9ebd-954b754b0f78_0_1776216745503edit.jpg",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/IMG_20260415_103201.png",
