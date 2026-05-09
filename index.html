@@ -4060,6 +4060,11 @@ function showVipImage() {
   vipEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
   vipEntrySfx.play().catch(() => {});
 
+  // 设置文字（XJMZZ 黄色）
+  const vText = document.getElementById('vipImgText');
+  if (vText) { vText.textContent = '✨ 下次再让你赢 ✨'; vText.style.color = '#fcd34d'; }
+  // 还原图片源（避免被其他VIP污染）
+  img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg';
   // 重置图片动画
   img.style.animation = 'none';
   img.offsetHeight; // reflow
@@ -4125,6 +4130,9 @@ function showLslgImage(onDone) {
   lslgEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
   lslgEntrySfx.play().catch(() => {});
 
+  // 设置文字（LSLG 亮金色）
+  const vText = document.getElementById('vipImgText');
+  if (vText) { vText.textContent = '✨ 杯比我去吧就爱上雷神 ✨'; vText.style.color = '#fde047'; }
   // 切换图片源 + 不同动画
   img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png';
   img.style.animation = 'none';
@@ -4750,7 +4758,7 @@ function toggleBgmPanel() {
 <div id="vipImgOv" style="display:none;position:fixed;inset:0;z-index:9998;align-items:center;justify-content:center;pointer-events:none;opacity:0;animation:vipBgShimmer 3s ease infinite">
   <div id="vipImgInner" style="position:relative;text-align:center">
     <img id="vipImg" src="https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg" style="max-width:58vw;max-height:65vh;border-radius:20px;display:block;margin:0 auto;animation:vipFloat 8s ease-in-out forwards, vipGlow 2.5s ease-in-out infinite" crossorigin="anonymous"/>
-    <div style="margin-top:16px;color:#fcd34d;font-size:17px;font-weight:700;animation:vipTextFlicker 2s ease-in-out infinite">✨ 下次再让你赢 ✨</div>
+    <div id="vipImgText" style="margin-top:16px;color:#fcd34d;font-size:17px;font-weight:700;animation:vipTextFlicker 2s ease-in-out infinite">✨ 下次再让你赢 ✨</div>
     <div id="vipParticles" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:20px"></div>
   </div>
 </div>
