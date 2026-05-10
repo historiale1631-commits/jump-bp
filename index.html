@@ -54,6 +54,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .ready-btn{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:linear-gradient(135deg,rgba(34,197,94,.25),rgba(22,163,74,.35));border:1px solid rgba(34,197,94,.5);border-radius:20px;padding:2px 10px;color:#86efac;cursor:pointer;font-family:inherit;vertical-align:middle;transition:all .15s}
 .ready-btn:hover{background:linear-gradient(135deg,rgba(34,197,94,.45),rgba(22,163,74,.55));transform:scale(1.05)}
 .ready-badge{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:rgba(34,197,94,.25);border:1px solid #86efac;border-radius:20px;padding:2px 10px;color:#86efac;vertical-align:middle;animation:readyPulse 2s ease-in-out infinite}
+.swap-btn{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:linear-gradient(135deg,rgba(251,191,36,.25),rgba(245,158,11,.35));border:1px solid rgba(251,191,36,.5);border-radius:20px;padding:2px 10px;color:#fcd34d;cursor:pointer;font-family:inherit;vertical-align:middle;transition:all .15s;animation:swapPulse 1.8s ease-in-out infinite}
+.swap-btn:hover{background:linear-gradient(135deg,rgba(251,191,36,.45),rgba(245,158,11,.55));transform:scale(1.05)}
+@keyframes swapPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.6)}50%{box-shadow:0 0 10px 3px rgba(251,191,36,.7)}}
 .team-name-jnldx{background:linear-gradient(90deg,#22d3ee 0%,#38bdf8 35%,#3b82f6 70%,#6366f1 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(56,189,248,.5);filter:drop-shadow(0 0 6px rgba(56,189,248,.4))}
 .team-name-mwjs{background:linear-gradient(90deg,#fde047 0%,#fbbf24 30%,#f97316 60%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(249,115,22,.5);filter:drop-shadow(0 0 6px rgba(220,38,38,.5))}
 .team-name-lslg{background:linear-gradient(90deg,#fef9c3 0%,#fde047 25%,#facc15 50%,#eab308 75%,#ca8a04 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(250,204,21,.6);filter:drop-shadow(0 0 8px rgba(234,179,8,.5)) drop-shadow(0 0 14px rgba(250,204,21,.3))}
@@ -1396,18 +1399,29 @@ function forceAutoPick() {
   }
 }
 
-function _readyPressedKey(){ return 'bp_ready_pressed_' + (roomId||'_') + '_' + (myRole||'_'); }
-function _hasPressedReadyFn(){ try { return sessionStorage.getItem(_readyPressedKey()) === '1'; } catch(e){ return false; } }
+function _voicePlayedKey(){ return 'bp_voice_played_' + (roomId||'_') + '_' + (myRole||'_'); }
+function _voicePlayedFn(){ try { return sessionStorage.getItem(_voicePlayedKey()) === '1'; } catch(e){ return false; } }
+function loserSwap() {
+  if (!refDb) return;
+  if (myRole !== gs.swapPickLoser) return;
+  if (gs.swapPicked) return;
+  if (gs.active || gs.pendingRound) return;
+  // 切换 Sunday/JUMP 方
+  refDb.update({ swapped: !gs.swapped, swapSfxTs: Date.now(), swapPicked: true });
+}
+
 function confirmReady(team) {
   if (!refDb) return;
   if (myRole !== team) return;
-  try { sessionStorage.setItem(_readyPressedKey(), '1'); } catch(e){}
   const update = team === 'a' ? { readyA: true } : { readyB: true };
-  // VIP码入场效果改为在此触发：点击准备时广播
-  const ts = Date.now();
-  if (_isVipEntry) update.vipImgTs = ts;
-  if (_isMwjsEntry) update.mwjsSfxTs = ts;
-  if (_isLslgEntry) update.lslgEntryTs = ts;
+  // VIP码入场效果只在首次准备时触发（之后每轮的准备按钮不再触发语音）
+  if (!_voicePlayedFn()) {
+    const ts = Date.now();
+    if (_isVipEntry) update.vipImgTs = ts;
+    if (_isMwjsEntry) update.mwjsSfxTs = ts;
+    if (_isLslgEntry) update.lslgEntryTs = ts;
+    try { sessionStorage.setItem(_voicePlayedKey(), '1'); } catch(e){}
+  }
   refDb.update(update);
   // 立即重新渲染，立刻隐藏按钮
   if (typeof syncUI === 'function') syncUI();
@@ -1506,6 +1520,7 @@ function endRound() {
 
 const HERO_SFX = {
   "七夜志贵": "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E4%B8%83%E5%A4%9C%E5%BF%97%E8%B4%B5.mp3",
+  "最后的月牙天冲": "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%9C%80%E5%90%8E%E7%9A%84%E6%9C%88%E7%89%99%E5%A4%A9%E5%86%B2.mp3",
   "鲁路修":       "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%B2%81%E8%B7%AF%E4%BF%AE-%E4%BA%BA%E7%89%A9%E9%80%89%E6%8B%A9%E9%9F%B3%E6%95%88.wav",
   "桐谷和人":     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BA-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
   "桐谷和人UW":   "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E6%A1%90%E8%B0%B7%E5%92%8C%E4%BA%BAUW-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3",
@@ -2870,11 +2885,19 @@ function syncUI() {
   const buildReadyHtml = (team) => {
     const isReady = team === 'a' ? gs.readyA : gs.readyB;
     if (isReady) return ' <span class="ready-badge">✓ 已就绪</span>';
-    if (myRole === team && !gs.active && !gs.pendingRound && !_hasPressedReadyFn()) return ` <button class="ready-btn" onclick="confirmReady('${team}')">✓ 确认准备</button>`;
+    if (myRole === team && !gs.active && !gs.pendingRound) return ` <button class="ready-btn" onclick="confirmReady('${team}')">✓ 确认准备</button>`;
     return '';
   };
-  document.getElementById('aLabel').innerHTML = `${styleName(gs.aName)} <span class="role-badge ${'a'===sundayTeam?'sunday':'jump'}">${'a'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>${buildReadyHtml('a')}`;
-  document.getElementById('bLabel').innerHTML = `${styleName(gs.bName)} <span class="role-badge ${'b'===sundayTeam?'sunday':'jump'}">${'b'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>${buildReadyHtml('b')}`;
+  // 败方选边按钮：仅显示给本轮判定的败方，未点击且当前未开始下一轮时显示
+  const buildSwapHtml = (team) => {
+    if (gs.swapPickLoser !== team) return '';
+    if (gs.swapPicked) return '';
+    if (gs.active || gs.pendingRound) return '';
+    if (myRole !== team) return '';  // 只给败方自己显示
+    return ` <button class="swap-btn" onclick="loserSwap()">🔄 败方选边</button>`;
+  };
+  document.getElementById('aLabel').innerHTML = `${styleName(gs.aName)} <span class="role-badge ${'a'===sundayTeam?'sunday':'jump'}">${'a'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>${buildReadyHtml('a')}${buildSwapHtml('a')}`;
+  document.getElementById('bLabel').innerHTML = `${styleName(gs.bName)} <span class="role-badge ${'b'===sundayTeam?'sunday':'jump'}">${'b'===sundayTeam?'☀️ Sunday方':'⚡ JUMP方'}</span>${buildReadyHtml('b')}${buildSwapHtml('b')}`;
   document.getElementById('bankALabel').textContent = '🔴 ' + gs.aName + ' 备用';
   document.getElementById('bankBLabel').textContent = '🔵 ' + gs.bName + ' 备用';
   const aLim = getLIM()['a'], bLim = getLIM()['b'];
@@ -3090,7 +3113,20 @@ function submitJudge(winner) {
     if (r.winner === 'a') scoreA++;
     else if (r.winner === 'b') scoreB++;
   });
-  refDb.update({ allRounds: updated, scoreA, scoreB });
+  // 设置败方选边状态：只在判定为A胜或B胜时启用
+  const updateData = { allRounds: updated, scoreA, scoreB };
+  if (winner === 'a' || winner === 'b') {
+    const loser = winner === 'a' ? 'b' : 'a';
+    updateData.swapPickRound = targetRn;
+    updateData.swapPickLoser = loser;
+    updateData.swapPicked = false;
+  } else {
+    // 平局或清空判定时，关闭选边
+    updateData.swapPickRound = null;
+    updateData.swapPickLoser = null;
+    updateData.swapPicked = false;
+  }
+  refDb.update(updateData);
 }
 
 function updateScoreboard() {
