@@ -896,7 +896,7 @@ async function sha256(str) {
 
 db.ref('.info/connected').on('value', s => {
   const el = document.getElementById('connBar');
-  el.textContent = s.val() ? '🟢 已连接 Firebase' : '🔴 连接断开，请刷新';
+  el.textContent = s.val() ? '🟢 已连接' : '🔴 连接断开，请刷新';
   el.className = 'conn-bar ' + (s.val() ? 'online' : 'offline');
 });
 
