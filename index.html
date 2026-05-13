@@ -4279,34 +4279,62 @@ function showLslgImage(onDone) {
   const img = document.getElementById('vipImg');
   if (!ov || !img) { if (typeof onDone === 'function') onDone(); return; }
 
-  // 暂停BGM，播放专属语音
+  // 暂停BGM
   const bgm = document.getElementById('bgm');
   if (bgm && !bgm.paused) bgm.pause();
 
-  if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; }
-  lslgEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3');
-  lslgEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
-  lslgEntrySfx.play().catch(() => {});
+  // 隐藏overlay，避免显示旧图的第一帧
+  ov.style.display = 'none';
+  ov.style.opacity = '0';
 
   // 设置文字（LSLG 亮金色）
   const vText = document.getElementById('vipImgText');
   if (vText) { vText.textContent = '✨ 杯比我去吧就爱上雷神 ✨'; vText.style.color = '#fde047'; }
-  // 切换图片源 + 不同动画
-  img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png';
+
+  const NEW_SRC = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png';
+
+  // 先把图片设为不可见 + 切换 src，等加载完成后再显示
+  img.style.opacity = '0';
   img.style.animation = 'none';
-  img.offsetHeight; // reflow
-  img.style.animation = 'lslgFloat 8s ease-in-out forwards, lslgGlow 2s ease-in-out infinite';
 
-  ov.style.opacity = '0';
-  ov.style.display = 'flex';
+  let _started = false;
+  const startEntry = () => {
+    if (_started) return;
+    _started = true;
 
-  // 渐入
-  let op = 0;
-  const fadeIn = setInterval(() => {
-    op = Math.min(op + 0.04, 1);
-    ov.style.opacity = op;
-    if (op >= 1) clearInterval(fadeIn);
-  }, 16);
+    // 播放语音
+    if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; }
+    lslgEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3');
+    lslgEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+    lslgEntrySfx.play().catch(() => {});
+
+    // 启动动画（动画的 0% 帧 opacity:0，所以清掉 inline opacity 也不会闪）
+    img.offsetHeight; // reflow
+    img.style.opacity = '';
+    img.style.animation = 'lslgFloat 8s ease-in-out both, lslgGlow 2s ease-in-out infinite';
+
+    // 显示 overlay 并渐入
+    ov.style.display = 'flex';
+    let op = 0;
+    const fadeIn = setInterval(() => {
+      op = Math.min(op + 0.04, 1);
+      ov.style.opacity = op;
+      if (op >= 1) clearInterval(fadeIn);
+    }, 16);
+  };
+
+  // 监听 load 事件
+  const onLoadHandler = () => { img.removeEventListener('load', onLoadHandler); img.removeEventListener('error', onLoadHandler); startEntry(); };
+  img.addEventListener('load', onLoadHandler);
+  img.addEventListener('error', onLoadHandler);
+  setTimeout(startEntry, 1500); // 兜底：1.5秒后强制开始
+
+  img.src = NEW_SRC;
+
+  // 如果浏览器已缓存（预加载过），直接触发
+  if (img.complete && img.naturalWidth > 0) {
+    requestAnimationFrame(startEntry);
+  }
 
   // 金黄色粒子
   const pCont = document.getElementById('vipParticles');
