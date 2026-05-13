@@ -142,6 +142,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .hcard .hscore{font-size:9px;font-weight:700;margin-top:1px}
 .sc-str{color:#fca5a5}.sc-agi{color:#86efac}.sc-int{color:#93c5fd}
 .action-row{display:flex;gap:6px}
+#aiBtnStandalone:hover{background:rgba(167,139,250,.35) !important;transform:scale(1.01)}
 .act-btn{flex:1;padding:8px;border:none;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
 .act-btn.pick{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff}
 .act-btn.pick:hover:not(:disabled){background:linear-gradient(135deg,#15803d,#22c55e)}
@@ -836,10 +837,11 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
     <div class="tab-row"><button class="tab-btn tab-str active" onclick="switchTab('str')">💪 力量</button><button class="tab-btn tab-agi" onclick="switchTab('agi')">⚡ 敏捷</button><button class="tab-btn tab-int" onclick="switchTab('int')">🧠 智力</button><button class="tab-btn tab-all" onclick="switchTab('all')">全部</button></div>
     <div class="search-row"><input id="searchInp" placeholder="搜索英雄..." oninput="renderGrid()"/><button class="btn-clr" onclick="document.getElementById('searchInp').value='';renderGrid()">清除</button></div>
     <div class="hero-grid" id="heroGrid"></div>
-    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled>✓ 选取英雄</button><button class="act-btn" id="aiBtn" onclick="checkTestCode()" style="background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;flex:1">🔬 测试</button></div>
+    <div id="actionRow" class="action-row"><button class="act-btn pick" id="pickBtn" onclick="confirmPick()" disabled style="flex:1">✓ 选取英雄</button></div>
     <div id="notMyTurnMsg" class="not-my-turn-msg" style="display:none">请等待对方选人...</div>
     <div id="waitNextMsg" class="waiting-next" style="display:none">✅ 本轮BP结束！等待裁判开始下一轮...</div>
     <div style="margin-top:3px"><div class="sec-label">— 全局已选（所有轮次不可重复）—</div><div id="globalPool" class="global-pool"></div></div>
+    <button id="aiBtnStandalone" onclick="checkTestCode()" style="margin-top:8px;width:100%;padding:8px;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:8px;transition:all .15s">🔬 测试</button>
   </div>
 
   <div class="side b-side">
