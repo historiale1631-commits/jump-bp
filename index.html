@@ -194,122 +194,189 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .rbtn:hover{background:linear-gradient(135deg,#6d28d9,#8b5cf6)}
 .scoreboard{display:flex;align-items:center;justify-content:center;gap:0;margin:5px 10px 0;flex-shrink:0}
 
-/* ===== 电竞观赛风底栏 ===== */
+/* ===== 电竞观赛风底栏（深色版-2） ===== */
 .broadcast-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
-  height: 145px;
-  background: linear-gradient(180deg, rgba(15,5,40,.6) 0%, rgba(0,0,0,.92) 30%, rgba(0,0,0,.97) 100%);
+  height: 170px;
+  background: linear-gradient(180deg, rgba(15,5,40,.55) 0%, rgba(0,0,0,.92) 30%, rgba(0,0,0,.97) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(167,139,250,.35);
-  box-shadow: 0 -8px 32px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  border-top: 1.5px solid rgba(167,139,250,.45);
+  box-shadow: 0 -8px 32px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
   z-index: 90;
   display: grid;
-  grid-template-columns: 1fr 280px 1fr;
-  gap: 0;
+  grid-template-columns: 1fr 260px 1fr;
+  gap: 12px;
   padding: 8px 16px 6px;
   font-family: inherit;
 }
 .broadcast-bar::before {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(252,165,165,.6) 20%, rgba(167,139,250,.8) 50%, rgba(147,197,253,.6) 80%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(252,165,165,.7) 20%, rgba(167,139,250,.9) 50%, rgba(147,197,253,.7) 80%, transparent);
 }
-/* 给主内容留出底部空间 */
-body { padding-bottom: 150px !important; }
+body { padding-bottom: 178px !important; }
 
+/* 两侧浮动历史栏（顶部左右） */
+.bb-history-float {
+  position: fixed; top: 80px;
+  width: 56px;
+  background: linear-gradient(180deg, rgba(15,5,40,.85), rgba(0,0,0,.9));
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 6px 5px;
+  z-index: 80;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 1.5px solid rgba(167,139,250,.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
+.bb-history-float.a-side { left: 8px; border-left: 3px solid #fca5a5; }
+.bb-history-float.b-side { right: 8px; border-right: 3px solid #93c5fd; }
+.bb-history-float::-webkit-scrollbar { width: 3px; }
+.bb-history-float::-webkit-scrollbar-thumb { background: rgba(167,139,250,.35); border-radius: 2px; }
+.bb-history-float-title {
+  font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
+  text-align: center; padding-bottom: 4px; width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  margin-bottom: 2px;
+}
+.bb-history-float.a-side .bb-history-float-title { color: #fca5a5; }
+.bb-history-float.b-side .bb-history-float-title { color: #93c5fd; }
+.bb-history-item {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: #1e0a4a; overflow: hidden;
+  position: relative; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,.25);
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.bb-history-item img { width: 100%; height: 100%; object-fit: cover; }
+.bb-history-item .hist-score {
+  position: absolute; bottom: -2px; right: -2px;
+  background: #fcd34d; color: #1f2937;
+  font-size: 8px; font-weight: 900;
+  padding: 0 3px; border-radius: 5px;
+  line-height: 11px; border: 1px solid #1e0a4a;
+}
+.bb-history-empty {
+  font-size: 9px; color: rgba(255,255,255,.4);
+  text-align: center; padding: 8px 2px; font-weight: 700;
+}
+
+/* 队伍头部（居中 + 字体放大） */
 .bb-team {
   display: flex; flex-direction: column; min-width: 0; position: relative;
 }
-.bb-team.a { padding-right: 14px; }
-.bb-team.b { padding-left: 14px; }
-
 .bb-team-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 6px; min-height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 6px; min-height: 24px;
+  flex-wrap: nowrap;
 }
-.bb-team.b .bb-team-header { justify-content: flex-end; }
 .bb-team-name {
-  font-size: 15px; font-weight: 900; letter-spacing: 0.5px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;
+  font-size: 19px; font-weight: 900; letter-spacing: 0.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
 }
-.bb-team.a .bb-team-name { color: #fca5a5; text-shadow: 0 0 12px rgba(220,38,38,.4); }
-.bb-team.b .bb-team-name { color: #93c5fd; text-shadow: 0 0 12px rgba(37,99,235,.4); }
+.bb-team.a .bb-team-name { color: #fca5a5; text-shadow: 0 0 14px rgba(220,38,38,.45); }
+.bb-team.b .bb-team-name { color: #93c5fd; text-shadow: 0 0 14px rgba(37,99,235,.45); }
 .bb-team-role {
-  font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+  font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 700;
 }
-.bb-team-role.sunday { background: rgba(254,240,138,.18); color: #fde047; border: 1px solid rgba(254,240,138,.4); }
-.bb-team-role.jump { background: rgba(167,243,208,.18); color: #86efac; border: 1px solid rgba(167,243,208,.4); }
+.bb-team-role.sunday { background: rgba(254,240,138,.18); color: #fde047; border: 1px solid rgba(254,240,138,.45); }
+.bb-team-role.jump { background: rgba(167,243,208,.18); color: #86efac; border: 1px solid rgba(167,243,208,.45); }
 .bb-team-budget {
-  font-size: 11px; color: #fcd34d; font-weight: 700;
-  background: rgba(0,0,0,.4); padding: 2px 8px; border-radius: 10px;
-  border: 1px solid rgba(252,211,77,.3); margin-left: auto;
+  font-size: 12px; color: #fcd34d; font-weight: 900;
+  background: rgba(0,0,0,.4); padding: 2px 9px; border-radius: 10px;
+  border: 1px solid rgba(252,211,77,.35);
 }
-.bb-team.b .bb-team-budget { margin-left: 0; margin-right: auto; }
+.bb-team-budget.over {
+  color: #fff; background: rgba(220,38,38,.4); border-color: #f87171;
+}
 
+/* Pick 卡片（放大 + 深色背景） */
 .bb-picks {
   display: flex; gap: 6px; flex: 1;
-  justify-content: flex-start; align-items: stretch;
+  justify-content: center; align-items: stretch;
 }
-.bb-team.b .bb-picks { justify-content: flex-end; }
 .bb-pick {
-  width: 76px; height: 100px;
-  background: rgba(0,0,0,.4);
-  border: 1.5px solid rgba(255,255,255,.08);
+  width: 100px; height: 130px;
+  background: rgba(0,0,0,.45);
+  border: 1.5px solid rgba(255,255,255,.1);
   border-radius: 8px;
   display: flex; flex-direction: column;
   position: relative; overflow: hidden;
   transition: all .25s;
   flex-shrink: 0;
 }
-.bb-team.a .bb-pick.empty { border-left: 3px solid rgba(252,165,165,.35); }
-.bb-team.b .bb-pick.empty { border-right: 3px solid rgba(147,197,253,.35); }
-.bb-pick.filled { border-color: rgba(255,255,255,.18); background: rgba(20,10,40,.6); }
-.bb-team.a .bb-pick.filled { border-left: 3px solid #fca5a5; box-shadow: 0 0 12px rgba(220,38,38,.15); }
-.bb-team.b .bb-pick.filled { border-right: 3px solid #93c5fd; box-shadow: 0 0 12px rgba(37,99,235,.15); }
+.bb-team.a .bb-pick.empty { border-left: 3px solid rgba(252,165,165,.45); }
+.bb-team.b .bb-pick.empty { border-right: 3px solid rgba(147,197,253,.45); }
+.bb-pick.filled { border-color: rgba(255,255,255,.22); background: rgba(20,10,40,.65); }
+.bb-team.a .bb-pick.filled { border-left: 3px solid #fca5a5; box-shadow: 0 0 14px rgba(220,38,38,.2); }
+.bb-team.b .bb-pick.filled { border-right: 3px solid #93c5fd; box-shadow: 0 0 14px rgba(37,99,235,.2); }
 .bb-pick.current {
   animation: bbCurrentPulse 1.4s ease-in-out infinite;
   border-color: #a78bfa !important;
   background: rgba(167,139,250,.18) !important;
-  box-shadow: 0 0 20px rgba(167,139,250,.6), inset 0 0 12px rgba(167,139,250,.15);
+  box-shadow: 0 0 22px rgba(167,139,250,.6), inset 0 0 14px rgba(167,139,250,.18);
 }
 @keyframes bbCurrentPulse {
   0%, 100% { box-shadow: 0 0 18px rgba(167,139,250,.45), inset 0 0 10px rgba(167,139,250,.12); }
-  50%      { box-shadow: 0 0 28px rgba(167,139,250,.8),  inset 0 0 14px rgba(167,139,250,.25); }
+  50%      { box-shadow: 0 0 32px rgba(167,139,250,.85), inset 0 0 18px rgba(167,139,250,.25); }
 }
 .bb-pick-portrait {
   flex: 1; overflow: hidden;
   background: linear-gradient(135deg, rgba(0,0,0,.4), rgba(20,10,40,.5));
   display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
+  font-size: 40px;
+  position: relative;
 }
 .bb-pick-portrait img {
   width: 100%; height: 100%; object-fit: cover;
 }
 .bb-pick-empty-num {
-  font-size: 24px; font-weight: 900;
-  color: rgba(255,255,255,.18);
+  font-size: 36px; font-weight: 900;
+  color: rgba(255,255,255,.2);
 }
 .bb-pick-name {
-  font-size: 10px; font-weight: 700; text-align: center;
+  font-size: 12px; font-weight: 700; text-align: center;
   padding: 3px 2px;
-  background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.85));
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.88));
   color: rgba(255,255,255,.95);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   border-top: 1px solid rgba(255,255,255,.08);
 }
 .bb-pick-score {
+  display: none !important;
   position: absolute; top: 3px; right: 3px;
   background: rgba(0,0,0,.85);
-  color: #fcd34d; font-weight: 900; font-size: 11px;
-  padding: 1px 5px; border-radius: 5px;
-  border: 1px solid rgba(252,211,77,.5);
+  color: #fcd34d; font-weight: 900; font-size: 12px;
+  padding: 1px 6px; border-radius: 5px;
+  border: 1px solid rgba(252,211,77,.55);
   text-shadow: 0 0 4px rgba(252,211,77,.4);
+  z-index: 2;
 }
-.bb-pick-step {
-  position: absolute; top: 3px; left: 3px;
-  font-size: 10px; font-weight: 900;
-  background: rgba(255,255,255,.15); color: rgba(255,255,255,.8);
-  padding: 1px 5px; border-radius: 5px;
+
+/* 选人预览：未确认时的虚影闪烁 */
+.bb-preview-ghost {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 1;
+  animation: bbPreviewBlink 2s ease-in-out infinite;
+}
+.bb-preview-ghost img {
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.55; filter: brightness(1.2) saturate(1.1);
+}
+.bb-preview-ghost .preview-label {
+  position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
+  background: rgba(167,139,250,.92);
+  color: white; font-size: 9px; font-weight: 900;
+  padding: 1px 6px; border-radius: 8px; letter-spacing: 1px;
+  text-shadow: 0 1px 1px rgba(0,0,0,.5);
+  border: 1px solid rgba(255,255,255,.4);
+}
+@keyframes bbPreviewBlink {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
 }
 
 /* 中央分数+计时区 */
@@ -326,19 +393,19 @@ body { padding-bottom: 150px !important; }
   margin-bottom: 4px;
 }
 .bb-score-num {
-  font-size: 38px; font-weight: 900; line-height: 1;
+  font-size: 36px; font-weight: 900; line-height: 1;
   font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
   letter-spacing: 1px;
 }
 .bb-score-num.a { color: #fca5a5; text-shadow: 0 0 18px rgba(220,38,38,.6); }
 .bb-score-num.b { color: #93c5fd; text-shadow: 0 0 18px rgba(37,99,235,.6); }
-.bb-score-sep { color: rgba(255,255,255,.4); font-size: 20px; font-weight: 700; }
+.bb-score-sep { color: rgba(255,255,255,.4); font-size: 18px; font-weight: 700; }
 .bb-pick-label {
   font-size: 10px; color: rgba(255,255,255,.5);
   letter-spacing: 3px; font-weight: 700;
 }
 .bb-timer {
-  font-size: 32px; font-weight: 900; line-height: 1;
+  font-size: 30px; font-weight: 900; line-height: 1;
   color: #fcd34d;
   font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
   letter-spacing: 1px; margin-top: 2px;
@@ -350,32 +417,54 @@ body { padding-bottom: 150px !important; }
 }
 @keyframes bbTimerDanger {
   0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.08); }
+  50%      { transform: scale(1.1); }
 }
 .bb-phase {
   font-size: 10px; color: rgba(255,255,255,.55);
   margin-top: 3px; letter-spacing: 2px; font-weight: 700;
 }
 
-/* 隐藏原有的散落的 picks 元素（移到底栏后不再需要） */
-.side.a-side .pick-slot, .side.b-side .pick-slot,
-.side.a-side .side-label, .side.b-side .side-label,
-.side.a-side .score-total, .side.b-side .score-total {
-  display: none !important;
+/* 中央动作按钮区 */
+.bb-action-area {
+  position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(30,10,74,.92); backdrop-filter: blur(8px);
+  padding: 5px 10px; border-radius: 20px;
+  border: 1.5px solid rgba(167,139,250,.6);
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  white-space: nowrap;
 }
-.side.a-side .sec-label, .side.b-side .sec-label {
-  font-size: 10px; margin-top: 2px;
+.bb-action-btn {
+  font-family: inherit; cursor: pointer; font-size: 12px; font-weight: 900;
+  padding: 5px 14px; border-radius: 16px; border: none;
+  transition: all .15s;
 }
-/* 顶部 scoreboard 也隐藏（信息合并到底栏） */
-.scoreboard { display: none !important; }
+.bb-action-btn.ready {
+  background: linear-gradient(135deg, #16a34a, #22c55e); color: white;
+  box-shadow: 0 2px 8px rgba(34,197,94,.5);
+}
+.bb-action-btn.ready:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(34,197,94,.7); }
+.bb-action-btn.swap {
+  background: linear-gradient(135deg, #d97706, #f59e0b); color: white;
+  box-shadow: 0 2px 8px rgba(245,158,11,.5);
+  animation: swapPulse 1.8s ease-in-out infinite;
+}
+.bb-action-btn.swap:hover { transform: scale(1.05); }
+.bb-action-badge {
+  font-size: 11px; color: #86efac; font-weight: 900;
+  background: rgba(34,197,94,.15); padding: 4px 12px;
+  border-radius: 16px; border: 1px solid rgba(134,239,172,.5);
+}
 
 @media (max-width: 800px) {
-  .broadcast-bar { grid-template-columns: 1fr 200px 1fr; height: 130px; padding: 6px 10px 4px; }
-  .bb-pick { width: 60px; height: 84px; }
-  .bb-team-name { font-size: 13px; }
-  .bb-score-num { font-size: 30px; }
-  .bb-timer { font-size: 26px; }
-  body { padding-bottom: 138px !important; }
+  .broadcast-bar { grid-template-columns: 1fr 200px 1fr; height: 148px; padding: 6px 10px 4px; }
+  .bb-pick { width: 82px; height: 112px; }
+  .bb-history-float { width: 44px; }
+  .bb-history-item { width: 32px; height: 32px; }
+  .bb-team-name { font-size: 15px; }
+  .bb-score-num { font-size: 28px; }
+  .bb-timer { font-size: 24px; }
+  body { padding-bottom: 156px !important; }
 }
 .sb-team{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1)}
 .sb-team.a{border-radius:10px 0 0 10px;border-right:none}
@@ -1892,6 +1981,11 @@ function selectHero(name, type, score) {
     sel = { name, type, score };
     document.getElementById('pickBtn').disabled = false;
     renderGrid();
+    // 广播预览给所有人
+    if (refDb && (myRole === 'a' || myRole === 'b')) {
+      refDb.update({ previewPick: { name, type, score, ts: Date.now() } });
+    }
+    if (typeof renderBroadcastBar === 'function') renderBroadcastBar();
     // 本地播放点击音效，不广播
     const clickSfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%82%B9%E5%87%BB%E4%BA%BA%E7%89%A91.mp3');
     clickSfx.volume = sfxVolume;
@@ -1923,6 +2017,7 @@ function doPick(h) {
   const update = { aPicks: na, bPicks: nb, aUsed: au, bUsed: bu, step: ns,
     stepStartTs: isVideoHero ? 0 : firebase.database.ServerValue.TIMESTAMP,
     mainUsed: gs.mainUsed || 0,
+    previewPick: null,
     ...(isVideoHero ? { paused: true } : { mainUsed: 0 })
   };
   if (curTeam === 'a') update.bankA = Math.max(0, gs.bankA - overflowedBank); else update.bankB = Math.max(0, gs.bankB - overflowedBank);
@@ -3222,11 +3317,11 @@ function renderBroadcastBar() {
   const bbBudgetB = document.getElementById('bbBudgetB');
   if (bbBudgetA) {
     bbBudgetA.textContent = `${gs.aUsed||0} / ${aLim}`;
-    bbBudgetA.style.color = (gs.aUsed||0) > aLim ? '#f87171' : '#fcd34d';
+    bbBudgetA.className = 'bb-team-budget' + ((gs.aUsed||0) > aLim ? ' over' : '');
   }
   if (bbBudgetB) {
     bbBudgetB.textContent = `${gs.bUsed||0} / ${bLim}`;
-    bbBudgetB.style.color = (gs.bUsed||0) > bLim ? '#f87171' : '#fcd34d';
+    bbBudgetB.className = 'bb-team-budget' + ((gs.bUsed||0) > bLim ? ' over' : '');
   }
 
   // 总比分
@@ -3257,10 +3352,23 @@ function renderBroadcastBar() {
           <div class="bb-pick-name">${h.name}</div>
         </div>`;
       } else {
+        // 选人预览闪烁：仅在当前位置显示自己刚点击的虚影
+        let previewHtml = '';
+        // 选人预览（所有人都能看到）：用 Firebase 广播的 previewPick
+        const previewData = gs.previewPick;
+        const isStale = !previewData || (Date.now() - (previewData.ts||0)) > 60000;
+        if (isCurrent && previewData && !isStale) {
+          const pImg = HERO_IMG[previewData.name];
+          previewHtml = `<div class="bb-preview-ghost">
+            ${pImg ? `<img src="${pImg}">` : `<span style="font-size:40px;opacity:0.55">${TI[previewData.type]||'?'}</span>`}
+          </div>`;
+        }
         html += `<div class="bb-pick empty${isCurrent?' current':''}">
-          ${isCurrent ? '<span class="bb-pick-step">●</span>' : ''}
-          <div class="bb-pick-portrait"><span class="bb-pick-empty-num">${i+1}</span></div>
-          <div class="bb-pick-name">${isCurrent ? '选择中...' : '等待'}</div>
+          <div class="bb-pick-portrait">
+            <span class="bb-pick-empty-num">${i+1}</span>
+            ${previewHtml}
+          </div>
+          <div class="bb-pick-name">${isCurrent ? ((previewData && !isStale) ? previewData.name : '选择中...') : '等待'}</div>
         </div>`;
       }
     }
@@ -3280,6 +3388,60 @@ function renderBroadcastBar() {
     else if (gs.pendingRound) bbPhase.textContent = `第 ${gs.pendingRound} 轮 · 准备中`;
     else if (gs.active) bbPhase.textContent = `第 ${gs.roundNum||1} 轮 · ${curStep+1}/10`;
     else bbPhase.textContent = '等待开始';
+  }
+
+  // === 浮动历史栏：A队和B队历轮已选 ===
+  const buildHistoryHtml = (team) => {
+    const allRounds = gs.allRounds || [];
+    const histHeroes = [];
+    allRounds.forEach(r => {
+      const picks = team === 'a' ? (r.aPicks || []) : (r.bPicks || []);
+      picks.forEach(h => histHeroes.push(h));
+    });
+    if (histHeroes.length === 0) return '';
+    return histHeroes.map(h => {
+      const imgUrl = HERO_IMG[h.name];
+      return `<div class="bb-history-item" title="${h.name}(${h.score}分)">
+        ${imgUrl ? `<img src="${imgUrl}" onerror="this.parentNode.innerHTML='<span style=&quot;color:white;font-size:16px;display:flex;align-items:center;justify-content:center;height:100%&quot;>${TI[h.type]}</span>'">` : `<span style="color:white;font-size:16px;display:flex;align-items:center;justify-content:center;height:100%">${TI[h.type]}</span>`}
+        <span class="hist-score">${h.score}</span>
+      </div>`;
+    }).join('');
+  };
+
+  const histListA = document.getElementById('bbHistoryListA');
+  const histListB = document.getElementById('bbHistoryListB');
+  const histFloatA = document.getElementById('bbHistoryFloatA');
+  const histFloatB = document.getElementById('bbHistoryFloatB');
+  const aHistHtml = buildHistoryHtml('a');
+  const bHistHtml = buildHistoryHtml('b');
+  if (histListA) histListA.innerHTML = aHistHtml;
+  if (histListB) histListB.innerHTML = bHistHtml;
+  // 没有历史时整个浮动栏隐藏，避免显示"无历史"占位
+  if (histFloatA) histFloatA.style.display = aHistHtml ? 'flex' : 'none';
+  if (histFloatB) histFloatB.style.display = bHistHtml ? 'flex' : 'none';
+
+  // === 准备/败方选边按钮（叠加在中央上方） ===
+  const actionArea = document.getElementById('bbActionArea');
+  if (actionArea) {
+    let actionHtml = '';
+    if (myRole === 'a' || myRole === 'b') {
+      const myReady = myRole === 'a' ? gs.readyA : gs.readyB;
+      const showReady = !myReady && !gs.active && !gs.pendingRound && !gs.ended;
+      const showSwap = gs.swapPickLoser === myRole && !gs.swapPicked && !gs.active && !gs.pendingRound && !gs.ended;
+      const showBadge = myReady && !gs.active && !gs.pendingRound;
+
+      if (showReady) {
+        actionHtml += `<button class="bb-action-btn ready" onclick="confirmReady('${myRole}')">✓ 确认准备</button>`;
+      }
+      if (showSwap) {
+        actionHtml += `<button class="bb-action-btn swap" onclick="loserSwap()">🔄 败方选边</button>`;
+      }
+      if (showBadge && !showSwap) {
+        actionHtml += `<span class="bb-action-badge">✓ 已就绪，等待对方</span>`;
+      }
+    }
+    actionArea.innerHTML = actionHtml;
+    actionArea.style.display = actionHtml ? 'flex' : 'none';
   }
 }
 
@@ -4192,7 +4354,7 @@ function autoReconnect() {
 <audio id="bgm" preload="auto"></audio>
 
 <!-- 右下角音乐控制面板 -->
-<div id="bgmPanel" style="position:fixed;bottom:18px;right:18px;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+<div id="bgmPanel" style="position:fixed;top:18px;left:18px;z-index:999;display:flex;flex-direction:column;align-items:flex-start;gap:6px">
   <div id="bgmControls" style="display:none;background:rgba(15,5,40,.95);border:1px solid rgba(167,139,250,.3);border-radius:12px;padding:14px;backdrop-filter:blur(8px);width:220px">
     <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-align:center;letter-spacing:1px">🎵 背景音乐</div>
 
@@ -5244,6 +5406,16 @@ function toggleBgmPanel() {
   <video id="heroVideo" src="" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 60px rgba(255,180,220,.4);transition:opacity 0.3s ease" playsinline></video>
 </div>
 
+<!-- 浮动历史栏：左上 + 右上 -->
+<div id="bbHistoryFloatA" class="bb-history-float a-side" style="display:none">
+  <div class="bb-history-float-title">A队<br>已用</div>
+  <div id="bbHistoryListA"></div>
+</div>
+<div id="bbHistoryFloatB" class="bb-history-float b-side" style="display:none">
+  <div class="bb-history-float-title">B队<br>已用</div>
+  <div id="bbHistoryListB"></div>
+</div>
+
 <!-- 电竞观赛风底栏 -->
 <div id="broadcastBar" class="broadcast-bar">
   <!-- A 队（左） -->
@@ -5256,8 +5428,9 @@ function toggleBgmPanel() {
     <div class="bb-picks" id="bbPicksA"></div>
   </div>
 
-  <!-- 中央：得分 + 计时器 -->
+  <!-- 中央：得分 + 计时器 + 准备/选边按钮 -->
   <div class="bb-center">
+    <div id="bbActionArea" class="bb-action-area" style="display:none"></div>
     <div class="bb-score-row">
       <span class="bb-score-num a" id="bbScoreA">0</span>
       <span class="bb-score-sep">VS</span>
@@ -5271,9 +5444,9 @@ function toggleBgmPanel() {
   <!-- B 队（右） -->
   <div class="bb-team b">
     <div class="bb-team-header">
-      <span class="bb-team-budget" id="bbBudgetB">0/50</span>
-      <span class="bb-team-role" id="bbRoleB">—</span>
       <span class="bb-team-name" id="bbNameB">B队</span>
+      <span class="bb-team-role" id="bbRoleB">—</span>
+      <span class="bb-team-budget" id="bbBudgetB">0/50</span>
     </div>
     <div class="bb-picks" id="bbPicksB"></div>
   </div>
