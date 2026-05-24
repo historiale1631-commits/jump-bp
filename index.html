@@ -216,8 +216,9 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 }
 body { padding-bottom: 178px !important; }
 
-/* 两侧浮动历史栏（顶部左右） */
-.bb-history-float {
+/* 两侧浮动历史栏（已废弃-隐藏） */
+.bb-history-float { display: none !important; }
+.bb-history-float-old {
   position: fixed; top: 80px;
   width: 56px;
   background: linear-gradient(180deg, rgba(15,5,40,.85), rgba(0,0,0,.9));
@@ -261,6 +262,104 @@ body { padding-bottom: 178px !important; }
 .bb-history-empty {
   font-size: 9px; color: rgba(255,255,255,.4);
   text-align: center; padding: 8px 2px; font-weight: 700;
+}
+
+/* ===== 侧栏内的轮次头像（嵌入到「本轮已选」「历轮记录」） ===== */
+.side-round-block {
+  margin-bottom: 6px;
+  padding: 4px 3px;
+  background: rgba(255,255,255,.03);
+  border-radius: 6px;
+  border-left: 2px solid rgba(167,139,250,.4);
+}
+.side-round-title {
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 3px; display: flex;
+  align-items: center; gap: 4px;
+  letter-spacing: 0.5px;
+}
+.side-round-title .win-badge {
+  font-size: 8px; padding: 0 4px;
+  border-radius: 6px; font-weight: 900;
+  margin-left: auto;
+}
+.side-round-title .win-badge.win { background: rgba(74,222,128,.25); color: #86efac; border: 1px solid rgba(74,222,128,.4); }
+.side-round-title .win-badge.lose { background: rgba(248,113,113,.25); color: #fca5a5; border: 1px solid rgba(248,113,113,.4); }
+.side-round-title .win-badge.draw { background: rgba(156,163,175,.25); color: #d1d5db; border: 1px solid rgba(156,163,175,.4); }
+.side-round-avatars {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 3px; padding: 1px;
+}
+.side-mini-avatar {
+  position: relative;
+  aspect-ratio: 1; width: 100%;
+  border-radius: 50%; overflow: hidden;
+  background: #1e0a4a;
+  border: 1.5px solid rgba(255,255,255,.18);
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.side-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.side-mini-avatar .mini-emoji {
+  width: 100%; height: 100%; display: flex;
+  align-items: center; justify-content: center;
+  color: white; font-size: 12px;
+}
+.side-mini-avatar .mini-score {
+  position: absolute; bottom: -2px; right: -2px;
+  background: #fcd34d; color: #1f2937;
+  font-size: 7px; font-weight: 900;
+  padding: 0 2px; border-radius: 4px;
+  line-height: 9px; border: 1px solid #1e0a4a;
+}
+.side-mini-empty {
+  aspect-ratio: 1; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  border: 1.5px dashed rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.2); font-size: 10px;
+}
+
+/* ===== 本轮已选 - 竖向列表（头像+名字） ===== */
+.side-cur-list {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.side-cur-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 5px; border-radius: 7px;
+  background: rgba(255,255,255,.04);
+  border-left: 2px solid rgba(167,139,250,.4);
+  transition: all 0.15s;
+}
+.side-cur-row.filled {
+  background: rgba(167,139,250,.1);
+  border-left-color: rgba(167,139,250,.7);
+}
+.side-cur-row .cur-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  overflow: hidden; flex-shrink: 0;
+  background: #1e0a4a;
+  border: 1.5px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.side-cur-row .cur-av img { width: 100%; height: 100%; object-fit: cover; }
+.side-cur-row .cur-av .av-emoji { color: white; font-size: 13px; }
+.side-cur-row.empty .cur-av {
+  background: rgba(255,255,255,.04);
+  border: 1.5px dashed rgba(255,255,255,.18);
+  color: rgba(255,255,255,.35);
+  font-size: 12px; font-weight: 700;
+}
+.side-cur-row .cur-name {
+  flex: 1;
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.92);
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-cur-row.empty .cur-name {
+  color: rgba(255,255,255,.3);
+  font-weight: 400; font-style: italic;
 }
 
 /* 队伍头部（居中 + 字体放大） */
@@ -315,12 +414,12 @@ body { padding-bottom: 178px !important; }
 .bb-pick.current {
   animation: bbCurrentPulse 1.4s ease-in-out infinite;
   border-color: #a78bfa !important;
-  background: rgba(167,139,250,.18) !important;
-  box-shadow: 0 0 22px rgba(167,139,250,.6), inset 0 0 14px rgba(167,139,250,.18);
+  background: rgba(167,139,250,.12) !important;
+  box-shadow: 0 0 18px rgba(167,139,250,.55);
 }
 @keyframes bbCurrentPulse {
-  0%, 100% { box-shadow: 0 0 18px rgba(167,139,250,.45), inset 0 0 10px rgba(167,139,250,.12); }
-  50%      { box-shadow: 0 0 32px rgba(167,139,250,.85), inset 0 0 18px rgba(167,139,250,.25); }
+  0%, 100% { box-shadow: 0 0 16px rgba(167,139,250,.5); }
+  50%      { box-shadow: 0 0 22px rgba(167,139,250,.7); }
 }
 .bb-pick-portrait {
   flex: 1; overflow: hidden;
@@ -364,7 +463,7 @@ body { padding-bottom: 178px !important; }
 }
 .bb-preview-ghost img {
   width: 100%; height: 100%; object-fit: cover;
-  opacity: 0.55; filter: brightness(1.2) saturate(1.1);
+  opacity: 0.95; filter: brightness(1.15) saturate(1.15) contrast(1.05);
 }
 .bb-preview-ghost .preview-label {
   position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
@@ -375,7 +474,7 @@ body { padding-bottom: 178px !important; }
   border: 1px solid rgba(255,255,255,.4);
 }
 @keyframes bbPreviewBlink {
-  0%, 100% { opacity: 0.4; }
+  0%, 100% { opacity: 0.78; }
   50%      { opacity: 1; }
 }
 
@@ -1086,11 +1185,13 @@ body { padding-bottom: 178px !important; }
     <div class="side-label a" id="aLabel">A队</div>
     <div class="score-total a" id="aScore">已用 0 / 50 分</div>
     <div class="sec-label">— 本轮已选 —</div>
-    <div class="pick-slot" id="aSlot1"><div class="av" style="background:rgba(220,50,50,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="aSlot2"><div class="av" style="background:rgba(220,50,50,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="aSlot3"><div class="av" style="background:rgba(220,50,50,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="aSlot4"><div class="av" style="background:rgba(220,50,50,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="aSlot5"><div class="av" style="background:rgba(220,50,50,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div id="aCurAvatars" class="side-cur-list" style="margin-bottom:6px"></div>
+    <!-- 保留隐藏的 slots 给老逻辑用 -->
+    <div class="pick-slot" id="aSlot1" style="display:none"><div class="av">1</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="aSlot2" style="display:none"><div class="av">2</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="aSlot3" style="display:none"><div class="av">3</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="aSlot4" style="display:none"><div class="av">4</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="aSlot5" style="display:none"><div class="av">5</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
     <div class="round-history"><div class="sec-label">— 历轮记录 —</div><div id="histA"></div></div>
   </div>
 
@@ -1139,11 +1240,13 @@ body { padding-bottom: 178px !important; }
     <div class="side-label b" id="bLabel">B队</div>
     <div class="score-total b" id="bScore">已用 0 / 50 分</div>
     <div class="sec-label">— 本轮已选 —</div>
-    <div class="pick-slot" id="bSlot1"><div class="av" style="background:rgba(50,100,220,.3)">1</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="bSlot2"><div class="av" style="background:rgba(50,100,220,.3)">2</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="bSlot3"><div class="av" style="background:rgba(50,100,220,.3)">3</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="bSlot4"><div class="av" style="background:rgba(50,100,220,.3)">4</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
-    <div class="pick-slot" id="bSlot5"><div class="av" style="background:rgba(50,100,220,.3)">5</div><div class="info"><div class="pname">等待选人</div><div class="pscore">—</div></div></div>
+    <div id="bCurAvatars" class="side-cur-list" style="margin-bottom:6px"></div>
+    <!-- 保留隐藏的 slots 给老逻辑用 -->
+    <div class="pick-slot" id="bSlot1" style="display:none"><div class="av">1</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="bSlot2" style="display:none"><div class="av">2</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="bSlot3" style="display:none"><div class="av">3</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="bSlot4" style="display:none"><div class="av">4</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
+    <div class="pick-slot" id="bSlot5" style="display:none"><div class="av">5</div><div class="info"><div class="pname"></div><div class="pscore"></div></div></div>
     <div class="round-history"><div class="sec-label">— 历轮记录 —</div><div id="histB"></div></div>
   </div>
 </div>
@@ -3548,18 +3651,83 @@ function syncUI() {
   }
 
   const allR = gs.allRounds || [];
-  const buildHist = team => allR.map(r=>{
-    const picks=team==='a'?r.aPicks:r.bPicks;
-    if(!picks||!picks.length) return '';
-    const side = (r.sundayTeamAtRound === team) ? 'Sunday方' : 'JUMP方';
+
+  // 渲染单个圆形头像
+  const renderAvatar = (h) => {
+    const imgUrl = HERO_IMG[h.name];
+    return `<div class="side-mini-avatar" title="${h.name} (${h.score}分)">
+      ${imgUrl ? `<img src="${imgUrl}" onerror="this.parentNode.innerHTML='<div class=&quot;mini-emoji&quot;>${TI[h.type]}</div><span class=&quot;mini-score&quot;>${h.score}</span>'">` : `<div class="mini-emoji">${TI[h.type]}</div>`}
+      <span class="mini-score">${h.score}</span>
+    </div>`;
+  };
+  const renderEmptySlot = (n) => `<div class="side-mini-empty">${n}</div>`;
+
+  // 渲染本轮 5 个位置（竖向，头像+名字，不显示分数）
+  const renderCurRound = team => {
+    const picks = team === 'a' ? (gs.aPicks||[]) : (gs.bPicks||[]);
+    let html = '';
+    for (let i = 0; i < 5; i++) {
+      const h = picks[i];
+      if (h) {
+        const imgUrl = HERO_IMG[h.name];
+        const avInner = imgUrl
+          ? `<img src="${imgUrl}" onerror="this.parentNode.innerHTML='<span class=&quot;av-emoji&quot;>${TI[h.type]}</span>'">`
+          : `<span class="av-emoji">${TI[h.type]}</span>`;
+        html += `<div class="side-cur-row filled">
+          <div class="cur-av">${avInner}</div>
+          <div class="cur-name">${h.name}</div>
+        </div>`;
+      } else {
+        html += `<div class="side-cur-row empty">
+          <div class="cur-av">${i+1}</div>
+          <div class="cur-name">等待选择</div>
+        </div>`;
+      }
+    }
+    return html;
+  };
+  const aCur = document.getElementById('aCurAvatars');
+  const bCur = document.getElementById('bCurAvatars');
+  if (aCur) aCur.innerHTML = renderCurRound('a');
+  if (bCur) bCur.innerHTML = renderCurRound('b');
+
+  // 历轮记录：每轮 5 行竖向（头像+名字，无分数）
+  const buildHist = team => allR.map(r => {
+    const picks = team === 'a' ? r.aPicks : r.bPicks;
+    if (!picks || !picks.length) return '';
+    const side = (r.sundayTeamAtRound === team) ? '☀️' : '⚡';
     let winBadge = '';
     if (r.winner) {
-      if (r.winner === 'draw') winBadge = '<span class="win-badge draw">平局</span>';
+      if (r.winner === 'draw') winBadge = '<span class="win-badge draw">平</span>';
       else if (r.winner === team) winBadge = '<span class="win-badge win">胜</span>';
       else winBadge = '<span class="win-badge lose">负</span>';
     }
-    return `<div class="round-block"><div class="round-block-title">第${r.roundNum}轮 · ${side}${winBadge}</div>${picks.map(h=>`<div class="history-item">${TI[h.type]}${h.name} <span style="color:rgba(255,255,255,.35)">${h.score}分</span></div>`).join('')}</div>`;
+    // 渲染每行
+    let rowsHtml = '';
+    for (let i = 0; i < 5; i++) {
+      const h = picks[i];
+      if (h) {
+        const imgUrl = HERO_IMG[h.name];
+        const avInner = imgUrl
+          ? `<img src="${imgUrl}" onerror="this.parentNode.innerHTML='<span class=&quot;av-emoji&quot;>${TI[h.type]}</span>'">`
+          : `<span class="av-emoji">${TI[h.type]}</span>`;
+        rowsHtml += `<div class="side-cur-row filled">
+          <div class="cur-av">${avInner}</div>
+          <div class="cur-name">${h.name}</div>
+        </div>`;
+      } else {
+        rowsHtml += `<div class="side-cur-row empty">
+          <div class="cur-av">${i+1}</div>
+          <div class="cur-name">未选</div>
+        </div>`;
+      }
+    }
+    return `<div class="side-round-block">
+      <div class="side-round-title">第${r.roundNum}轮 <span>${side}</span>${winBadge}</div>
+      <div class="side-cur-list">${rowsHtml}</div>
+    </div>`;
   }).join('');
+
   document.getElementById('histA').innerHTML = buildHist('a');
   document.getElementById('histB').innerHTML = buildHist('b');
 
@@ -3852,7 +4020,7 @@ function listenRoom(aName, bName) {
 
   roomListener = refDb.on('value', snap => {
     const data = snap.val(); if (!data) return;
-    gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [] };
+    gs = { ...gs, ...data, aPicks: data.aPicks || [], bPicks: data.bPicks || [], globalPicked: data.globalPicked || [], allRounds: data.allRounds || [], previewPick: data.previewPick || null };
 
     // 加入者（非创建者）第一次收到数据时：注册角色 + 同步队名
     if (!isCreator && !hasRegistered && myRole !== 'ref' && myRole !== 'view') {
