@@ -4901,9 +4901,18 @@ function showVipImage() {
       }
     }, 16);
   }, 8000);
-  // 队列推进回调
+  // 队列推进回调：等待音频播完 + 图片淡出，二者都结束才推进
   const _onDone = arguments[0];
-  if (typeof _onDone === 'function') setTimeout(_onDone, 9000);
+  if (typeof _onDone === 'function') {
+    let _adv = false;
+    const _adv_fn = () => { if (_adv) return; _adv = true; _onDone(); };
+    if (vipEntrySfx) {
+      vipEntrySfx.addEventListener('ended', _adv_fn, { once: true });
+      vipEntrySfx.addEventListener('error', _adv_fn, { once: true });
+    }
+    // 30秒安全兜底
+    setTimeout(_adv_fn, 30000);
+  }
 }
 
 function showLslgImage(onDone) {
@@ -4938,6 +4947,11 @@ function showLslgImage(onDone) {
     if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; }
     lslgEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3');
     lslgEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+    // 监听音频结束推进队列
+    if (typeof onDone === 'function') {
+      lslgEntrySfx.addEventListener('ended', _lslgAdvance, { once: true });
+      lslgEntrySfx.addEventListener('error', _lslgAdvance, { once: true });
+    }
     lslgEntrySfx.play().catch(() => {});
 
     // 启动动画（动画的 0% 帧 opacity:0，所以清掉 inline opacity 也不会闪）
@@ -5001,8 +5015,13 @@ function showLslgImage(onDone) {
       }
     }, 16);
   }, 8000);
-  // 队列推进回调
-  if (typeof onDone === 'function') setTimeout(onDone, 9000);
+  // 队列推进回调：等音频 ended（在 startEntry 里挂监听）+ 30秒安全兜底
+  let _lslgAdv = false;
+  function _lslgAdvance() {
+    if (_lslgAdv) return; _lslgAdv = true;
+    if (typeof onDone === 'function') onDone();
+  }
+  setTimeout(_lslgAdvance, 30000);
 }
 
 function showHtzszsImage(onDone) {
@@ -5040,6 +5059,11 @@ function showHtzszsImage(onDone) {
     if (htzszsEntrySfx) { htzszsEntrySfx.pause(); htzszsEntrySfx.currentTime = 0; }
     htzszsEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/1111.mp3');
     htzszsEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+    // 监听音频结束推进队列
+    if (typeof onDone === 'function') {
+      htzszsEntrySfx.addEventListener('ended', _htzszsAdvance, { once: true });
+      htzszsEntrySfx.addEventListener('error', _htzszsAdvance, { once: true });
+    }
     htzszsEntrySfx.play().catch(() => {});
 
     // 启动动画
@@ -5103,8 +5127,13 @@ function showHtzszsImage(onDone) {
       }
     }, 16);
   }, 8000);
-  // 队列推进回调
-  if (typeof onDone === 'function') setTimeout(onDone, 9000);
+  // 队列推进回调：等音频 ended（在 startEntry 里挂监听）+ 30秒安全兜底
+  let _htzszsAdv = false;
+  function _htzszsAdvance() {
+    if (_htzszsAdv) return; _htzszsAdv = true;
+    if (typeof onDone === 'function') onDone();
+  }
+  setTimeout(_htzszsAdvance, 30000);
 }
 
 
