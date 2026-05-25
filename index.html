@@ -60,6 +60,7 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .team-name-jnldx{background:linear-gradient(90deg,#22d3ee 0%,#38bdf8 35%,#3b82f6 70%,#6366f1 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(56,189,248,.5);filter:drop-shadow(0 0 6px rgba(56,189,248,.4))}
 .team-name-mwjs{background:linear-gradient(90deg,#fde047 0%,#fbbf24 30%,#f97316 60%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(249,115,22,.5);filter:drop-shadow(0 0 6px rgba(220,38,38,.5))}
 .team-name-lslg{background:linear-gradient(90deg,#fef9c3 0%,#fde047 25%,#facc15 50%,#eab308 75%,#ca8a04 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(250,204,21,.6);filter:drop-shadow(0 0 8px rgba(234,179,8,.5)) drop-shadow(0 0 14px rgba(250,204,21,.3))}
+.team-name-htzszs{background:linear-gradient(90deg,#a855f7 0%,#8b5cf6 25%,#6366f1 50%,#06b6d4 75%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(139,92,246,.5);filter:drop-shadow(0 0 6px rgba(168,85,247,.4)) drop-shadow(0 0 12px rgba(34,211,238,.35))}
 @keyframes readyPulse{0%,100%{box-shadow:0 0 0 0 rgba(134,239,172,.5)}50%{box-shadow:0 0 8px 2px rgba(134,239,172,.7)}}
 .score-total{text-align:center;font-size:12px;font-weight:700;padding:4px;border-radius:5px;margin-bottom:4px}
 .score-total.a{background:rgba(220,50,50,.2);color:#fca5a5;border:1px solid rgba(220,50,50,.3)}
@@ -941,6 +942,8 @@ body { padding-bottom: 178px !important; }
 <link rel="preload" as="audio" href="https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91%E5%B4%8E%E4%B8%80%E6%8A%A4%EF%BC%88pf%EF%BC%89-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
 <link rel="preload" as="audio" href="https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%BB%91Saber-%E9%80%89%E6%8B%A9%E8%AF%AD%E9%9F%B3.mp3">
 <link rel="preload" as="audio" href="https://testingcf.jsdelivr.net/gh/historiale1631-commits/xitongyinxiao@main/%E7%89%A2%E9%83%91%E5%87%BA%E5%9C%BA.mp3">
+<link rel="preload" as="audio" href="https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/1111.mp3">
+<link rel="preload" as="image" href="https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/%E3%81%88%E3%81%A9%E3%81%A6%E3%82%93%E3%81%9B%E3%81%84.png">
 </head>
 <body>
 <div class="overlay" id="setupOv" style="background:rgba(0,0,0,.45)!important">
@@ -1321,6 +1324,7 @@ function styleName(n) {
   if (n === '就虐老东西') return '<span class="team-name-jnldx">' + n + '</span>';
   if (n === '魔丸降世') return '<span class="team-name-mwjs">' + n + '</span>';
   if (n === '杯比我去吧就爱上雷神') return '<span class="team-name-lslg">' + n + '</span>';
+  if (n === 'えどてんせい') return '<span class="team-name-htzszs">' + n + '</span>';
   return n;
 }
 // ── 修复2：用变量追踪 listener，方便清理 ──
@@ -1410,10 +1414,13 @@ let lastAnnouncTs = 0;
 let lastVipImgTs = 0;
 let lastMwjsSfxTs = 0;
 let lastLslgEntryTs = 0;
+let lastHtzszsEntryTs = 0;
 // VIP码状态（模块级，供 confirmReady 使用）
 let _isVipEntry = false;
 let _isMwjsEntry = false;
 let _isLslgEntry = false;
+let _isHtzszsEntry = false;
+let htzszsEntrySfx = null;
 let _vipTeamName = '';
 
 function openAnnounce() {
@@ -1807,6 +1814,7 @@ function confirmReady(team) {
     if (_isVipEntry) update.vipImgTs = ts;
     if (_isMwjsEntry) update.mwjsSfxTs = ts;
     if (_isLslgEntry) update.lslgEntryTs = ts;
+    if (_isHtzszsEntry) update.htzszsEntryTs = ts;
     try { sessionStorage.setItem(_voicePlayedKey(), '1'); } catch(e){}
   }
   refDb.update(update);
@@ -3899,6 +3907,7 @@ async function startMatch() {
       _isVipEntry = (result.vipTeamName === VIP_TEAM_NAME);
       _isMwjsEntry = (result.vipTeamName === '魔丸降世');
       _isLslgEntry = (result.vipTeamName === '杯比我去吧就爱上雷神');
+      _isHtzszsEntry = (result.vipTeamName === 'えどてんせい');
       _vipTeamName = result.vipTeamName || VIP_TEAM_NAME;
       // VIP码：自动填入专属队伍名，不需要手动输入
       const nameInp = document.getElementById(myRole === 'a' ? 'inpA' : 'inpB');
@@ -4086,6 +4095,11 @@ function listenRoom(aName, bName) {
       lastLslgEntryTs = data.lslgEntryTs;
       enqueueVipEntry((onDone) => showLslgImage(onDone));
     }
+    // HTZSZS专属入场图片+语音（えどてんせい）
+    if (data.htzszsEntryTs && data.htzszsEntryTs !== lastHtzszsEntryTs && (Date.now() - data.htzszsEntryTs) < 30000) {
+      lastHtzszsEntryTs = data.htzszsEntryTs;
+      enqueueVipEntry((onDone) => showHtzszsImage(onDone));
+    }
     // 裁判公告
     if (data.announceTs && data.announceTs !== lastAnnouncTs && (Date.now() - data.announceTs) < 30000) {
       lastAnnouncTs = data.announceTs;
@@ -4115,6 +4129,7 @@ function listenRoom(aName, bName) {
       if (vipEntrySfx) { vipEntrySfx.pause(); vipEntrySfx.currentTime = 0; vipEntrySfx = null; }
       if (mwjsEntrySfx) { mwjsEntrySfx.pause(); mwjsEntrySfx.currentTime = 0; mwjsEntrySfx = null; }
       if (lslgEntrySfx) { lslgEntrySfx.pause(); lslgEntrySfx.currentTime = 0; lslgEntrySfx = null; }
+      if (htzszsEntrySfx) { htzszsEntrySfx.pause(); htzszsEntrySfx.currentTime = 0; htzszsEntrySfx = null; }
       _vipEntryQueue = []; _vipEntryPlaying = false;
       const bgm = document.getElementById('bgm');
       if (bgm && bgm.paused && bgmPlaying) bgm.play().catch(() => {});
@@ -4338,6 +4353,7 @@ const VIP_CODE_MAP = {
   'MWJS': '魔丸降世',
   'JNLDX': '就虐老东西',
   'LSLG': '杯比我去吧就爱上雷神',
+  'HTZSZ': 'えどてんせい',
 };
 
 async function verifyAuthCode(code) {
@@ -4989,6 +5005,109 @@ function showLslgImage(onDone) {
   if (typeof onDone === 'function') setTimeout(onDone, 9000);
 }
 
+function showHtzszsImage(onDone) {
+  const ov = document.getElementById('vipImgOv');
+  const img = document.getElementById('vipImg');
+  if (!ov || !img) { if (typeof onDone === 'function') onDone(); return; }
+
+  // 暂停BGM
+  const bgm = document.getElementById('bgm');
+  if (bgm && !bgm.paused) bgm.pause();
+
+  // 隐藏overlay，避免显示旧图的第一帧
+  ov.style.display = 'none';
+  ov.style.opacity = '0';
+
+  // 设置文字（紫青渐变 - 通过 class 应用）
+  const vText = document.getElementById('vipImgText');
+  if (vText) {
+    vText.innerHTML = '<span class="team-name-htzszs">✨ えどてんせい ✨</span>';
+    vText.style.color = '';
+  }
+
+  const NEW_SRC = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/%E3%81%88%E3%81%A9%E3%81%A6%E3%82%93%E3%81%9B%E3%81%84.png';
+
+  // 先把图片设为不可见 + 切换 src，等加载完成后再显示
+  img.style.opacity = '0';
+  img.style.animation = 'none';
+
+  let _started = false;
+  const startEntry = () => {
+    if (_started) return;
+    _started = true;
+
+    // 播放语音
+    if (htzszsEntrySfx) { htzszsEntrySfx.pause(); htzszsEntrySfx.currentTime = 0; }
+    htzszsEntrySfx = new Audio('https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/1111.mp3');
+    htzszsEntrySfx.volume = Math.min(sfxVolume * 1.2, 1);
+    htzszsEntrySfx.play().catch(() => {});
+
+    // 启动动画
+    img.offsetHeight; // reflow
+    img.style.opacity = '';
+    img.style.animation = 'lslgFloat 8s ease-in-out both, lslgGlow 2s ease-in-out infinite';
+
+    // 显示 overlay 并渐入
+    ov.style.display = 'flex';
+    let op = 0;
+    const fadeIn = setInterval(() => {
+      op = Math.min(op + 0.04, 1);
+      ov.style.opacity = op;
+      if (op >= 1) clearInterval(fadeIn);
+    }, 16);
+  };
+
+  // 监听 load 事件
+  const onLoadHandler = () => { img.removeEventListener('load', onLoadHandler); img.removeEventListener('error', onLoadHandler); startEntry(); };
+  img.addEventListener('load', onLoadHandler);
+  img.addEventListener('error', onLoadHandler);
+  setTimeout(startEntry, 1500); // 兜底：1.5秒后强制开始
+
+  img.src = NEW_SRC;
+
+  // 如果浏览器已缓存（预加载过），直接触发
+  if (img.complete && img.naturalWidth > 0) {
+    requestAnimationFrame(startEntry);
+  }
+
+  // 紫青色粒子
+  const pCont = document.getElementById('vipParticles');
+  if (pCont) {
+    pCont.innerHTML = '';
+    const colors = ['#a855f7','#8b5cf6','#6366f1','#06b6d4','#22d3ee','#67e8f9','#c4b5fd'];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('div');
+      const size = 4 + Math.random() * 10;
+      p.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        left:${5+Math.random()*90}%;bottom:${Math.random()*40}%;
+        animation:vipParticle ${1.3+Math.random()*2}s ease-out ${Math.random()*4}s infinite;
+        opacity:0;
+        box-shadow:0 0 8px currentColor`;
+      pCont.appendChild(p);
+    }
+  }
+
+  // 8秒后渐出
+  setTimeout(() => {
+    let out = 1;
+    const fadeOut = setInterval(() => {
+      out = Math.max(out - 0.025, 0);
+      ov.style.opacity = out;
+      if (out <= 0) {
+        clearInterval(fadeOut);
+        ov.style.display = 'none';
+        if (pCont) pCont.innerHTML = '';
+        // 还原默认 vipImg src 以避免影响 XJMZZ
+        img.src = 'https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/QQ%E5%9B%BE%E7%89%8720260411135744.jpg';
+      }
+    }, 16);
+  }, 8000);
+  // 队列推进回调
+  if (typeof onDone === 'function') setTimeout(onDone, 9000);
+}
+
+
 // ── 流萤专属视频 ──
 let _fireflyVideoPlaying = false;
 window._forceCloseFireflyVideo = null;  // 外部强制关闭句柄
@@ -5186,6 +5305,8 @@ function toggleBgmPanel() {
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/11.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%AD%94%E4%B8%B8.mp3",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/renwuyinxiao@main/%E9%81%9B%E7%8B%97.mp3",
+    "https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/1111.mp3",
+    "https://testingcf.jsdelivr.net/gh/historiale1631-commits/duiwu@main/%E3%81%88%E3%81%A9%E3%81%A6%E3%82%93%E3%81%9B%E3%81%84.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/DLQ%60A0D7NXANT%29H1%29Z%40XXSO.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/Image_1776072357248_66.png",
     "https://testingcf.jsdelivr.net/gh/historiale1631-commits/bizhi@main/21b4b7a8-bb05-4bc9-9ebd-954b754b0f78_0_1776216745503edit.jpg",
