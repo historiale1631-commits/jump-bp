@@ -57,6 +57,27 @@ body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#12082e;c
 .swap-btn{font-size:10px;font-weight:700;display:inline-block;margin-left:6px;background:linear-gradient(135deg,rgba(251,191,36,.25),rgba(245,158,11,.35));border:1px solid rgba(251,191,36,.5);border-radius:20px;padding:2px 10px;color:#fcd34d;cursor:pointer;font-family:inherit;vertical-align:middle;transition:all .15s;animation:swapPulse 1.8s ease-in-out infinite}
 .swap-btn:hover{background:linear-gradient(135deg,rgba(251,191,36,.45),rgba(245,158,11,.55));transform:scale(1.05)}
 @keyframes swapPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.6)}50%{box-shadow:0 0 10px 3px rgba(251,191,36,.7)}}
+/* 渐变队名统一兜底：消除 background-clip:text 漏出的矩形色块 */
+.team-name-jnldx, .team-name-mwjs, .team-name-lslg, .team-name-hmg, .team-name-htzszs {
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  line-height: inherit;
+  vertical-align: baseline;
+  /* 关键：强制背景只作用于文字，避免在 flex / overflow 容器里漏出矩形 */
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+  box-shadow: none !important;
+}
+/* 容器不要裁切，避免阴影/渐变被切成方形边缘 */
+.bb-team-name { overflow: visible !important; }
 .team-name-jnldx{background:linear-gradient(90deg,#22d3ee 0%,#38bdf8 35%,#3b82f6 70%,#6366f1 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(56,189,248,.5);filter:drop-shadow(0 0 6px rgba(56,189,248,.4))}
 .team-name-mwjs{background:linear-gradient(90deg,#7c3aed 0%,#a78bfa 20%,#c4b5fd 40%,#f0abfc 60%,#a5b4fc 80%,#e0e7ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(167,139,250,.55);filter:drop-shadow(0 0 6px rgba(192,132,252,.5)) drop-shadow(0 0 14px rgba(165,180,252,.35))}
 .team-name-lslg{background:linear-gradient(90deg,#fef9c3 0%,#fde047 25%,#facc15 50%,#eab308 75%,#ca8a04 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;text-shadow:0 0 12px rgba(250,204,21,.6);filter:drop-shadow(0 0 8px rgba(234,179,8,.5)) drop-shadow(0 0 14px rgba(250,204,21,.3))}
