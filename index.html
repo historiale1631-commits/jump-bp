@@ -1294,8 +1294,8 @@ const db = firebase.database();
 
 // ── 修复1：裁判码通过 Firebase 存储哈希，不再硬编码在前端 ──
 // 实际部署时请在 Firebase 中写入: db.ref('config/refCodeHash').set(hashStr)
-// 这里保留一个本地哈希备用（SHA-256 of '759315'）
-const REF_CODE_HASH = '612ba68b23db4c6856a0003e9005d54f30bb1edea106ed0e6fc10782fd24d7d9';
+// 这里保留一个本地哈希备用（SHA-256 of '159753'）
+const REF_CODE_HASH = '3d14c2d4e4ced81e459e4ace7c01466a700000fb94a3bbe944a55fb92693e879';
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
